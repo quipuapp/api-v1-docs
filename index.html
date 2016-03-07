@@ -2031,6 +2031,30 @@ but in the responses we will find the details about items in the <code class="pr
           "id": 2682381,
           "attributes": {
             "paid_at": "21-2-2016"
+          },
+          "relationships": {
+            "items": {
+              "data": [{
+                "id": 23424141,
+                "type": "book_entry_items",
+                "attributes": {
+                  "concept": "Tornillos"
+                  "unitary_amount": "0.50",
+                  "quantity": 30,
+                  "vat_percent": 21,
+                  "retention_percent": 0
+                }
+              }, {
+                "type": "book_entry_items",
+                "attributes": {
+                  "concept": "Tuercas"
+                  "unitary_amount": "0.35",
+                  "quantity": 30,
+                  "vat_percent": 21,
+                  "retention_percent": 0
+                }
+              }]
+            }
           }
         }
       }'</span>

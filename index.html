@@ -1110,7 +1110,7 @@ with it.</p>
 </tr>
 <tr>
 <td>numeration</td>
-<td></td>
+<td>Applicable only to invoices with <code class="prettyprint">kind = income</code></td>
 </tr>
 <tr>
 <td>analytic_subcategories</td>
@@ -1708,7 +1708,7 @@ but in the responses we will find the details about items in the <code class="pr
 </tr>
 <tr>
 <td>numeration</td>
-<td></td>
+<td>Applicable only to tickets with <code class="prettyprint">kind = income</code></td>
 </tr>
 <tr>
 <td>analytic_subcategories</td>
@@ -2220,10 +2220,6 @@ curl <span class="s2">"http://getquipu.dev:3000/tickets/2682381"</span> <span cl
 <td></td>
 </tr>
 <tr>
-<td>numeration</td>
-<td></td>
-</tr>
-<tr>
 <td>analytic_subcategories</td>
 <td></td>
 </tr>
@@ -2534,6 +2530,178 @@ curl <span class="s2">"http://getquipu.dev:3000/tickets/2682381"</span> <span cl
 </code></pre>
 
 <p><code class="prettyprint">DELETE /paysheets/:paysheet_id</code></p>
+
+          <h1 id="numbering-series"><a name="numbering-series-section"></a> Numbering series</h1>
+
+<p>The numbering series are applicable only to income tickets and invoices.</p>
+
+<h2 id="attributes">Attributes</h2>
+
+<table><thead>
+<tr>
+<th>Attr. name</th>
+<th>Constraints</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>prefix</td>
+<td>REQUIRED. Must be unique. The prefix that will be preppended to the invoice, or ticket</td>
+</tr>
+<tr>
+<td>applicable_to</td>
+<td>REQUIRED. Accepted values: <code class="prettyprint">&quot;tickets&quot;</code> or <code class="prettyprint">&quot;invoices&quot;</code></td>
+</tr>
+<tr>
+<td>default</td>
+<td>Accepted values: <code class="prettyprint">true</code> or <code class="prettyprint">false</code>. Used only in the fronted when creating a new income invoice or ticket.</td>
+</tr>
+<tr>
+<td>amending</td>
+<td>Accepted values: <code class="prettyprint">true</code> or <code class="prettyprint">false</code>. Indicates if the series is applicable to amendig tickets or invoices</td>
+</tr>
+<tr>
+<td>deletable</td>
+<td>READ ONLY. Indicates if the numeration can be deleted. If there are invoices or tickets using a numeration this numeration can not be deleted</td>
+</tr>
+</tbody></table>
+
+<h2 id="listing-the-numbering-series">Listing the numbering series</h2>
+
+<blockquote>
+<p>Example request</p>
+</blockquote>
+<pre class="highlight shell"><code>curl <span class="s2">"https://getquipu.com/numbering_series"</span> <span class="se">\</span>
+  -H <span class="s2">"Authorization: Bearer be32259bd1d0f4d3d02bcc0771b1b507e2b666ba9e9ba3d7c5639e853f722eb4"</span> <span class="se">\</span>
+  -H <span class="s2">"Accept: application/vnd.quipu.v1+json"</span>
+</code></pre>
+
+<blockquote>
+<p>Example response</p>
+</blockquote>
+<pre class="highlight shell"><code><span class="o">{</span>
+  <span class="s2">"data"</span>: <span class="o">[{</span>
+    <span class="s2">"id"</span>: <span class="s2">"6326"</span>,
+    <span class="s2">"type"</span>: <span class="s2">"numbering_series"</span>,
+    <span class="s2">"attributes"</span>: <span class="o">{</span>
+      <span class="s2">"prefix"</span>: <span class="s2">"2016"</span>,
+      <span class="s2">"deletable"</span>: <span class="nb">false</span>,
+      <span class="s2">"default"</span>: <span class="nb">true</span>,
+      <span class="s2">"amending"</span>: <span class="nb">false</span>,
+      <span class="s2">"applicable_to"</span>: <span class="s2">"invoices"</span>
+    <span class="o">}</span>, <span class="o">{</span>
+    <span class="s2">"id"</span>: <span class="s2">"6332"</span>,
+    <span class="s2">"type"</span>: <span class="s2">"numbering_series"</span>,
+    <span class="s2">"attributes"</span>: <span class="o">{</span>
+      <span class="s2">"prefix"</span>: <span class="s2">"AT16"</span>,
+      <span class="s2">"deletable"</span>: <span class="nb">false</span>,
+      <span class="s2">"default"</span>: <span class="nb">false</span>,
+      <span class="s2">"amending"</span>: <span class="nb">true</span>,
+      <span class="s2">"applicable_to"</span>: <span class="s2">"tickets"</span>
+    <span class="o">}</span>
+  <span class="o">}]</span>
+<span class="o">}</span>
+</code></pre>
+
+<p><code class="prettyprint">GET /numbering_series</code></p>
+
+<h2 id="getting-a-numbering-serie">Getting a numbering serie</h2>
+
+<blockquote>
+<p>Example request</p>
+</blockquote>
+<pre class="highlight shell"><code>curl <span class="s2">"https://getquipu.com/numbering_series/6326"</span> <span class="se">\</span>
+  -H <span class="s2">"Authorization: Bearer be32259bd1d0f4d3d02bcc0771b1b507e2b666ba9e9ba3d7c5639e853f722eb4"</span> <span class="se">\</span>
+  -H <span class="s2">"Accept: application/vnd.quipu.v1+json"</span>
+</code></pre>
+
+<blockquote>
+<p>Example response</p>
+</blockquote>
+<pre class="highlight shell"><code><span class="o">{</span>
+  <span class="s2">"data"</span>: <span class="o">{</span>
+    <span class="s2">"id"</span>: <span class="s2">"6326"</span>,
+    <span class="s2">"type"</span>: <span class="s2">"numbering_series"</span>,
+    <span class="s2">"attributes"</span>: <span class="o">{</span>
+      <span class="s2">"prefix"</span>: <span class="s2">"2016"</span>,
+      <span class="s2">"deletable"</span>: <span class="nb">false</span>,
+      <span class="s2">"default"</span>: <span class="nb">true</span>,
+      <span class="s2">"amending"</span>: <span class="nb">false</span>,
+      <span class="s2">"applicable_to"</span>: <span class="s2">"invoices"</span>
+    <span class="o">}</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+
+<p><code class="prettyprint">GET /numbering_series/:numbering_series_id</code></p>
+
+<h2 id="creating-a-numbering-series">Creating a numbering series</h2>
+
+<blockquote>
+<p>Example request</p>
+</blockquote>
+<pre class="highlight shell"><code>curl <span class="s2">"https://getquipu.com/numbering_series"</span> <span class="se">\</span>
+  -H <span class="s2">"Authorization: Bearer be32259bd1d0f4d3d02bcc0771b1b507e2b666ba9e9ba3d7c5639e853f722eb4"</span> <span class="se">\</span>
+  -H <span class="s2">"Accept: application/vnd.quipu.v1+json"</span> <span class="se">\</span>
+  -H <span class="s2">"Content-Type: application/vnd.quipu.v1+json"</span> <span class="se">\</span>
+  -d <span class="s1">'{
+        "data": {
+          "type": "numbering_series",
+          "attributes": {
+            prefix: "AIT",
+            applicable_to: "invoices",
+            amending: false,
+            default: false
+          }
+        }
+      }'</span>
+</code></pre>
+
+<p><code class="prettyprint">POST /numbering_series/:numbering_series_id</code></p>
+
+<h2 id="updating-a-numbering-series">Updating a numbering series</h2>
+
+<blockquote>
+<p>Example request</p>
+</blockquote>
+<pre class="highlight shell"><code>curl <span class="s2">"https://getquipu.com/numbering_series/3412"</span> <span class="se">\</span>
+  -H <span class="s2">"Authorization: Bearer be32259bd1d0f4d3d02bcc0771b1b507e2b666ba9e9ba3d7c5639e853f722eb4"</span> <span class="se">\</span>
+  -H <span class="s2">"Accept: application/vnd.quipu.v1+json"</span> <span class="se">\</span>
+  -H <span class="s2">"Content-Type: application/vnd.quipu.v1+json"</span> <span class="se">\</span>
+  -d <span class="s1">'{
+        "data": {
+          "id": "3412",
+          "type": "numbering_series",
+          "attributes": {
+            default: true
+          }
+        }
+      }'</span>
+</code></pre>
+
+<p><code class="prettyprint">(PUT|PATCH) /numbering_series/:numbering_series_id</code></p>
+
+<h2 id="deleting-a-numbering-series">Deleting a numbering series</h2>
+
+<p>The server will respond with <code class="prettyprint">403: Unauthorized</code> if the numeration can not be deleted</p>
+
+<blockquote>
+<p>Example request</p>
+</blockquote>
+<pre class="highlight shell"><code>curl <span class="s2">"https://getquipu.com/numbering_series/3412"</span> <span class="se">\</span>
+  -X DELETE
+  -H <span class="s2">"Authorization: Bearer be32259bd1d0f4d3d02bcc0771b1b507e2b666ba9e9ba3d7c5639e853f722eb4"</span> <span class="se">\</span>
+  -H <span class="s2">"Accept: application/vnd.quipu.v1+json"</span>
+</code></pre>
+
+<p><code class="prettyprint">DELETE /numbering_series/:numbering_series_id</code></p>
+
+          <h1 id="analytic-categories"><a name="analytic-categories-section"></a> Analytic categories</h1>
+
+          <h1 id="analytic-subcategories"><a name="analytic-subcategories-section"></a> Analytic subcategories</h1>
+
+          <h1 id="accounting-categories"><a name="accounting-categories-section"></a> Accounting categories</h1>
+
+          <h1 id="accounting-subcategories"><a name="accounting-subcategories-section"></a> Accounting subcategories</h1>
 
           <h1 id="errors">Errors</h1>
 

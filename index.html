@@ -894,7 +894,7 @@ with it.</p>
 </thead><tbody>
 <tr>
 <td>type</td>
-<td>Filters resources by kind</td>
+<td>Filters resources by type</td>
 <td><code class="prettyprint">invoices</code>, <code class="prettyprint">tickets</code> or <code class="prettyprint">paysheets</code></td>
 <td><code class="prettyprint">/book_entries?filter[type]=invoices</code></td>
 </tr>
@@ -2700,6 +2700,151 @@ curl <span class="s2">"http://getquipu.dev:3000/tickets/2682381"</span> <span cl
           <h1 id="analytic-subcategories"><a name="analytic-subcategories-section"></a> Analytic subcategories</h1>
 
           <h1 id="accounting-categories"><a name="accounting-categories-section"></a> Accounting categories</h1>
+
+<h2 id="attributes">Attributes</h2>
+
+<table><thead>
+<tr>
+<th>Attr. name</th>
+<th>Constraints</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>prefix</td>
+<td>READ ONLY</td>
+</tr>
+<tr>
+<td>name</td>
+<td>READ ONLY</td>
+</tr>
+<tr>
+<td>kind</td>
+<td>READ ONLY. <code class="prettyprint">income</code>, <code class="prettyprint">expenses</code> or <code class="prettyprint">assets</code></td>
+</tr>
+</tbody></table>
+
+<h2 id="listing-accounting-categories">Listing accounting categories</h2>
+
+<blockquote>
+<p>Example request</p>
+</blockquote>
+<pre class="highlight shell"><code>curl <span class="s2">"http://getquipu.dev:3000/accounting_categories"</span> <span class="se">\</span>
+  -H <span class="s2">"Authorization: Bearer 818abe1ea4a1813999a47105892d50f3781320c588fb8cd2927885963e621228"</span> <span class="se">\</span>
+  -H <span class="s2">"Accept: application/vnd.quipu.v1+json"</span>
+</code></pre>
+
+<blockquote>
+<p>Example response</p>
+</blockquote>
+<pre class="highlight shell"><code><span class="o">{</span>
+  <span class="s2">"data"</span>: <span class="o">[{</span>
+    <span class="s2">"id"</span>: <span class="s2">"234"</span>,
+    <span class="s2">"type"</span>: <span class="s2">"accounting_categories"</span>,
+    <span class="s2">"attributes"</span>: <span class="o">{</span>
+      <span class="s2">"name"</span>: <span class="s2">"Gastos de investigación"</span>,
+      <span class="s2">"prefix"</span>: 200,
+      <span class="s2">"kind"</span>: <span class="s2">"assets"</span>
+    <span class="o">}</span>
+  <span class="o">}</span>, <span class="o">{</span>
+    <span class="s2">"id"</span>: <span class="s2">"235"</span>,
+    <span class="s2">"type"</span>: <span class="s2">"accounting_categories"</span>,
+    <span class="s2">"attributes"</span>: <span class="o">{</span>
+      <span class="s2">"name"</span>: <span class="s2">"Desarrollo"</span>,
+      <span class="s2">"prefix"</span>: 201,
+      <span class="s2">"kind"</span>: <span class="s2">"assets"</span>
+      <span class="o">}</span>
+  <span class="o">}</span>, <span class="o">{</span>
+    <span class="s2">"id"</span>: <span class="s2">"236"</span>,
+    <span class="s2">"type"</span>: <span class="s2">"accounting_categories"</span>,
+    <span class="s2">"attributes"</span>: <span class="o">{</span>
+      <span class="s2">"name"</span>: <span class="s2">"Concesiones administrativas"</span>,
+      <span class="s2">"prefix"</span>: 202,
+      <span class="s2">"kind"</span>: <span class="s2">"assets"</span>
+    <span class="o">}</span>
+  <span class="o">}</span>, <span class="o">{</span>
+    <span class="s2">"id"</span>: <span class="s2">"237"</span>,
+    <span class="s2">"type"</span>: <span class="s2">"accounting_categories"</span>,
+    <span class="s2">"attributes"</span>: <span class="o">{</span>
+      <span class="s2">"name"</span>: <span class="s2">"Propiedad industrial"</span>,
+      <span class="s2">"prefix"</span>: 203,
+      <span class="s2">"kind"</span>: <span class="s2">"assets"</span>
+    <span class="o">}</span>
+  <span class="o">}</span>, <span class="o">{</span>
+    <span class="s2">"id"</span>: <span class="s2">"238"</span>,
+    <span class="s2">"type"</span>: <span class="s2">"accounting_categories"</span>,
+    <span class="s2">"attributes"</span>: <span class="o">{</span>
+      <span class="s2">"name"</span>: <span class="s2">"Fondo de comercio"</span>,
+      <span class="s2">"prefix"</span>: 204,
+      <span class="s2">"kind"</span>: <span class="s2">"assets"</span>
+    <span class="o">}</span>
+  <span class="o">}</span>, <span class="o">{</span>
+    <span class="s2">"id"</span>: <span class="s2">"239"</span>,
+    <span class="s2">"type"</span>: <span class="s2">"accounting_categories"</span>,
+    <span class="s2">"attributes"</span>: <span class="o">{</span>
+      <span class="s2">"name"</span>: <span class="s2">"Derechos de traspaso"</span>,
+      <span class="s2">"prefix"</span>: 205,
+      <span class="s2">"kind"</span>: <span class="s2">"assets"</span>
+    <span class="o">}</span>
+  <span class="o">}</span>,
+
+  ...
+
+<span class="o">}</span>
+</code></pre>
+
+<p><code class="prettyprint">GET /accounting_categories</code></p>
+
+<h3 id="available-filters">Available filters</h3>
+
+<table><thead>
+<tr>
+<th>Filter name</th>
+<th>Description</th>
+<th>Valid values</th>
+<th>Example</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>kind</td>
+<td>Filter resources by kind</td>
+<td><code class="prettyprint">expenses</code>, <code class="prettyprint">income</code>, or <code class="prettyprint">assets</code></td>
+<td><code class="prettyprint">/accounting_categories?filter[kind]=expenses</code></td>
+</tr>
+<tr>
+<td>prefix</td>
+<td>filter categories with the given accounting numbers</td>
+<td>List of prefixes separated by comma</td>
+<td><code class="prettyprint">/accounting_categories?filter[prefix]=601,603,608</code></td>
+</tr>
+</tbody></table>
+
+<h2 id="getting-an-accounting-category">Getting an accounting category</h2>
+
+<blockquote>
+<p>Example request</p>
+</blockquote>
+<pre class="highlight shell"><code>curl <span class="s2">"http://getquipu.dev:3000/accounting_categories/132"</span> <span class="se">\</span>
+  -H <span class="s2">"Authorization: Bearer 818abe1ea4a1813999a47105892d50f3781320c588fb8cd2927885963e621228"</span> <span class="se">\</span>
+  -H <span class="s2">"Accept: application/vnd.quipu.v1+json"</span>
+</code></pre>
+
+<blockquote>
+<p>Example response</p>
+</blockquote>
+<pre class="highlight shell"><code><span class="o">{</span>
+  <span class="s2">"data"</span>: <span class="o">[{</span>
+    <span class="s2">"id"</span>: <span class="s2">"132"</span>,
+    <span class="s2">"type"</span>: <span class="s2">"accounting_categories"</span>,
+    <span class="s2">"attributes"</span>: <span class="o">{</span>
+      <span class="s2">"name"</span>: <span class="s2">"Ventas de mercaderías"</span>,
+      <span class="s2">"prefix"</span>: 700,
+      <span class="s2">"kind"</span>: <span class="s2">"income"</span>
+    <span class="o">}</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+
+<p><code class="prettyprint">GET /accounting_categories/:accounting_category_id</code></p>
 
           <h1 id="accounting-subcategories"><a name="accounting-subcategories-section"></a> Accounting subcategories</h1>
 

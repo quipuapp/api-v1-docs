@@ -258,13 +258,14 @@
 <pre class="highlight shell"><code>curl <span class="s2">"https://getquipu.com/oauth/token"</span> <span class="se">\</span>
   -H <span class="s2">"Authorization: Basic MGE2NzJjZDY5YmFkYjE1NjM4MWUyOTdlZjJkZjk4ZmE1Mjg5ZDdkNTA4 ..."</span> <span class="se">\</span>
   -H <span class="s2">"Content-Type: application/x-www-form-urlencoded;charset=UTF-8"</span> <span class="se">\</span>
+  -d <span class="s2">"scope=ecommerce"</span>
   -d <span class="s2">"grant_type=client_credentials"</span>
 </code></pre>
 <pre class="highlight ruby"><code><span class="nb">require</span> <span class="s1">'oauth2'</span>
 
 <span class="n">oauth_client</span> <span class="o">=</span> <span class="no">OAuth2</span><span class="o">::</span><span class="no">Client</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="s2">"&lt;client_id&gt;"</span><span class="p">,</span> <span class="s2">"&lt;client_secret&gt;"</span><span class="p">,</span> <span class="ss">site: </span><span class="s1">'https://getquipu.com'</span><span class="p">)</span>
 
-<span class="n">access_token</span> <span class="o">=</span> <span class="n">oauth_client</span><span class="p">.</span><span class="nf">client_credentials</span><span class="p">.</span><span class="nf">get_token</span>
+<span class="n">access_token</span> <span class="o">=</span> <span class="n">oauth_client</span><span class="p">.</span><span class="nf">client_credentials</span><span class="p">.</span><span class="nf">get_token</span><span class="p">(</span><span class="ss">scope: </span><span class="s2">"ecommerce"</span><span class="p">)</span>
 </code></pre>
 
 <blockquote>
@@ -2847,6 +2848,8 @@ curl <span class="s2">"http://getquipu.dev:3000/tickets/2682381"</span> <span cl
 <p><code class="prettyprint">GET /accounting_categories/:accounting_category_id</code></p>
 
           <h1 id="accounting-subcategories"><a name="accounting-subcategories-section"></a> Accounting subcategories</h1>
+
+<h2 id="attributes">Attributes</h2>
 
           <h1 id="errors">Errors</h1>
 

@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <title>API Reference</title>
+    <title>QUIPU API Reference</title>
 
     <style>
       .highlight table td { padding: 5px; }
@@ -2070,6 +2070,84 @@ curl <span class="s2">"http://getquipu.dev:3000/tickets/2682381"</span> <span cl
 
 <p><code class="prettyprint">DELETE /tickets/:ticket_id</code></p>
 
+          <h1 id="items">Items</h1>
+
+<p>There aren&rsquo;t specific endpoints to manage items. Items are always associated to an invoice or ticket and should be manipulated through it.</p>
+
+<h2 id="attributes">Attributes</h2>
+
+<table><thead>
+<tr>
+<th>Attr. name</th>
+<th>Constraints</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>id</td>
+<td>Read only</td>
+</tr>
+<tr>
+<td>concept</td>
+<td></td>
+</tr>
+<tr>
+<td>unitary_amount</td>
+<td></td>
+</tr>
+<tr>
+<td>quantity</td>
+<td></td>
+</tr>
+<tr>
+<td>kind</td>
+<td>Must be <code class="prettyprint">current</code> or <code class="prettyprint">assets</code> (*) for items associated to expenses.  Must be <code class="prettyprint">current</code> or <code class="prettyprint">reimbursement</code> (**) for items associated to income.  Default is <code class="prettyprint">current</code></td>
+</tr>
+<tr>
+<td>vat_percent</td>
+<td>Percentage. Between 0 and 100</td>
+</tr>
+<tr>
+<td>retention_percent</td>
+<td>Percentage. Between 0 and 100</td>
+</tr>
+<tr>
+<td>discount_percent</td>
+<td>Percentage. Between 0 and 100</td>
+</tr>
+<tr>
+<td>deductible_vat_percent</td>
+<td>Percentage. Between 0 and 100</td>
+</tr>
+<tr>
+<td>deductible_expense_percent</td>
+<td>Percentage. Between 0 and 100</td>
+</tr>
+<tr>
+<td>vat_amount</td>
+<td>Read only</td>
+</tr>
+<tr>
+<td>retention_amount</td>
+<td>Read only</td>
+</tr>
+<tr>
+<td>discount_amount</td>
+<td>Read only</td>
+</tr>
+<tr>
+<td>decuctible_vat_amount</td>
+<td>Read only</td>
+</tr>
+<tr>
+<td>total_amount</td>
+<td>Read only</td>
+</tr>
+</tbody></table>
+
+<p>* Items with kind <code class="prettyprint">assets</code>:</p>
+
+<p>** Items with kind <code class="prettyprint">reimbursement</code>:</p>
+
           <h1 id="paysheets"><a name="paysheets-section"></a> Paysheets</h1>
 
 <p>Endpoints to manage paysheets</p>
@@ -2837,9 +2915,204 @@ curl <span class="s2">"http://getquipu.dev:3000/tickets/2682381"</span> <span cl
 
           <h1 id="accounting-subcategories"><a name="accounting-subcategories-section"></a> Accounting subcategories</h1>
 
-          <h1 id="errors">Errors</h1>
+<h2 id="attributes">Attributes</h2>
 
-<aside class="notice">This error section is stored in a separate file in `includes/_errors.md`. Slate allows you to optionally separate out your docs into many files&hellip;just save them to the `includes` folder and add them to the top of your `index.md`&rsquo;s frontmatter. Files are included in the order listed.</aside>
+<table><thead>
+<tr>
+<th>Attr. name</th>
+<th>Constraints</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>suffix</td>
+<td>REQUIRED. Must be unique within an accounting category</td>
+</tr>
+<tr>
+<td>name</td>
+<td>REQUIRED</td>
+</tr>
+</tbody></table>
+
+<h2 id="relationships">Relationships</h2>
+
+<table><thead>
+<tr>
+<th>Relationship name</th>
+<th>Constraints</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>accounting_category</td>
+<td>REQUIRED</td>
+</tr>
+</tbody></table>
+
+<h2 id="listing-accounting-subcategories">Listing accounting subcategories</h2>
+
+<blockquote>
+<p>Example request</p>
+</blockquote>
+<pre class="highlight shell"><code>curl <span class="s2">"https://getquipu.com/accounting_subcategories"</span> <span class="se">\</span>
+  -H <span class="s2">"Authorization: Bearer be32259bd1d0f4d3d02bcc0771b1b507e2b666ba9e9ba3d7c5639e853f722eb4"</span> <span class="se">\</span>
+  -H <span class="s2">"Accept: application/vnd.quipu.v1+json"</span>
+</code></pre>
+
+<blockquote>
+<p>Example response</p>
+</blockquote>
+<pre class="highlight shell"><code><span class="o">{</span>
+  <span class="s2">"data"</span>: <span class="o">[{</span>
+    <span class="s2">"id"</span>: <span class="s2">"19482"</span>,
+    <span class="s2">"type"</span>: <span class="s2">"accounting_subcategories"</span>,
+    <span class="s2">"attributes"</span>: <span class="o">{</span>
+      <span class="s2">"name"</span>: <span class="s2">"Oficina"</span>,
+      <span class="s2">"suffix"</span>: 1
+    <span class="o">}</span>,
+    <span class="s2">"relationships"</span>: <span class="o">{</span>
+      <span class="s2">"accounting_category"</span>: <span class="o">{</span>
+        <span class="s2">"data"</span>: <span class="o">{</span>
+          <span class="s2">"id"</span>: <span class="s2">"43"</span>,
+          <span class="s2">"type"</span>: <span class="s2">"accounting_categories"</span>
+        <span class="o">}</span>
+      <span class="o">}</span>
+    <span class="o">}</span>
+  <span class="o">}</span>, <span class="o">{</span>
+    <span class="s2">"id"</span>: <span class="s2">"19483"</span>,
+    <span class="s2">"type"</span>: <span class="s2">"accounting_subcategories"</span>,
+    <span class="s2">"attributes"</span>: <span class="o">{</span>
+      <span class="s2">"name"</span>: <span class="s2">"Raw"</span>,
+      <span class="s2">"suffix"</span>: 2
+    <span class="o">}</span>,
+    <span class="s2">"relationships"</span>: <span class="o">{</span>
+      <span class="s2">"accounting_category"</span>: <span class="o">{</span>
+        <span class="s2">"data"</span>: <span class="o">{</span>
+          <span class="s2">"id"</span>: <span class="s2">"43"</span>,
+          <span class="s2">"type"</span>: <span class="s2">"accounting_categories"</span>
+        <span class="o">}</span>
+      <span class="o">}</span>
+    <span class="o">}</span>
+  <span class="o">}</span>, <span class="o">{</span>
+
+  ...
+
+  <span class="o">}]</span>
+<span class="o">}</span>
+</code></pre>
+
+<p><code class="prettyprint">GET /accounting_subcategories</code></p>
+
+<h3 id="available-filters">Available filters</h3>
+
+<p>You can filter accounting subcategories by its accounting category id by passing an array of comma separated ids, for example <code class="prettyprint">GET /accounting_subcategories?filter[accounting_category_id]=43,44,48</code>.</p>
+
+<h2 id="getting-an-accounting-subcategory">Getting an accounting subcategory</h2>
+
+<blockquote>
+<p>Example request</p>
+</blockquote>
+<pre class="highlight shell"><code>curl <span class="s2">"https://getquipu.com/accounting_subcategories/19482"</span> <span class="se">\</span>
+  -H <span class="s2">"Authorization: Bearer be32259bd1d0f4d3d02bcc0771b1b507e2b666ba9e9ba3d7c5639e853f722eb4"</span> <span class="se">\</span>
+  -H <span class="s2">"Accept: application/vnd.quipu.v1+json"</span>
+</code></pre>
+
+<blockquote>
+<p>Example response</p>
+</blockquote>
+<pre class="highlight shell"><code><span class="o">{</span>
+  <span class="s2">"data"</span>: <span class="o">{</span>
+    <span class="s2">"id"</span>: <span class="s2">"19482"</span>,
+    <span class="s2">"type"</span>: <span class="s2">"accounting_subcategories"</span>,
+    <span class="s2">"attributes"</span>: <span class="o">{</span>
+      <span class="s2">"name"</span>: <span class="s2">"Oficina"</span>,
+      <span class="s2">"suffix"</span>: 1
+    <span class="o">}</span>,
+    <span class="s2">"relationships"</span>: <span class="o">{</span>
+      <span class="s2">"accounting_category"</span>: <span class="o">{</span>
+        <span class="s2">"data"</span>: <span class="o">{</span>
+          <span class="s2">"id"</span>: <span class="s2">"43"</span>,
+          <span class="s2">"type"</span>: <span class="s2">"accounting_categories"</span>
+        <span class="o">}</span>
+      <span class="o">}</span>
+    <span class="o">}</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+
+<p><code class="prettyprint">GET /accounting_subcategories/:accounting_subcategory_id</code></p>
+
+<h2 id="creating-an-accounting-subcategory">Creating an accounting subcategory</h2>
+
+<blockquote>
+<p>Example request</p>
+</blockquote>
+<pre class="highlight shell"><code>curl <span class="s2">"https://getquipu.com/accounting_subcategories"</span> <span class="se">\</span>
+  -H <span class="s2">"Authorization: Bearer be32259bd1d0f4d3d02bcc0771b1b507e2b666ba9e9ba3d7c5639e853f722eb4"</span> <span class="se">\</span>
+  -H <span class="s2">"Accept: application/vnd.quipu.v1+json"</span> <span class="se">\</span>
+  -H <span class="s2">"Content-Type: application/vnd.quipu.v1+json"</span> <span class="se">\</span>
+  -d <span class="s1">'{
+        "data": {
+          "type": "invoices",
+          "attributes": {
+            prefix: 2,
+            name: "Vestuario"
+          },
+          "relationships": {
+            "accounting_category": {
+              "data" {
+                id: 43,
+                type: "accounting_categories"
+              }
+            }
+          }
+        }
+      }'</span>
+</code></pre>
+
+<p><code class="prettyprint">POST /accounting_subcategories</code></p>
+
+<h2 id="updatinig-an-accounting-subcategory">Updatinig an accounting subcategory</h2>
+
+<blockquote>
+<p>Example request</p>
+</blockquote>
+<pre class="highlight shell"><code>curl <span class="s2">"https://getquipu.com/accounting_subcategories/19482"</span> <span class="se">\</span>
+  -X PATCH
+  -H <span class="s2">"Authorization: Bearer be32259bd1d0f4d3d02bcc0771b1b507e2b666ba9e9ba3d7c5639e853f722eb4"</span> <span class="se">\</span>
+  -H <span class="s2">"Accept: application/vnd.quipu.v1+json"</span> <span class="se">\</span>
+  -H <span class="s2">"Content-Type: application/vnd.quipu.v1+json"</span> <span class="se">\</span>
+  -d <span class="s1">'{
+        "data": {
+          "type": "invoices",
+          "attributes": {
+            name: "Transporte"
+          }
+        }
+      }'</span>
+</code></pre>
+
+<p><code class="prettyprint">(PUT|PATCH) /accounting_subcategories/:accounting_subcategory_id</code></p>
+
+<h2 id="deleting-an-accounting-subcategory">Deleting an accounting subcategory</h2>
+
+<blockquote>
+<p>Example request</p>
+</blockquote>
+<pre class="highlight shell"><code>curl <span class="s2">"https://getquipu.com/accounting_subcategories/19482"</span> <span class="se">\</span>
+  -X DELETE
+  -H <span class="s2">"Authorization: Bearer be32259bd1d0f4d3d02bcc0771b1b507e2b666ba9e9ba3d7c5639e853f722eb4"</span> <span class="se">\</span>
+  -H <span class="s2">"Accept: application/vnd.quipu.v1+json"</span> <span class="se">\</span>
+</code></pre>
+
+<p><code class="prettyprint">DELETE /accounting_subcategories/:accounting_subcategory_id</code></p>
+
+          <h1 id="todo">TODO</h1>
+
+<ul>
+<li>Improve error messages</li>
+<li>Add endpoint to send invoices via emails</li>
+<li>Add endpoints to add attachments to invoices or tickets</li>
+<li>Provide a link to download income invoices in pdf.</li>
+</ul>
 
       </div>
       <div class="dark-box">

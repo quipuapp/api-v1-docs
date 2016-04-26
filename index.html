@@ -1093,7 +1093,7 @@ with it.</p>
 </thead><tbody>
 <tr>
 <td>contact</td>
-<td>REQUIRED</td>
+<td>REQUIRED (except for amending invoices)</td>
 </tr>
 <tr>
 <td>accounting_category</td>
@@ -1114,6 +1114,14 @@ with it.</p>
 <tr>
 <td>items</td>
 <td>Can be sideloaded in GET requests. <br> Must be included in the payload in POST/PATCH/PUT requests</td>
+</tr>
+<tr>
+<td>amended_invoice</td>
+<td>The invoice amended by the current one.</td>
+</tr>
+<tr>
+<td>amending_invoice</td>
+<td>An invoice that amends the current one (Read Only)</td>
 </tr>
 </tbody></table>
 
@@ -1563,6 +1571,67 @@ but in the responses we will find the details about items in the <code class="pr
 
 <p><code class="prettyprint">DELETE /invoices/:invoice_id</code></p>
 
+<h2 id="refunds-and-amending-invoices">Refunds and amending invoices</h2>
+
+<p>An invoice can be totally or partially amended. The minimal amount of data needed to create an amending invoice is the relationship <code class="prettyprint">amended_invoice</code>. With this data a complete refund of the original invoice will be created.</p>
+
+<p>You can also partially amend an invoice setting the items of the amending invoice manually.</p>
+
+<blockquote>
+<p>Example request for a complete refund</p>
+</blockquote>
+<pre class="highlight shell"><code>curl <span class="s2">"https://getquipu.com/invoices"</span> <span class="se">\</span>
+  -H <span class="s2">"Authorization: Bearer be32259bd1d0f4d3d02bcc0771b1b507e2b666ba9e9ba3d7c5639e853f722eb4"</span> <span class="se">\</span>
+  -H <span class="s2">"Accept: application/vnd.quipu.v1+json"</span> <span class="se">\</span>
+  -H <span class="s2">"Content-Type: application/vnd.quipu.v1+json"</span> <span class="se">\</span>
+  -d <span class="s1">'{
+        "data": {
+          "type": "invoices",
+          "relationships": {
+            "amended_invoice": {
+              "data": {
+                "id": 879495,
+                "type": "invoices"
+              }
+            }
+          }
+        }
+      }'</span>
+</code></pre>
+
+<blockquote>
+<p>Example of a partial refund</p>
+</blockquote>
+<pre class="highlight shell"><code>curl <span class="s2">"https://getquipu.com/invoices"</span> <span class="se">\</span>
+  -H <span class="s2">"Authorization: Bearer be32259bd1d0f4d3d02bcc0771b1b507e2b666ba9e9ba3d7c5639e853f722eb4"</span> <span class="se">\</span>
+  -H <span class="s2">"Accept: application/vnd.quipu.v1+json"</span> <span class="se">\</span>
+  -H <span class="s2">"Content-Type: application/vnd.quipu.v1+json"</span> <span class="se">\</span>
+  -d <span class="s1">'{
+        "data": {
+          "type": "invoices",
+          "relationships": {
+            "amended_invoice": {
+              "data": {
+                "id": 879495,
+                "type": "invoices"
+              }
+            },
+            "items": {
+              "data": [{
+                "type": "book_entry_items",
+                "attributes": {
+                  "concept": "Partial refund for service delay",
+                  "quantity": 1,
+                  "unitary_amount": "-5.00",
+                  "vat_percent": 21
+                }
+              }]
+            }
+          }
+        }
+      }'</span>
+</code></pre>
+
           <h1 id="tickets"><a name="tickets-section"></a> Tickets</h1>
 
 <p>Endpoints to manage tickets (receipts).</p>
@@ -1716,6 +1785,14 @@ but in the responses we will find the details about items in the <code class="pr
 <tr>
 <td>items</td>
 <td>Can be sideloaded in GET requests. <br> Must be included in the payload in POST/PATCH/PUT requests</td>
+</tr>
+<tr>
+<td>amended_ticket</td>
+<td>The ticket amended by the current one.</td>
+</tr>
+<tr>
+<td>amending_ticket</td>
+<td>A ticket that amends the current one (Read Only)</td>
 </tr>
 </tbody></table>
 
@@ -2077,6 +2154,67 @@ curl <span class="s2">"http://getquipu.dev:3000/tickets/2682381"</span> <span cl
 </code></pre>
 
 <p><code class="prettyprint">DELETE /tickets/:ticket_id</code></p>
+
+<h2 id="refunds-and-amending-tickets">Refunds and amending tickets</h2>
+
+<p>A ticket can be totally or partially amended. The minimal amount of data needed to create an amending ticket is the relationship <code class="prettyprint">amended_ticket</code>. With this data a complete refund of the original ticket will be created.</p>
+
+<p>You can also partially amend a ticket setting the items of the amending ticket manually.</p>
+
+<blockquote>
+<p>Example request for a complete refund</p>
+</blockquote>
+<pre class="highlight shell"><code>curl <span class="s2">"https://getquipu.com/tickets"</span> <span class="se">\</span>
+  -H <span class="s2">"Authorization: Bearer be32259bd1d0f4d3d02bcc0771b1b507e2b666ba9e9ba3d7c5639e853f722eb4"</span> <span class="se">\</span>
+  -H <span class="s2">"Accept: application/vnd.quipu.v1+json"</span> <span class="se">\</span>
+  -H <span class="s2">"Content-Type: application/vnd.quipu.v1+json"</span> <span class="se">\</span>
+  -d <span class="s1">'{
+        "data": {
+          "type": "tickets",
+          "relationships": {
+            "amended_ticket": {
+              "data": {
+                "id": 879495,
+                "type": "tickets"
+              }
+            }
+          }
+        }
+      }'</span>
+</code></pre>
+
+<blockquote>
+<p>Example of a partial refund</p>
+</blockquote>
+<pre class="highlight shell"><code>curl <span class="s2">"https://getquipu.com/tickets"</span> <span class="se">\</span>
+  -H <span class="s2">"Authorization: Bearer be32259bd1d0f4d3d02bcc0771b1b507e2b666ba9e9ba3d7c5639e853f722eb4"</span> <span class="se">\</span>
+  -H <span class="s2">"Accept: application/vnd.quipu.v1+json"</span> <span class="se">\</span>
+  -H <span class="s2">"Content-Type: application/vnd.quipu.v1+json"</span> <span class="se">\</span>
+  -d <span class="s1">'{
+        "data": {
+          "type": "tickets",
+          "relationships": {
+            "amended_ticket": {
+              "data": {
+                "id": 879495,
+                "type": "tickets"
+              }
+            },
+            "items": {
+              "data": [{
+                "type": "book_entry_items",
+                "attributes": {
+                  "concept": "Partial refund for service delay",
+                  "quantity": 1,
+                  "unitary_amount": "-5.00",
+                  "vat_percent": 21
+                }
+              }]
+            }
+          }
+        }
+      }'</span>
+</code></pre>
 
           <h1 id="items">Items</h1>
 

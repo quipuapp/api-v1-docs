@@ -250,12 +250,6 @@
   -d <span class="s2">"scope=ecommerce"</span>
   -d <span class="s2">"grant_type=client_credentials"</span>
 </code></pre>
-<pre class="highlight ruby"><code><span class="nb">require</span> <span class="s1">'oauth2'</span>
-
-<span class="n">oauth_client</span> <span class="o">=</span> <span class="no">OAuth2</span><span class="o">::</span><span class="no">Client</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="s2">"&lt;client_id&gt;"</span><span class="p">,</span> <span class="s2">"&lt;client_secret&gt;"</span><span class="p">,</span> <span class="ss">site: </span><span class="s1">'https://getquipu.com'</span><span class="p">)</span>
-
-<span class="n">access_token</span> <span class="o">=</span> <span class="n">oauth_client</span><span class="p">.</span><span class="nf">client_credentials</span><span class="p">.</span><span class="nf">get_token</span><span class="p">(</span><span class="ss">scope: </span><span class="s2">"ecommerce"</span><span class="p">)</span>
-</code></pre>
 
 <blockquote>
 <p>Example response</p>
@@ -265,16 +259,8 @@
   <span class="s2">"created_at"</span>:    1456339025,
   <span class="s2">"access_token"</span>:  <span class="s2">"7c74b8e69bdd19a90e1ffaf987ada2ca67b948b0bed7b2cf95ad58f5ecb14294"</span>,
   <span class="s2">"refresh_token"</span>: null,
-  <span class="s2">"expires_at"</span>:    1456346225
+  <span class="s2">"expires_in"</span>:    1456346225
 <span class="o">}</span>
-</code></pre>
-<pre class="highlight ruby"><code><span class="p">{</span>
-  <span class="ss">token_type:    </span><span class="s2">"bearer"</span><span class="p">,</span>
-  <span class="ss">created_at:    </span><span class="mi">1456339025</span><span class="p">,</span>
-  <span class="ss">access_token:  </span><span class="s2">"7c74b8e69bdd19a90e1ffaf987ada2ca67b948b0bed7b2cf95ad58f5ecb14294"</span><span class="p">,</span>
-  <span class="ss">refresh_token: </span><span class="kp">nil</span><span class="p">,</span>
-  <span class="ss">expires_at:    </span><span class="mi">1456346225</span>
-<span class="p">}</span>
 </code></pre>
 
 <p>To get an access token you will need the account&rsquo;s <code class="prettyprint">app_id</code> and <code class="prettyprint">app_secret</code> credentials.</p>
@@ -406,6 +392,12 @@
 <td>Filter contacts by kind</td>
 <td><code class="prettyprint">employee</code>, <code class="prettyprint">supplier</code> and <code class="prettyprint">client</code></td>
 <td><code class="prettyprint">contacts?filter[kind]=client</code></td>
+</tr>
+<tr>
+<td>tax_id</td>
+<td>Filter contacts by their tax id</td>
+<td></td>
+<td><code class="prettyprint">contacts?filter[tax_id]=43456628J</code></td>
 </tr>
 </tbody></table>
 

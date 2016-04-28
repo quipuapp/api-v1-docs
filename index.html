@@ -2810,6 +2810,30 @@ curl <span class="s2">"http://getquipu.dev:3000/tickets/2682381"</span> <span cl
 
 <p><code class="prettyprint">GET /numbering_series</code></p>
 
+<h3 id="available-filters">Available filters</h3>
+
+<table><thead>
+<tr>
+<th>Filter name</th>
+<th>Description</th>
+<th>Valid values</th>
+<th>Example</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>applicable_to</td>
+<td>Filters by the kind of document the series is applicable to</td>
+<td><code class="prettyprint">invoices</code>, <code class="prettyprint">tickets</code>, <code class="prettyprint">budgets</code></td>
+<td><code class="prettyprint">?filter[applicable_to]=invoices</code></td>
+</tr>
+<tr>
+<td>amending</td>
+<td>Filters the series by whether they are applicable to amending documents</td>
+<td><code class="prettyprint">true</code>, <code class="prettyprint">false</code></td>
+<td><code class="prettyprint">?filter[amending]=false</code></td>
+</tr>
+</tbody></table>
+
 <h2 id="getting-a-numbering-serie">Getting a numbering serie</h2>
 
 <blockquote>

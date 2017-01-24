@@ -243,6 +243,14 @@
 <li><code class="prettyprint">DELETE /accounting_subcategories/:id</code></li>
 </ul>
 
+<h3 id="attachments"><a href="#attachments-section">Attachments</a></h3>
+
+<ul>
+<li><code class="prettyprint">POST   /attachments</code><br></li>
+<li><code class="prettyprint">GET    /attachments/:id</code></li>
+<li><code class="prettyprint">DELETE /attachments/:id</code></li>
+</ul>
+
 <h1 id="authentication">Authentication</h1>
 
 <p>We use OAuth2 to authorize the requests.</p>
@@ -278,8 +286,6 @@
 </aside>
 
 <h2 id="using-the-token-in-the-requests">Using the token in the requests</h2>
-
-<p>Blah blah blah</p>
 
 <blockquote>
 <p>Example request</p>
@@ -3285,6 +3291,132 @@ curl <span class="s2">"http://getquipu.dev:3000/tickets/2682381"</span> <span cl
 </code></pre>
 
 <p><code class="prettyprint">DELETE /accounting_subcategories/:accounting_subcategory_id</code></p>
+
+          <h1 id="attachments"><a name="attachments-section"></a> Attachments</h1>
+
+<h2 id="attributes">Attributes</h2>
+
+<table><thead>
+<tr>
+<th>Attr. name</th>
+<th>Constraints</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>url</td>
+<td>The url for the file</td>
+</tr>
+<tr>
+<td>small_url</td>
+<td>Only if the file is an image. A version of the attachment scaled to fit 500 x 500 px.</td>
+</tr>
+<tr>
+<td>thumbnail_url</td>
+<td>Only if the file is an image. A version of the attachment scaled to fit 100 x 100 px.</td>
+</tr>
+</tbody></table>
+
+<h2 id="relationships">Relationships</h2>
+
+<table><thead>
+<tr>
+<th>Relationship name</th>
+<th>Constraints</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>book_entry</td>
+<td>REQUIRED when uploading attachments. The invoice, ticket or paysheet that this attachment is related to</td>
+</tr>
+</tbody></table>
+
+<h2 id="uploading-an-attachment">Uploading an attachment</h2>
+
+<blockquote>
+<p>Example request</p>
+</blockquote>
+<pre class="highlight shell"><code>curl <span class="s2">"https://getquipu.com/attachments"</span>
+  -X POST <span class="se">\</span>
+  -H <span class="s2">"Authorization: Bearer 4cbc2f18d5e7bcfb44f46c5ed72c5e94fd059f7f4d... "</span> <span class="se">\</span>
+  -H <span class="s2">"Accept: application/vnd.quipu.v1+json"</span> <span class="se">\</span>
+  -F <span class="s2">"file=@/path/to/the/file.jpg"</span> <span class="se">\</span>
+  -F <span class="s2">"book_entry_id=3308976"</span>
+</code></pre>
+
+<blockquote>
+<p>Example response</p>
+</blockquote>
+<pre class="highlight shell"><code><span class="o">{</span>
+  <span class="s2">"data"</span>: <span class="o">{</span>
+    <span class="s2">"id"</span>: <span class="s2">"2311315"</span>,
+    <span class="s2">"type"</span>: <span class="s2">"attachments"</span>,
+    <span class="s2">"attributes"</span>: <span class="o">{</span>
+      <span class="s2">"url"</span>: <span class="s2">"uploads/book_entry_attachments/2311315-36eb52a2959af9d2dcbddc356549b125/image.png"</span>,
+      <span class="s2">"small_url"</span>: <span class="s2">"uploads/book_entry_attachments/2311315-36eb52a2959af9d2dcbddc356549b125/preview_image.png"</span>,
+      <span class="s2">"thumbnail_url"</span>: <span class="s2">"uploads/book_entry_attachments/2311315-36eb52a2959af9d2dcbddc356549b125/thumbnail_image.png"</span>
+    <span class="o">}</span>,
+    <span class="s2">"relationships"</span>: <span class="o">{</span>
+      <span class="s2">"book_entry"</span>: <span class="o">{</span>
+        <span class="s2">"data"</span>: <span class="o">{</span>
+          <span class="s2">"id"</span>: <span class="s2">"3308976"</span>,
+          <span class="s2">"type"</span>: <span class="s2">"invoices"</span>
+        <span class="o">}</span>
+      <span class="o">}</span>
+    <span class="o">}</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+
+<p><code class="prettyprint">POST /attachments</code></p>
+
+<aside class="notice">
+  Atention: the <code>Content-Type</code> for the request must be <code>multipart/form-data</code>. The <code>Accept</code> header needs to be like any other call.
+</aside>
+
+<h2 id="getting-an-attachment">Getting an attachment</h2>
+
+<blockquote>
+<p>Example request</p>
+</blockquote>
+<pre class="highlight shell"><code>curl <span class="s2">"https://getquipu.com/attachments/2311315"</span> <span class="se">\</span>
+  -H <span class="s2">"Authorization: Bearer 4cbc2f18d5e7bcfb44f46c5ed72c5e94fd059f7f4d... "</span> <span class="se">\</span>
+  -H <span class="s2">"Accept: application/vnd.quipu.v1+json"</span>
+</code></pre>
+
+<p><code class="prettyprint">GET /attachments/:id</code></p>
+
+<blockquote>
+<p>Example response</p>
+</blockquote>
+<pre class="highlight shell"><code><span class="o">{</span>
+  <span class="s2">"data"</span>: <span class="o">{</span>
+    <span class="s2">"id"</span>: <span class="s2">"2311315"</span>,
+    <span class="s2">"type"</span>: <span class="s2">"attachments"</span>,
+    <span class="s2">"attributes"</span>: <span class="o">{</span>
+      <span class="s2">"url"</span>: <span class="s2">"uploads/book_entry_attachments/2311315-36eb52a2959af9d2dcbddc356549b125/image.png"</span>,
+      <span class="s2">"small_url"</span>: <span class="s2">"uploads/book_entry_attachments/2311315-36eb52a2959af9d2dcbddc356549b125/preview_image.png"</span>,
+      <span class="s2">"thumbnail_url"</span>: <span class="s2">"uploads/book_entry_attachments/2311315-36eb52a2959af9d2dcbddc356549b125/thumbnail_image.png"</span>
+    <span class="o">}</span>,
+    <span class="s2">"relationships"</span>: <span class="o">{</span>
+      <span class="s2">"book_entry"</span>: <span class="o">{</span>
+        <span class="s2">"data"</span>: <span class="o">{</span>
+          <span class="s2">"id"</span>: <span class="s2">"3308976"</span>,
+          <span class="s2">"type"</span>: <span class="s2">"invoices"</span>
+        <span class="o">}</span>
+      <span class="o">}</span>
+    <span class="o">}</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+
+<h2 id="removing-an-attachment">Removing an attachment</h2>
+
+<p><code class="prettyprint">DELETE /attachments/:id</code></p>
+<pre class="highlight shell"><code>curl <span class="s2">"https://getquipu.com/attachments/2311315"</span> <span class="se">\</span>
+  -X DELETE <span class="se">\</span>
+  -H <span class="s2">"Authorization: Bearer 4cbc2f18d5e7bcfb44f46c5ed72c5e94fd059f7f4d... "</span> <span class="se">\</span>
+  -H <span class="s2">"Accept: application/vnd.quipu.v1+json"</span>
+</code></pre>
 
           <h1 id="todo">TODO</h1>
 

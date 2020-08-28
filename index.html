@@ -261,7 +261,7 @@
 <p>Example request</p>
 </blockquote>
 <pre class="highlight shell"><code>curl <span class="s2">"https://getquipu.com/oauth/token"</span> <span class="se">\</span>
-  -H <span class="s2">"Authorization: Basic MGE2NzJjZDY5YmFkYjE1NjM4MWUyOTdlZjJkZjk4ZmE1Mjg5ZDdkNTA4 ..."</span> <span class="se">\</span>
+  -H <span class="s2">"Authorization: Basic UHROeGZDc0drbGltRXJRcVZUZUFGRFVUVWpkTVZDcmpORklsclJlS..."</span> <span class="se">\</span>
   -H <span class="s2">"Content-Type: application/x-www-form-urlencoded;charset=UTF-8"</span> <span class="se">\</span>
   -d <span class="s2">"scope=ecommerce"</span>
   -d <span class="s2">"grant_type=client_credentials"</span>
@@ -280,6 +280,21 @@
 </code></pre>
 
 <p>To get an access token you will need the account&rsquo;s <code class="prettyprint">app_id</code> and <code class="prettyprint">app_secret</code> credentials.</p>
+
+<p>As is standard in basic access authentication, the header&rsquo;s structure corresponds to <code class="prettyprint">Authorization Basic credentials</code>, where <code class="prettyprint">credentials</code> is the result of:</p>
+
+<ul>
+<li>Joining <code class="prettyprint">app_id</code> and <code class="prettyprint">app_secret</code> by a single colon</li>
+<li>Applying Base64 (URL safe mode) to the result</li>
+</ul>
+
+<p>Example:</p>
+
+<ul>
+<li>if <code class="prettyprint">app_id</code> were <code class="prettyprint">PtNxfCsGklimErQqVTeAFDUTUjdMVCrjNFIlrReIimSHKMoOaWxAxwHPNevbIwFV</code></li>
+<li>and <code class="prettyprint">app_secret</code> were <code class="prettyprint">HRcqlIcHjYUWunjgVmAQiWYjbYFAGSoLhpXkHoGPhjdwQmXmRIxDQOQJOANpfnbD</code></li>
+<li>then the header would be <code class="prettyprint">Authorization Basic UHROeGZDc0drbGltRXJRcVZUZUFGRFVUVWpkTVZDcmpORklsclJlSWltU0hLTW9PYVd4QXh3SFBOZXZiSXdGVjpIUmNxbEljSGpZVVd1bmpnVm1BUWlXWWpiWUZBR1NvTGhwWGtIb0dQaGpkd1FtWG1SSXhEUU9RSk9BTnBmbmJE</code></li>
+</ul>
 
 <aside class="notice">
   When a token expires you will need to request for a new one
@@ -1971,7 +1986,7 @@ but in the responses we will find the details about items in the <code class="pr
 <blockquote>
 <p>Example request</p>
 </blockquote>
-<pre class="highlight shell"><code>curl <span class="s2">"https://getquipu.com/tickets/ticket_id/2989809"</span> <span class="se">\</span>
+<pre class="highlight shell"><code>curl <span class="s2">"https://getquipu.com/tickets/2989809"</span> <span class="se">\</span>
   -H <span class="s2">"Authorization: Bearer be32259bd1d0f4d3d02bcc0771b1b507e2b666ba9e9ba3d7c5639e853f722eb4"</span> <span class="se">\</span>
   -H <span class="s2">"Accept: application/vnd.quipu.v1+json"</span>
 </code></pre>
@@ -3428,7 +3443,7 @@ curl <span class="s2">"http://getquipu.dev:3000/tickets/2682381"</span> <span cl
 
 <ul>
 <li>Improve error messages</li>
-<li>Add endpoint to send invoices via emails</li>
+<li>Add endpoint to send invoices via email</li>
 <li>Add endpoints to add attachments to invoices or tickets</li>
 </ul>
 

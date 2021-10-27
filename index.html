@@ -158,6 +158,14 @@
 
 <p><code>GET /invoices?<strong>sort=-issued_at,total_amount</strong> # =&gt; order_by issued_at desc, total_amount asc;</code></p>
 
+<h2 id="rate-limiting">Rate limiting</h2>
+
+<p>In order to guarantee a fair usage of the platform by all users, we set a maximum of 200 requests every 15 minutes, for a specific pair of credentials.</p>
+
+<p>We implement the standard <code class="prettyprint">RateLimit</code> headers defined in section 3 of <a href="https://tools.ietf.org/id/draft-polli-ratelimit-headers-00.html">this document</a> so the API user can know the limit, how much usage there is left, and when will this usage be reset.</p>
+
+<p>In the event that a request surpasses the allocated limit for that account, a 429 status code will be returned.</p>
+
 <h2 id="endpoints-summary">Endpoints summary</h2>
 
 <h3 id="contacts"><a href="#contacts-section">Contacts</a></h3>
@@ -263,7 +271,7 @@
 <pre class="highlight shell"><code>curl <span class="s2">"https://getquipu.com/oauth/token"</span> <span class="se">\</span>
   -H <span class="s2">"Authorization: Basic UHROeGZDc0drbGltRXJRcVZUZUFGRFVUVWpkTVZDcmpORklsclJlS..."</span> <span class="se">\</span>
   -H <span class="s2">"Content-Type: application/x-www-form-urlencoded;charset=UTF-8"</span> <span class="se">\</span>
-  -d <span class="s2">"scope=ecommerce"</span>
+  -d <span class="s2">"scope=ecommerce"</span> <span class="se">\</span>
   -d <span class="s2">"grant_type=client_credentials"</span>
 </code></pre>
 

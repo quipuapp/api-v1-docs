@@ -1,6 +1,7 @@
 source 'https://rubygems.org'
 
 # Middleman
+gem 'bigdecimal', '1.3.5' # see https://stackoverflow.com/questions/60226893/rails-nomethoderror-undefined-method-new-for-bigdecimalclass/60491254#60491254
 gem 'middleman', '~>4.0.0'
 gem 'middleman-gh-pages', '~> 0.0.3'
 gem 'middleman-syntax', '~> 2.1.0'

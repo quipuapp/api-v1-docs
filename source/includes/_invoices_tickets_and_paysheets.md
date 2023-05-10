@@ -219,7 +219,7 @@ Filter name | Description | Valid values | Example
 type | Filters resources by type | `invoices`, `tickets` or `paysheets` | `/book_entries?filter[type]=invoices`
 kind | Filter resources by kind | `expenses` or `income` | `/book_entries?filter[kind]=expenses`
 q | Search | Any | `/book_entries?filter[q]=android development`
-period | Filter resources issued in the specified period | year-[month number,Q1,Q2,Q3,Q4] | `/book_entries?filter[period]=2015-Q1` =>  First quarter of 2015 <br> `/book_entries?filter[period]=2016-2` => February 2016 <br> `/book_entries?filter[period]=2015` => 2015
+period | Filter resources issued in the specified period | year-[month number,Q1,Q2,Q3,Q4]<br>from=DATE&to=DATE | `/book_entries?filter[period]=2015-Q1` =>  First quarter of 2015 <br> `/book_entries?filter[period]=2016-2` => February 2016 <br> `/book_entries?filter[period]=2015` => 2015 <br> `book_entries?filter[period][from]=2015-04-03&filter[period][to]=2015-07-14`
 payment_status | Filter resources by payment status | `paid`, `unpaid`, `due` or `pending` | `/book_entries?filter[payment_status]=due`
 contact_id | Filter by contact | The contact ID | `/book_entries?filter[contact_id]=1234`
 field_query | Filter by contact, concept, number, tag or user name | name of the field and the search term | `/book_entries?filter[field_query][field]=label&filter[field_query][term]=tag_name`

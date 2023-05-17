@@ -102,10 +102,10 @@ curl "https://getquipu.com/numbering_series" \
         "data": {
           "type": "numbering_series",
           "attributes": {
-            prefix: "AIT",
-            applicable_to: "invoices",
-            amending: false,
-            default: false
+            "prefix": "AIT",
+            "applicable_to": "invoices",
+            "amending": false,
+            "default": false
           }
         }
       }'
@@ -127,7 +127,7 @@ curl "https://getquipu.com/numbering_series/3412" \
           "id": "3412",
           "type": "numbering_series",
           "attributes": {
-            default: true
+            "default": true
           }
         }
       }'

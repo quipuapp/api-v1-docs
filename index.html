@@ -1634,11 +1634,11 @@ but in the responses we will find the details about items in the <code class="pr
 
 <p><code class="prettyprint">DELETE /invoices/:invoice_id</code></p>
 
-<h2 id="refunds-and-amending-invoices">Refunds and amending invoices</h2>
+<h2 id="refunds-and-credit-notes">Refunds and credit notes</h2>
 
-<p>An invoice can be totally or partially amended. The minimal amount of data needed to create an amending invoice is the relationship <code class="prettyprint">amended_invoice</code>. With this data a complete refund of the original invoice will be created.</p>
+<p>An invoice can be totally or partially amended, resulting in a credit note. To create a complete credit note for an invoice, the minimal required data is the relationship <code class="prettyprint">amended_invoice</code>. This will generate a full refund for the original invoice.</p>
 
-<p>You can also partially amend an invoice setting the items of the amending invoice manually.</p>
+<p>To partially amend an invoice, you can manually set the items of the credit note.</p>
 
 <blockquote>
 <p>Example request for a complete refund</p>

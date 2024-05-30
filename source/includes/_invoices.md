@@ -502,11 +502,11 @@ curl "https://getquipu.com/invoices/2988939" \
 
 `DELETE /invoices/:invoice_id`
 
-## Refunds and amending invoices
+## Refunds and credit notes
 
-An invoice can be totally or partially amended. The minimal amount of data needed to create an amending invoice is the relationship `amended_invoice`. With this data a complete refund of the original invoice will be created.
+An invoice can be totally or partially amended, resulting in a credit note. To create a complete credit note for an invoice, the minimal required data is the relationship `amended_invoice`. This will generate a full refund for the original invoice.
 
-You can also partially amend an invoice setting the items of the amending invoice manually.
+To partially amend an invoice, you can manually set the items of the credit note.
 
 > Example request for a complete refund
 

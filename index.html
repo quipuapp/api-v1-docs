@@ -724,7 +724,7 @@ with it.</p>
       <span class="s2">"kind"</span>: <span class="s2">"income"</span>,
       <span class="s2">"number"</span>: <span class="s2">"2016-2"</span>,
       <span class="s2">"issue_date"</span>: <span class="s2">"2016-02-29"</span>,
-      <span class="s2">"due_date"</span>: null,
+      <span class="s2">"due_dates"</span>: <span class="o">[]</span>,
       <span class="s2">"paid_at"</span>: <span class="s2">"2016-03-02"</span>,
       <span class="s2">"payment_method"</span>: <span class="s2">"bank_transfer"</span>,
       <span class="s2">"payment_status"</span>: <span class="s2">"paid"</span>,
@@ -788,7 +788,7 @@ with it.</p>
       <span class="s2">"kind"</span>: <span class="s2">"income"</span>,
       <span class="s2">"number"</span>: <span class="s2">"2016-1"</span>,
       <span class="s2">"issue_date"</span>: <span class="s2">"2016-01-31"</span>,
-      <span class="s2">"due_date"</span>: null,
+      <span class="s2">"due_dates"</span>: <span class="o">[]</span>,
       <span class="s2">"paid_at"</span>: <span class="s2">"2016-02-03"</span>,
       <span class="s2">"payment_method"</span>: <span class="s2">"bank_transfer"</span>,
       <span class="s2">"payment_status"</span>: <span class="s2">"paid"</span>,
@@ -851,7 +851,7 @@ with it.</p>
       <span class="s2">"kind"</span>: <span class="s2">"expenses"</span>,
       <span class="s2">"number"</span>: <span class="s2">"8"</span>,
       <span class="s2">"issue_date"</span>: <span class="s2">"2015-07-18"</span>,
-      <span class="s2">"due_date"</span>: null,
+      <span class="s2">"due_dates"</span>: <span class="o">[]</span>,
       <span class="s2">"paid_at"</span>: <span class="s2">"2015-10-04"</span>,
       <span class="s2">"payment_method"</span>: <span class="s2">""</span>,
       <span class="s2">"payment_status"</span>: <span class="s2">"paid"</span>,
@@ -1028,8 +1028,8 @@ with it.</p>
 <td>REQUIRED <br> Format: <code class="prettyprint">YYYY-mm-dd</code></td>
 </tr>
 <tr>
-<td>due_date</td>
-<td>Format: <code class="prettyprint">YYYY-mm-dd</code></td>
+<td>due_dates</td>
+<td>Format: an array of dates with format <code class="prettyprint">YYYY-mm-dd</code></td>
 </tr>
 <tr>
 <td>paid_at</td>
@@ -1206,7 +1206,7 @@ with it.</p>
       <span class="s2">"kind"</span>: <span class="s2">"income"</span>,
       <span class="s2">"number"</span>: <span class="s2">"2016-2"</span>,
       <span class="s2">"issue_date"</span>: <span class="s2">"2016-02-29"</span>,
-      <span class="s2">"due_date"</span>: null,
+      <span class="s2">"due_dates"</span>: <span class="o">[</span><span class="s2">"2016-03-31"</span><span class="o">]</span>,
       <span class="s2">"paid_at"</span>: <span class="s2">"2016-03-02"</span>,
       <span class="s2">"payment_method"</span>: <span class="s2">"bank_transfer"</span>,
       <span class="s2">"payment_status"</span>: <span class="s2">"paid"</span>,
@@ -1270,7 +1270,7 @@ with it.</p>
       <span class="s2">"kind"</span>: <span class="s2">"income"</span>,
       <span class="s2">"number"</span>: <span class="s2">"2016-1"</span>,
       <span class="s2">"issue_date"</span>: <span class="s2">"2016-01-31"</span>,
-      <span class="s2">"due_date"</span>: null,
+      <span class="s2">"due_dates"</span>: <span class="o">[]</span>,
       <span class="s2">"paid_at"</span>: <span class="s2">"2016-02-03"</span>,
       <span class="s2">"payment_method"</span>: <span class="s2">"bank_transfer"</span>,
       <span class="s2">"payment_status"</span>: <span class="s2">"paid"</span>,
@@ -1383,7 +1383,7 @@ with it.</p>
       <span class="s2">"kind"</span>: <span class="s2">"income"</span>,
       <span class="s2">"number"</span>: <span class="s2">"2016-2"</span>,
       <span class="s2">"issue_date"</span>: <span class="s2">"2016-02-29"</span>,
-      <span class="s2">"due_date"</span>: null,
+      <span class="s2">"due_dates"</span>: <span class="o">[</span><span class="s2">"2016-03-31"</span><span class="o">]</span>,
       <span class="s2">"paid_at"</span>: <span class="s2">"2016-03-02"</span>,
       <span class="s2">"payment_method"</span>: <span class="s2">"bank_transfer"</span>,
       <span class="s2">"payment_status"</span>: <span class="s2">"paid"</span>,
@@ -1541,7 +1541,7 @@ with it.</p>
             "kind": "income",
             "number": null,
             "issue_date": "2016-03-12",
-            "due_date": "2016-05-12",
+            "due_dates": ["2016-05-12"],
             "paid_at": null,
             "payment_method": "bank_transfer",
             "tags": "songo, timba"

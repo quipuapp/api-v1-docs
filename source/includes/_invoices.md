@@ -9,7 +9,7 @@ Attr. name |  Constraints
 kind | REQUIRED <br> Accepted values: `income` or `expenses`
 number | For income invoices we recommend leave it blank, and Quipu will assign it.<br>For income invoices must be unique within a fiscal year.<br>For expense invoices must be unique within a fiscal year for the invoice supplier.
 issue_date | REQUIRED <br> Format: `YYYY-mm-dd`
-due_date | Format: `YYYY-mm-dd`
+due_dates | Format: an array of dates with format `YYYY-mm-dd`
 paid_at  | Format: `YYYY-mm-dd`
 payment_method | Accepted valued: `cash`, `bank_transfer`, `bank_card`, `direct_debit`, `paypal`, `check`, `factoring`
 payment_status | READ ONLY
@@ -74,7 +74,7 @@ curl "https://getquipu.com/invoices" \
       "kind": "income",
       "number": "2016-2",
       "issue_date": "2016-02-29",
-      "due_date": null,
+      "due_dates": ["2016-03-31"],
       "paid_at": "2016-03-02",
       "payment_method": "bank_transfer",
       "payment_status": "paid",
@@ -138,7 +138,7 @@ curl "https://getquipu.com/invoices" \
       "kind": "income",
       "number": "2016-1",
       "issue_date": "2016-01-31",
-      "due_date": null,
+      "due_dates": [],
       "paid_at": "2016-02-03",
       "payment_method": "bank_transfer",
       "payment_status": "paid",
@@ -251,7 +251,7 @@ curl "https://getquipu.com/invoices/2988939" \
       "kind": "income",
       "number": "2016-2",
       "issue_date": "2016-02-29",
-      "due_date": null,
+      "due_dates": ["2016-03-31"],
       "paid_at": "2016-03-02",
       "payment_method": "bank_transfer",
       "payment_status": "paid",
@@ -409,7 +409,7 @@ curl "https://getquipu.com/invoices" \
             "kind": "income",
             "number": null,
             "issue_date": "2016-03-12",
-            "due_date": "2016-05-12",
+            "due_dates": ["2016-05-12"],
             "paid_at": null,
             "payment_method": "bank_transfer",
             "tags": "songo, timba"

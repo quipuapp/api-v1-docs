@@ -1750,10 +1750,6 @@ but in the responses we will find the details about items in the <code class="pr
 <td>READ ONLY</td>
 </tr>
 <tr>
-<td>retention_amount</td>
-<td>READ ONLY</td>
-</tr>
-<tr>
 <td>issuing_name</td>
 <td>REQUIRED for expense tickets.<br>READ ONLY for income tickets. *</td>
 </tr>
@@ -1894,7 +1890,6 @@ but in the responses we will find the details about items in the <code class="pr
       <span class="s2">"total_amount"</span>: <span class="s2">"5.40"</span>,
       <span class="s2">"total_amount_without_taxes"</span>: <span class="s2">"4.46"</span>,
       <span class="s2">"vat_amount"</span>: <span class="s2">"0.94"</span>,
-      <span class="s2">"retention_amount"</span>: <span class="s2">"0.0"</span>
       <span class="s2">"issuing_name"</span>: <span class="s2">"QuipuApp S.L."</span>,
       <span class="s2">"issuing_tax_id"</span>: <span class="s2">"43467890F"</span>,
       <span class="s2">"issuing_address"</span>: <span class="s2">"C/ Viladomat 39"</span>,
@@ -1950,7 +1945,6 @@ but in the responses we will find the details about items in the <code class="pr
       <span class="s2">"total_amount"</span>: <span class="s2">"5.40"</span>,
       <span class="s2">"total_amount_without_taxes"</span>: <span class="s2">"4.46"</span>,
       <span class="s2">"vat_amount"</span>: <span class="s2">"0.94"</span>,
-      <span class="s2">"retention_amount"</span>: <span class="s2">"0.0"</span>
       <span class="s2">"issuing_name"</span>: <span class="s2">"QuipuApp S.L."</span>,
       <span class="s2">"issuing_tax_id"</span>: <span class="s2">"43467890F"</span>,
       <span class="s2">"issuing_address"</span>: <span class="s2">"C/ Viladomat 39"</span>,
@@ -2053,7 +2047,6 @@ but in the responses we will find the details about items in the <code class="pr
       <span class="s2">"total_amount"</span>: <span class="s2">"5.40"</span>,
       <span class="s2">"total_amount_without_taxes"</span>: <span class="s2">"4.46"</span>,
       <span class="s2">"vat_amount"</span>: <span class="s2">"0.94"</span>,
-      <span class="s2">"retention_amount"</span>: <span class="s2">"0.0"</span>
       <span class="s2">"issuing_name"</span>: <span class="s2">"QuipuApp S.L."</span>,
       <span class="s2">"issuing_tax_id"</span>: <span class="s2">"43467890F"</span>,
       <span class="s2">"issuing_address"</span>: <span class="s2">"C/ Viladomat 39"</span>,
@@ -2141,8 +2134,7 @@ but in the responses we will find the details about items in the <code class="pr
                   "concept": "Tornillos",
                   "unitary_amount": "0.50",
                   "quantity": 30,
-                  "vat_percent": 21,
-                  "retention_percent": 0
+                  "vat_percent": 21
                 }
               }, {
                 "type": "book_entry_items",
@@ -2150,8 +2142,7 @@ but in the responses we will find the details about items in the <code class="pr
                   "concept": "Tuercas",
                   "unitary_amount": "0.35",
                   "quantity": 30,
-                  "vat_percent": 21,
-                  "retention_percent": 0
+                  "vat_percent": 21
                 }
               }]
             }
@@ -2192,8 +2183,7 @@ curl <span class="s2">"https://getquipu.com/tickets/2682381"</span> <span class=
                   "concept": "Tornillos",
                   "unitary_amount": "0.50",
                   "quantity": 30,
-                  "vat_percent": 21,
-                  "retention_percent": 0
+                  "vat_percent": 21
                 }
               }, {
                 "type": "book_entry_items",
@@ -2201,8 +2191,7 @@ curl <span class="s2">"https://getquipu.com/tickets/2682381"</span> <span class=
                   "concept": "Tuercas",
                   "unitary_amount": "0.35",
                   "quantity": 30,
-                  "vat_percent": 21,
-                  "retention_percent": 0
+                  "vat_percent": 21
                 }
               }]
             }

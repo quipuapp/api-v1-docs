@@ -18,7 +18,6 @@ total_amount   | READ ONLY
 total_amount | READ ONLY
 total_amount_without_taxes | READ ONLY
 vat_amount | READ ONLY
-retention_amount | READ ONLY
 issuing_name | REQUIRED for expense tickets.<br>READ ONLY for income tickets. *
 issuing_tax_id | READ ONLY, *
 issuing_address | READ ONLY, *
@@ -79,7 +78,6 @@ curl "https://getquipu.com/tickets" \
       "total_amount": "5.40",
       "total_amount_without_taxes": "4.46",
       "vat_amount": "0.94",
-      "retention_amount": "0.0"
       "issuing_name": "QuipuApp S.L.",
       "issuing_tax_id": "43467890F",
       "issuing_address": "C/ Viladomat 39",
@@ -135,7 +133,6 @@ curl "https://getquipu.com/tickets" \
       "total_amount": "5.40",
       "total_amount_without_taxes": "4.46",
       "vat_amount": "0.94",
-      "retention_amount": "0.0"
       "issuing_name": "QuipuApp S.L.",
       "issuing_tax_id": "43467890F",
       "issuing_address": "C/ Viladomat 39",
@@ -238,7 +235,6 @@ curl "https://getquipu.com/tickets/2989809" \
       "total_amount": "5.40",
       "total_amount_without_taxes": "4.46",
       "vat_amount": "0.94",
-      "retention_amount": "0.0"
       "issuing_name": "QuipuApp S.L.",
       "issuing_tax_id": "43467890F",
       "issuing_address": "C/ Viladomat 39",
@@ -326,8 +322,7 @@ curl "https://getquipu.com/tickets" \
                   "concept": "Tornillos",
                   "unitary_amount": "0.50",
                   "quantity": 30,
-                  "vat_percent": 21,
-                  "retention_percent": 0
+                  "vat_percent": 21
                 }
               }, {
                 "type": "book_entry_items",
@@ -335,8 +330,7 @@ curl "https://getquipu.com/tickets" \
                   "concept": "Tuercas",
                   "unitary_amount": "0.35",
                   "quantity": 30,
-                  "vat_percent": 21,
-                  "retention_percent": 0
+                  "vat_percent": 21
                 }
               }]
             }
@@ -378,8 +372,7 @@ curl "https://getquipu.com/tickets/2682381" \
                   "concept": "Tornillos",
                   "unitary_amount": "0.50",
                   "quantity": 30,
-                  "vat_percent": 21,
-                  "retention_percent": 0
+                  "vat_percent": 21
                 }
               }, {
                 "type": "book_entry_items",
@@ -387,8 +380,7 @@ curl "https://getquipu.com/tickets/2682381" \
                   "concept": "Tuercas",
                   "unitary_amount": "0.35",
                   "quantity": 30,
-                  "vat_percent": 21,
-                  "retention_percent": 0
+                  "vat_percent": 21
                 }
               }]
             }

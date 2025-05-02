@@ -12,6 +12,8 @@ includes:
   - invoices_tickets_and_paysheets
   - invoices
   - tickets
+  - simplified_invoices
+  - additional_income
   - items
   - paysheets
   - numbering_series
@@ -76,74 +78,74 @@ In the event that a request surpasses the allocated limit for that account, a 42
 
 ### [Contacts](#contacts-section)
 
-* `GET    /contacts`
-* `POST   /contacts`
-* `GET    /contacts/:id`
-* `PATCH  /contacts/:id`
-* `DELETE /contacts/:id`
+- `GET    /contacts`
+- `POST   /contacts`
+- `GET    /contacts/:id`
+- `PATCH  /contacts/:id`
+- `DELETE /contacts/:id`
 
 ### [Invoices, tickets and paysheets](#invoices-tickets-and-paysheets-section)
 
-* `GET /book_entries`
+- `GET /book_entries`
 
 ### [Invoices](#invoices-section)
 
-* `GET    /invoices`
-* `POST   /invoices`
-* `GET    /invoices/:id`
-* `PATCH  /invoices/:id`
-* `DELETE /invoices/:id`
+- `GET    /invoices`
+- `POST   /invoices`
+- `GET    /invoices/:id`
+- `PATCH  /invoices/:id`
+- `DELETE /invoices/:id`
 
 ### [Tickets](#tickets-section)
 
-* `GET    /tickets`
-* `POST   /tickets`
-* `GET    /tickets/:id`
-* `PATCH  /tickets/:id`
-* `DELETE /tickets/:id`
+- `GET    /tickets`
+- `POST   /tickets`
+- `GET    /tickets/:id`
+- `PATCH  /tickets/:id`
+- `DELETE /tickets/:id`
 
 ### [Paysheets](#paysheets-section)
 
-* `GET    /paysheets`
-* `POST   /paysheets`
-* `GET    /paysheets/:id`
-* `PATCH  /paysheets/:id`
-* `DELETE /paysheets/:id`
+- `GET    /paysheets`
+- `POST   /paysheets`
+- `GET    /paysheets/:id`
+- `PATCH  /paysheets/:id`
+- `DELETE /paysheets/:id`
 
 ### [Numbering series](#numbering-series-section)
 
-* `GET    /numbering_series`
-* `POST   /numbering_series`
-* `GET    /numbering_series/:id`
-* `PATCH  /numbering_series/:id`
-* `DELETE /numbering_series/:id`
+- `GET    /numbering_series`
+- `POST   /numbering_series`
+- `GET    /numbering_series/:id`
+- `PATCH  /numbering_series/:id`
+- `DELETE /numbering_series/:id`
 
 ### [Analytic categories](#analytic-categories-section)
 
-* `GET    /analytic_categories`
-* `POST   /analytic_categories`
-* `GET    /analytic_categories/:id`
-* `PATCH  /analytic_categories/:id`
-* `DELETE /analytic_categories/:id`
+- `GET    /analytic_categories`
+- `POST   /analytic_categories`
+- `GET    /analytic_categories/:id`
+- `PATCH  /analytic_categories/:id`
+- `DELETE /analytic_categories/:id`
 
 ### [Accounting categories](#accounting-categories-section)
 
-* `GET    /accounting_categories`
-* `GET    /accounting_categories/:id`
+- `GET    /accounting_categories`
+- `GET    /accounting_categories/:id`
 
 ### [Accounting subcategories](#accounting-subcategories-section)
 
-* `GET    /accounting_subcategories`
-* `POST   /accounting_subcategories`
-* `GET    /accounting_subcategories/:id`
-* `PATCH  /accounting_subcategories/:id`
-* `DELETE /accounting_subcategories/:id`
+- `GET    /accounting_subcategories`
+- `POST   /accounting_subcategories`
+- `GET    /accounting_subcategories/:id`
+- `PATCH  /accounting_subcategories/:id`
+- `DELETE /accounting_subcategories/:id`
 
 ### [Attachments](#attachments-section)
 
-* `POST   /attachments`
-* `GET    /attachments/:id`
-* `DELETE /attachments/:id`
+- `POST   /attachments`
+- `GET    /attachments/:id`
+- `DELETE /attachments/:id`
 
 # Authentication
 
@@ -177,14 +179,14 @@ To get an access token you will need the account's `app_id` and `app_secret` cre
 
 As is standard in basic access authentication, the header's structure corresponds to `Authorization Basic credentials`, where `credentials` is the result of:
 
-* Joining `app_id` and `app_secret` by a single colon
-* Applying Base64 (URL safe mode) to the result
+- Joining `app_id` and `app_secret` by a single colon
+- Applying Base64 (URL safe mode) to the result
 
 Example:
 
-* if `app_id` were `PtNxfCsGklimErQqVTeAFDUTUjdMVCrjNFIlrReIimSHKMoOaWxAxwHPNevbIwFV`
-* and `app_secret` were `HRcqlIcHjYUWunjgVmAQiWYjbYFAGSoLhpXkHoGPhjdwQmXmRIxDQOQJOANpfnbD`
-* then the header would be `Authorization Basic UHROeGZDc0drbGltRXJRcVZUZUFGRFVUVWpkTVZDcmpORklsclJlSWltU0hLTW9PYVd4QXh3SFBOZXZiSXdGVjpIUmNxbEljSGpZVVd1bmpnVm1BUWlXWWpiWUZBR1NvTGhwWGtIb0dQaGpkd1FtWG1SSXhEUU9RSk9BTnBmbmJE`
+- if `app_id` were `PtNxfCsGklimErQqVTeAFDUTUjdMVCrjNFIlrReIimSHKMoOaWxAxwHPNevbIwFV`
+- and `app_secret` were `HRcqlIcHjYUWunjgVmAQiWYjbYFAGSoLhpXkHoGPhjdwQmXmRIxDQOQJOANpfnbD`
+- then the header would be `Authorization Basic UHROeGZDc0drbGltRXJRcVZUZUFGRFVUVWpkTVZDcmpORklsclJlSWltU0hLTW9PYVd4QXh3SFBOZXZiSXdGVjpIUmNxbEljSGpZVVd1bmpnVm1BUWlXWWpiWUZBR1NvTGhwWGtIb0dQaGpkd1FtWG1SSXhEUU9RSk9BTnBmbmJE`
 
 <aside class="notice">
   When a token expires you will need to request for a new one

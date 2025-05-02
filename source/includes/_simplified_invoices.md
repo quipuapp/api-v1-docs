@@ -1,25 +1,15 @@
-#<a name="tickets-section"></a> Tickets
+#<a name="simplified-invoices-section"></a> Simplified Invoices
 
-Endpoints to manage tickets (receipts).
+Endpoints to manage simplified invoices.
 
-The main difference between invoices and tickets is that the latest don't have an associated contact. You provide only the counterpart name: the `issuing_name` for expense tickets or the `recipient_name` for income tickets
-
-<aside class="warning">
-Tickets endpoints are being deprecated. Please read below.
-</aside>
-
-Due to the upcoming [Verifactu](https://sede.agenciatributaria.gob.es/Sede/iva/sistemas-informaticos-facturacion-verifactu.html) requirements we decided to split Tickets into two new types: [Simplified invoices](#simplified-invoices) and [Additional income](#additional-income).
-
-Outbound (income) tickets for services or products not tied to your main activity become "Additional Income" and they won't be sent to the Verifactu verification service.
-
-The rest of the tickets will become "Simplified Invoices". Outbound (income) ones will be sent to Verifactu if required.
+NOTE: These replace part of the deprecated [Tickets endopoints](#tickets-section) endpoints. Check [their documentation](#tickets-section) to understand why.
 
 ## Attributes
 
 Attr. name |  Constraints
 ---------- |  -----------
 kind | REQUIRED <br> Accepted values: `income` or `expenses`
-number | For income tickets we recommend leave it blank, and Quipu will assign it.<br>For income tickets must be unique within a fiscal year.
+number | For income simplified invoices we recommend leave it blank, and Quipu will assign it (and they also need to be unique within a fiscal year).
 issue_date | REQUIRED <br> Format: `YYYY-mm-dd`
 paid_at  | Format: `YYYY-mm-dd`
 payment_method | Accepted valued: `cash`, `bank_transfer`, `bank_card`, `direct_debit`, `paypal`, `check`, `factoring`
@@ -47,7 +37,7 @@ notes | Format: a string
 download_pdf_url | Url to download the pdf document for the ticket. Present only in income tickets. Needs the same authorization header.
 download_pdf_url | Url to download the pdf document for the invoice. Present only in income tickets. Needs the same authorization header.
 
-\* This fields will be populated and updated each time an invoice is saved from the information of the Quipu account owner and the contact associatied with the book entry.
+\* These fields will be populated and updated each time an invoice is saved from the information of the Quipu account owner and the contact associatied with the book entry.
 
 ## Relationships
 
@@ -66,7 +56,7 @@ amending_tickets | Ticket that amends the current one (Read Only)
 > Example request
 
 ```shell
-curl "https://getquipu.com/tickets" \
+curl "https://getquipu.com/simplified_invoices" \
   -H "Authorization: Bearer be32259bd1d0f4d3d02bcc0771b1b507e2b666ba9e9ba3d7c5639e853f722eb4" \
   -H "Accept: application/vnd.quipu.v1+json"
 ```
@@ -77,7 +67,7 @@ curl "https://getquipu.com/tickets" \
 {
   "data": [{
     "id": "2988939",
-    "type": "tickets",
+    "type": "simplified_invoices",
     "attributes": {
       "kind": "income",
       "number": "t16-53",
@@ -132,7 +122,7 @@ curl "https://getquipu.com/tickets" \
     }
   }, {
     "id": "2937714",
-    "type": "tickets",
+    "type": "simplified_invoices",
     "attributes": {
       "kind": "income",
       "number": "t16-53",
@@ -223,7 +213,7 @@ Example:
 > Example request
 
 ```shell
-curl "https://getquipu.com/tickets/2989809" \
+curl "https://getquipu.com/simplified_invoices/2989809" \
   -H "Authorization: Bearer be32259bd1d0f4d3d02bcc0771b1b507e2b666ba9e9ba3d7c5639e853f722eb4" \
   -H "Accept: application/vnd.quipu.v1+json"
 ```
@@ -234,7 +224,7 @@ curl "https://getquipu.com/tickets/2989809" \
 {
   "data": {
     "id": "2989809",
-    "type": "tickets",
+    "type": "simplified_invoices",
     "attributes": {
       "kind": "income",
       "number": "t16-53",
@@ -299,13 +289,13 @@ curl "https://getquipu.com/tickets/2989809" \
 > Example request
 
 ```shell
-curl "https://getquipu.com/tickets" \
+curl "https://getquipu.com/simplified_invoices" \
   -H "Authorization: Bearer be32259bd1d0f4d3d02bcc0771b1b507e2b666ba9e9ba3d7c5639e853f722eb4" \
   -H "Accept: application/vnd.quipu.v1+json" \
   -H "Content-Type: application/vnd.quipu.v1+json" \
   -d '{
         "data": {
-          "type": "tickets",
+          "type": "simplified_invoices",
           "attributes": {
             "kind": "income",
             "number": null,
@@ -361,7 +351,7 @@ curl "https://getquipu.com/tickets" \
 # create a new item with concept "Tuercas",
 # and destroy other items associated to the ticket if any.
 
-curl "https://getquipu.com/tickets/2682381" \
+curl "https://getquipu.com/simplified_invoices/2682381" \
   -X PATCH \
   -H "Authorization: Bearer 818abe1ea4a1813999a47105892d50f3781320c588fb8cd2927885963e621228" \
   -H "Accept: application/vnd.quipu.v1+json" \
@@ -406,7 +396,7 @@ curl "https://getquipu.com/tickets/2682381" \
 > Example request
 
 ```shell
-curl "https://getquipu.com/tickets/2988939" \
+curl "https://getquipu.com/simplified_invoices/2988939" \
   -X DELETE
   -H "Authorization: Bearer be32259bd1d0f4d3d02bcc0771b1b507e2b666ba9e9ba3d7c5639e853f722eb4" \
   -H "Accept: application/vnd.quipu.v1+json"
@@ -423,18 +413,18 @@ You can also partially amend a ticket setting the items of the amending ticket m
 > Example request for a complete refund
 
 ```shell
-curl "https://getquipu.com/tickets" \
+curl "https://getquipu.com/simplified_invoices" \
   -H "Authorization: Bearer be32259bd1d0f4d3d02bcc0771b1b507e2b666ba9e9ba3d7c5639e853f722eb4" \
   -H "Accept: application/vnd.quipu.v1+json" \
   -H "Content-Type: application/vnd.quipu.v1+json" \
   -d '{
         "data": {
-          "type": "tickets",
+          "type": "simplified_invoices",
           "relationships": {
             "amended_ticket": {
               "data": {
                 "id": 879495,
-                "type": "tickets"
+                "type": "simplified_invoices"
               }
             }
           }
@@ -445,18 +435,18 @@ curl "https://getquipu.com/tickets" \
 > Example of a partial refund
 
 ```shell
-curl "https://getquipu.com/tickets" \
+curl "https://getquipu.com/simplified_invoices" \
   -H "Authorization: Bearer be32259bd1d0f4d3d02bcc0771b1b507e2b666ba9e9ba3d7c5639e853f722eb4" \
   -H "Accept: application/vnd.quipu.v1+json" \
   -H "Content-Type: application/vnd.quipu.v1+json" \
   -d '{
         "data": {
-          "type": "tickets",
+          "type": "simplified_invoices",
           "relationships": {
             "amended_ticket": {
               "data": {
                 "id": 879495,
-                "type": "tickets"
+                "type": "simplified_invoices"
               }
             },
             "items": {

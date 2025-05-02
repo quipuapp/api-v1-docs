@@ -1,3 +1,13 @@
+# 2025 Update
+
+I tried using this project with both the vagrant and local options without luck.
+Vagrant needs an old version of the guest tools and running locally is out of the picture due to issues with old ruby version + system libraries.
+In order to fix this, I used docker.
+
+So, if you are in 2025 or later, just run `./dev.sh` with Docker installed and open http://localhost:4455/. Good luck!
+
+---
+
 <p align="center">
   <img src="https://raw.githubusercontent.com/lord/img/master/logo-slate.png" alt="Slate: API Documentation Generator" width="226">
   <br>

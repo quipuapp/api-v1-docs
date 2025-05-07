@@ -18,6 +18,7 @@ total_amount | READ ONLY
 total_amount_without_taxes | READ ONLY
 vat_amount | READ ONLY
 retention_amount | READ ONLY
+stage | READ ONLY, for income invoices only<br>Possible values: `draft` or `final`, depending on `paid_at` and `due_dates` values.
 issuing_name | READ ONLY, *
 issuing_tax_id | READ ONLY, *
 issuing_address | READ ONLY, *

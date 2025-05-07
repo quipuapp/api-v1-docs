@@ -1064,6 +1064,10 @@ with it.</p>
 <td>READ ONLY</td>
 </tr>
 <tr>
+<td>stage</td>
+<td>READ ONLY, for income invoices only<br>Possible values: <code class="prettyprint">draft</code> or <code class="prettyprint">final</code>, depending on <code class="prettyprint">paid_at</code> and <code class="prettyprint">due_dates</code> values.</td>
+</tr>
+<tr>
 <td>issuing_name</td>
 <td>READ ONLY, *</td>
 </tr>
@@ -1711,6 +1715,8 @@ Tickets endpoints are being deprecated. Please read below.
 
 <p>The rest of the tickets will become &ldquo;Simplified Invoices&rdquo;. Outbound (income) ones will be sent to Verifactu if required.</p>
 
+<p>If you need the <code class="prettyprint">stage</code> field, then it&rsquo;s time to migrate to the new endpoints (Tickets don&rsquo;t have it but Simplified invoices do)</p>
+
 <h2 id="attributes">Attributes</h2>
 
 <table><thead>
@@ -2339,6 +2345,10 @@ curl <span class="s2">"https://getquipu.com/tickets/2682381"</span> <span class=
 <tr>
 <td>vat_amount</td>
 <td>READ ONLY</td>
+</tr>
+<tr>
+<td>stage</td>
+<td>READ ONLY, for income simplified invoices only<br>Possible values: <code class="prettyprint">draft</code> or <code class="prettyprint">final</code>, depending on <code class="prettyprint">paid_at</code> and <code class="prettyprint">due_dates</code> values.</td>
 </tr>
 <tr>
 <td>issuing_name</td>

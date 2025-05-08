@@ -14,6 +14,8 @@ Outbound (income) tickets for services or products not tied to your main activit
 
 The rest of the tickets will become "Simplified Invoices". Outbound (income) ones will be sent to Verifactu if required.
 
+If you need the `stage` field, then it's time to migrate to the new endpoints (Tickets don't have it but Simplified invoices do)
+
 ## Attributes
 
 Attr. name |  Constraints

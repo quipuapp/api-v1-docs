@@ -18,6 +18,7 @@ total_amount   | READ ONLY
 total_amount | READ ONLY
 total_amount_without_taxes | READ ONLY
 vat_amount | READ ONLY
+stage | READ ONLY, for income simplified invoices only<br>Possible values: `draft` or `final`, depending on `paid_at` and `due_dates` values.
 issuing_name | REQUIRED for expense tickets.<br>READ ONLY for income tickets. *
 issuing_tax_id | READ ONLY, *
 issuing_address | READ ONLY, *

@@ -2352,7 +2352,7 @@ curl <span class="s2">"https://getquipu.com/tickets/2682381"</span> <span class=
 </tr>
 <tr>
 <td>issuing_name</td>
-<td>REQUIRED for expense tickets.<br>READ ONLY for income tickets. *</td>
+<td>REQUIRED for expense simplified invoices.<br>READ ONLY for income simplified invoices. *</td>
 </tr>
 <tr>
 <td>issuing_tax_id</td>
@@ -2380,7 +2380,7 @@ curl <span class="s2">"https://getquipu.com/tickets/2682381"</span> <span class=
 </tr>
 <tr>
 <td>recipient_name</td>
-<td>REQUIRED for income tickets.<br>READ ONLY for expense tickets. *</td>
+<td>REQUIRED for income simplified invoices.<br>READ ONLY for expense simplified invoices. *</td>
 </tr>
 <tr>
 <td>recipient_tax_id</td>
@@ -2416,11 +2416,11 @@ curl <span class="s2">"https://getquipu.com/tickets/2682381"</span> <span class=
 </tr>
 <tr>
 <td>download_pdf_url</td>
-<td>Url to download the pdf document for the ticket. Present only in income tickets. Needs the same authorization header.</td>
+<td>Url to download the pdf document for the simplified invoice. Present only in income simplified invoices. Needs the same authorization header.</td>
 </tr>
 <tr>
 <td>download_pdf_url</td>
-<td>Url to download the pdf document for the invoice. Present only in income tickets. Needs the same authorization header.</td>
+<td>Url to download the pdf document for the invoice. Present only in income simplified invoices. Needs the same authorization header.</td>
 </tr>
 </tbody></table>
 
@@ -2444,7 +2444,7 @@ curl <span class="s2">"https://getquipu.com/tickets/2682381"</span> <span class=
 </tr>
 <tr>
 <td>numeration</td>
-<td>Applicable only to tickets with <code class="prettyprint">kind = income</code></td>
+<td>Applicable only to simplified invoices with <code class="prettyprint">kind = income</code></td>
 </tr>
 <tr>
 <td>analytic_categories</td>
@@ -2455,16 +2455,16 @@ curl <span class="s2">"https://getquipu.com/tickets/2682381"</span> <span class=
 <td>Can be sideloaded in GET requests. <br> Must be included in the payload in POST/PATCH/PUT requests</td>
 </tr>
 <tr>
-<td>amended_ticket</td>
-<td>The ticket amended by the current one.</td>
+<td>amended_simplified_innvoice</td>
+<td>The simplified invoice amended by the current one.</td>
 </tr>
 <tr>
-<td>amending_tickets</td>
-<td>Ticket that amends the current one (Read Only)</td>
+<td>amending_simplified_invoices</td>
+<td>Simplified invoice that amends the current one (Read Only)</td>
 </tr>
 </tbody></table>
 
-<h2 id="listing-tickets">Listing tickets</h2>
+<h2 id="listing-simplified-invoices">Listing simplified invoices</h2>
 
 <blockquote>
 <p>Example request</p>
@@ -2603,25 +2603,25 @@ curl <span class="s2">"https://getquipu.com/tickets/2682381"</span> <span class=
 <span class="o">}</span>
 </code></pre>
 
-<p><code class="prettyprint">GET /tickets</code></p>
+<p><code class="prettyprint">GET /simplfied_invoices</code></p>
 
 <h3 id="available-filters">Available filters</h3>
 
-<p>See <a href="#book-entries-available-filters">Invoices, tickets and paysheets =&gt; Available filters</a></p>
+<p>See <a href="#book-entries-available-filters">Invoices, simplified invoices and paysheets =&gt; Available filters</a></p>
 
 <h3 id="sorting">Sorting</h3>
 
-<p>See <a href="#book-entries-sorting">Invoices, tickets and paysheets =&gt; Sorting</a></p>
+<p>See <a href="#book-entries-sorting">Invoices, simplified invoices and paysheets =&gt; Sorting</a></p>
 
 <h3 id="side-loading-items">Side loading items</h3>
 
-<p>If you want to retrieve the complete information about the items associated with the tickets, you can pass <code class="prettyprint">?include=items</code> in the url</p>
+<p>If you want to retrieve the complete information about the items associated with the simplified invoices, you can pass <code class="prettyprint">?include=items</code> in the url</p>
 
 <p>Example:</p>
 
-<p><code class="prettyprint">GET /tickets?include=items</code></p>
+<p><code class="prettyprint">GET /simplified invoices?include=items</code></p>
 
-<h2 id="getting-a-ticket">Getting a ticket</h2>
+<h2 id="getting-a-simplified-invoice">Getting a simplified invoice</h2>
 
 <blockquote>
 <p>Example request</p>
@@ -2694,10 +2694,10 @@ curl <span class="s2">"https://getquipu.com/tickets/2682381"</span> <span class=
 <span class="o">}</span>
 </code></pre>
 
-<p><code class="prettyprint">GET /tickets/:ticket_id</code> |
-<code class="prettyprint">GET /tickets/:ticket_id?include=items</code></p>
+<p><code class="prettyprint">GET /simplified_invoices/:simplified_invoice_id</code> |
+<code class="prettyprint">GET /simplified_invoices/:simplified_invoice_id?include=items</code></p>
 
-<h2 id="creating-a-ticket">Creating a ticket</h2>
+<h2 id="creating-a-simplified-invoice">Creating a simplified invoice</h2>
 
 <blockquote>
 <p>Example request</p>
@@ -2752,16 +2752,16 @@ curl <span class="s2">"https://getquipu.com/tickets/2682381"</span> <span class=
       }'</span>
 </code></pre>
 
-<p><code class="prettyprint">POST /tickets</code></p>
+<p><code class="prettyprint">POST /simplified_invoices</code></p>
 
-<h2 id="updating-a-ticket">Updating a ticket</h2>
+<h2 id="updating-a-simplified-invoice">Updating a simplified invoice</h2>
 
 <blockquote>
 <p>Example request</p>
 </blockquote>
 <pre class="highlight shell"><code><span class="c"># This request will update the attributes of the item with id 23424141,</span>
 <span class="c"># create a new item with concept "Tuercas",</span>
-<span class="c"># and destroy other items associated to the ticket if any.</span>
+<span class="c"># and destroy other items associated to the simplified invoice if any.</span>
 
 curl <span class="s2">"https://getquipu.com/simplified_invoices/2682381"</span> <span class="se">\</span>
   -X PATCH <span class="se">\</span>
@@ -2801,9 +2801,9 @@ curl <span class="s2">"https://getquipu.com/simplified_invoices/2682381"</span> 
       }'</span>
 </code></pre>
 
-<p><code class="prettyprint">(PUT|PATCH) /tickets/:ticket_id</code></p>
+<p><code class="prettyprint">(PUT|PATCH) /simplified_invoices/:simplified_invoice_id</code></p>
 
-<h2 id="deleting-a-ticket">Deleting a ticket</h2>
+<h2 id="deleting-a-simplified-invoice">Deleting a simplified invoice</h2>
 
 <blockquote>
 <p>Example request</p>
@@ -2814,13 +2814,13 @@ curl <span class="s2">"https://getquipu.com/simplified_invoices/2682381"</span> 
   -H <span class="s2">"Accept: application/vnd.quipu.v1+json"</span>
 </code></pre>
 
-<p><code class="prettyprint">DELETE /tickets/:ticket_id</code></p>
+<p><code class="prettyprint">DELETE /simplified_invoices/:simplified_invoice_id</code></p>
 
-<h2 id="refunds-and-amending-tickets">Refunds and amending tickets</h2>
+<h2 id="refunds-and-amending-simplified-invoices">Refunds and amending simplified invoices</h2>
 
-<p>A ticket can be totally or partially amended. The minimal amount of data needed to create an amending ticket is the relationship <code class="prettyprint">amended_ticket</code>. With this data a complete refund of the original ticket will be created.</p>
+<p>A simplified invoice can be totally or partially amended. The minimal amount of data needed to create an amending simplified invoice is the relationship <code class="prettyprint">amended_simplified_invoice</code>. With this data a complete refund of the original simplified invoice will be created.</p>
 
-<p>You can also partially amend a ticket setting the items of the amending ticket manually.</p>
+<p>You can also partially amend a simplified invoice setting the items of the amending simplified invoice manually.</p>
 
 <blockquote>
 <p>Example request for a complete refund</p>
@@ -2833,7 +2833,7 @@ curl <span class="s2">"https://getquipu.com/simplified_invoices/2682381"</span> 
         "data": {
           "type": "simplified_invoices",
           "relationships": {
-            "amended_ticket": {
+            "amended_simplified_invoice": {
               "data": {
                 "id": 879495,
                 "type": "simplified_invoices"
@@ -2855,7 +2855,7 @@ curl <span class="s2">"https://getquipu.com/simplified_invoices/2682381"</span> 
         "data": {
           "type": "simplified_invoices",
           "relationships": {
-            "amended_ticket": {
+            "amended_simplified_invoice": {
               "data": {
                 "id": 879495,
                 "type": "simplified_invoices"

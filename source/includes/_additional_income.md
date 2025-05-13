@@ -288,7 +288,6 @@ curl "https://getquipu.com/additional_incomes" \
                 "attributes": {
                   "concept": "Tornillos",
                   "unitary_amount": "0.50",
-                  "quantity": 30,
                   "vat_percent": 21
                 }
               }, {
@@ -296,7 +295,6 @@ curl "https://getquipu.com/additional_incomes" \
                 "attributes": {
                   "concept": "Tuercas",
                   "unitary_amount": "0.35",
-                  "quantity": 30,
                   "vat_percent": 21
                 }
               }]
@@ -338,7 +336,6 @@ curl "https://getquipu.com/additional_incomes/2682381" \
                 "attributes": {
                   "concept": "Tornillos",
                   "unitary_amount": "0.50",
-                  "quantity": 30,
                   "vat_percent": 21
                 }
               }, {
@@ -346,7 +343,6 @@ curl "https://getquipu.com/additional_incomes/2682381" \
                 "attributes": {
                   "concept": "Tuercas",
                   "unitary_amount": "0.35",
-                  "quantity": 30,
                   "vat_percent": 21
                 }
               }]

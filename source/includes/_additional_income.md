@@ -36,7 +36,7 @@ Relationship name |  Constraints
 ----------------- |  -----------
 accounting_category |
 accounting_subcategory |
-numeration | Applicable only to tickets with `kind = income`
+numeration |
 analytic_categories | Can not be a root analytic category
 items | Can be sideloaded in GET requests. <br> Must be included in the payload in POST/PATCH/PUT requests
 
@@ -288,7 +288,6 @@ curl "https://getquipu.com/additional_incomes" \
                 "attributes": {
                   "concept": "Tornillos",
                   "unitary_amount": "0.50",
-                  "quantity": 30,
                   "vat_percent": 21
                 }
               }, {
@@ -296,7 +295,6 @@ curl "https://getquipu.com/additional_incomes" \
                 "attributes": {
                   "concept": "Tuercas",
                   "unitary_amount": "0.35",
-                  "quantity": 30,
                   "vat_percent": 21
                 }
               }]
@@ -306,9 +304,9 @@ curl "https://getquipu.com/additional_incomes" \
       }'
 ```
 
-`POST /tickets`
+`POST /addintional_incomes`
 
-## Updating a ticket
+## Updating an Additional Income
 
 > Example request
 
@@ -316,7 +314,7 @@ curl "https://getquipu.com/additional_incomes" \
 ```shell
 # This request will update the attributes of the item with id 23424141,
 # create a new item with concept "Tuercas",
-# and destroy other items associated to the ticket if any.
+# and destroy other items associated to the additional income if any.
 
 curl "https://getquipu.com/additional_incomes/2682381" \
   -X PATCH \
@@ -338,7 +336,6 @@ curl "https://getquipu.com/additional_incomes/2682381" \
                 "attributes": {
                   "concept": "Tornillos",
                   "unitary_amount": "0.50",
-                  "quantity": 30,
                   "vat_percent": 21
                 }
               }, {
@@ -346,7 +343,6 @@ curl "https://getquipu.com/additional_incomes/2682381" \
                 "attributes": {
                   "concept": "Tuercas",
                   "unitary_amount": "0.35",
-                  "quantity": 30,
                   "vat_percent": 21
                 }
               }]
@@ -356,9 +352,9 @@ curl "https://getquipu.com/additional_incomes/2682381" \
       }'
 ```
 
-`(PUT|PATCH) /tickets/:additional_income_id`
+`(PUT|PATCH) /additional_incomes/:additional_income_id`
 
-## Deleting a ticket
+## Deleting an Additional Income
 
 > Example request
 
@@ -369,6 +365,6 @@ curl "https://getquipu.com/additional_incomes/2988939" \
   -H "Accept: application/vnd.quipu.v1+json"
 ```
 
-`DELETE /tickets/:additional_income_id`
+`DELETE /additional_incomes/:additional_income_id`
 
 

@@ -2989,7 +2989,7 @@ curl <span class="s2">"https://getquipu.com/simplified_invoices/2682381"</span> 
 </tr>
 <tr>
 <td>numeration</td>
-<td>Applicable only to tickets with <code class="prettyprint">kind = income</code></td>
+<td></td>
 </tr>
 <tr>
 <td>analytic_categories</td>
@@ -3267,16 +3267,16 @@ curl <span class="s2">"https://getquipu.com/simplified_invoices/2682381"</span> 
       }'</span>
 </code></pre>
 
-<p><code class="prettyprint">POST /tickets</code></p>
+<p><code class="prettyprint">POST /addintional_incomes</code></p>
 
-<h2 id="updating-a-ticket">Updating a ticket</h2>
+<h2 id="updating-an-additional-income">Updating an Additional Income</h2>
 
 <blockquote>
 <p>Example request</p>
 </blockquote>
 <pre class="highlight shell"><code><span class="c"># This request will update the attributes of the item with id 23424141,</span>
 <span class="c"># create a new item with concept "Tuercas",</span>
-<span class="c"># and destroy other items associated to the ticket if any.</span>
+<span class="c"># and destroy other items associated to the additional income if any.</span>
 
 curl <span class="s2">"https://getquipu.com/additional_incomes/2682381"</span> <span class="se">\</span>
   -X PATCH <span class="se">\</span>
@@ -3316,9 +3316,9 @@ curl <span class="s2">"https://getquipu.com/additional_incomes/2682381"</span> <
       }'</span>
 </code></pre>
 
-<p><code class="prettyprint">(PUT|PATCH) /tickets/:additional_income_id</code></p>
+<p><code class="prettyprint">(PUT|PATCH) /additional_incomes/:additional_income_id</code></p>
 
-<h2 id="deleting-a-ticket">Deleting a ticket</h2>
+<h2 id="deleting-an-additional-income">Deleting an Additional Income</h2>
 
 <blockquote>
 <p>Example request</p>
@@ -3329,7 +3329,7 @@ curl <span class="s2">"https://getquipu.com/additional_incomes/2682381"</span> <
   -H <span class="s2">"Accept: application/vnd.quipu.v1+json"</span>
 </code></pre>
 
-<p><code class="prettyprint">DELETE /tickets/:additional_income_id</code></p>
+<p><code class="prettyprint">DELETE /additional_incomes/:additional_income_id</code></p>
 
           <h1 id="items">Items</h1>
 

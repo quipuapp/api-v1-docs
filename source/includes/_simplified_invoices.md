@@ -19,14 +19,14 @@ total_amount | READ ONLY
 total_amount_without_taxes | READ ONLY
 vat_amount | READ ONLY
 stage | READ ONLY, for income simplified invoices only<br>Possible values: `draft` or `final`, depending on `paid_at` and `due_dates` values.
-issuing_name | REQUIRED for expense tickets.<br>READ ONLY for income tickets. *
+issuing_name | REQUIRED for expense simplified invoices.<br>READ ONLY for income simplified invoices. *
 issuing_tax_id | READ ONLY, *
 issuing_address | READ ONLY, *
 issuing_phone | READ ONLY, *
 issuing_town | READ ONLY, *
 issuing_zip_code | READ ONLY, *
 issuing_country_code | READ ONLY, *
-recipient_name | REQUIRED for income tickets.<br>READ ONLY for expense tickets. *
+recipient_name | REQUIRED for income simplified invoices.<br>READ ONLY for expense simplified invoices. *
 recipient_tax_id | READ ONLY, *
 recipient_address | READ ONLY, *
 recipient_phone | READ ONLY, *
@@ -35,8 +35,8 @@ recipient_zip_code | READ ONLY, *
 recipient_country_code | READ ONLY, *
 tags | Format: a list of strings separated by comma
 notes | Format: a string
-download_pdf_url | Url to download the pdf document for the ticket. Present only in income tickets. Needs the same authorization header.
-download_pdf_url | Url to download the pdf document for the invoice. Present only in income tickets. Needs the same authorization header.
+download_pdf_url | Url to download the pdf document for the simplified invoice. Present only in income simplified invoices. Needs the same authorization header.
+download_pdf_url | Url to download the pdf document for the invoice. Present only in income simplified invoices. Needs the same authorization header.
 
 \* These fields will be populated and updated each time an invoice is saved from the information of the Quipu account owner and the contact associatied with the book entry.
 
@@ -46,13 +46,13 @@ Relationship name |  Constraints
 ----------------- |  -----------
 accounting_category |
 accounting_subcategory |
-numeration | Applicable only to tickets with `kind = income`
+numeration | Applicable only to simplified invoices with `kind = income`
 analytic_categories | Can not be a root analytic category
 items | Can be sideloaded in GET requests. <br> Must be included in the payload in POST/PATCH/PUT requests
-amended_ticket | The ticket amended by the current one.
-amending_tickets | Ticket that amends the current one (Read Only)
+amended_simplified_innvoice | The simplified invoice amended by the current one.
+amending_simplified_invoices | Simplified invoice that amends the current one (Read Only)
 
-## Listing tickets
+## Listing simplified invoices
 
 > Example request
 
@@ -191,25 +191,25 @@ curl "https://getquipu.com/simplified_invoices" \
 }
 ```
 
-`GET /tickets`
+`GET /simplfied_invoices`
 
 ### Available filters
 
-See [Invoices, tickets and paysheets => Available filters](#book-entries-available-filters)
+See [Invoices, simplified invoices and paysheets => Available filters](#book-entries-available-filters)
 
 ### Sorting
 
-See [Invoices, tickets and paysheets => Sorting](#book-entries-sorting)
+See [Invoices, simplified invoices and paysheets => Sorting](#book-entries-sorting)
 
 ### Side loading items
 
-If you want to retrieve the complete information about the items associated with the tickets, you can pass `?include=items` in the url
+If you want to retrieve the complete information about the items associated with the simplified invoices, you can pass `?include=items` in the url
 
 Example:
 
-`GET /tickets?include=items`
+`GET /simplified invoices?include=items`
 
-## Getting a ticket
+## Getting a simplified invoice
 
 > Example request
 
@@ -282,10 +282,10 @@ curl "https://getquipu.com/simplified_invoices/2989809" \
 }
 ```
 
-`GET /tickets/:ticket_id` |
-`GET /tickets/:ticket_id?include=items`
+`GET /simplified_invoices/:simplified_invoice_id` |
+`GET /simplified_invoices/:simplified_invoice_id?include=items`
 
-## Creating a ticket
+## Creating a simplified invoice
 
 > Example request
 
@@ -340,9 +340,9 @@ curl "https://getquipu.com/simplified_invoices" \
       }'
 ```
 
-`POST /tickets`
+`POST /simplified_invoices`
 
-## Updating a ticket
+## Updating a simplified invoice
 
 > Example request
 
@@ -350,7 +350,7 @@ curl "https://getquipu.com/simplified_invoices" \
 ```shell
 # This request will update the attributes of the item with id 23424141,
 # create a new item with concept "Tuercas",
-# and destroy other items associated to the ticket if any.
+# and destroy other items associated to the simplified invoice if any.
 
 curl "https://getquipu.com/simplified_invoices/2682381" \
   -X PATCH \
@@ -390,9 +390,9 @@ curl "https://getquipu.com/simplified_invoices/2682381" \
       }'
 ```
 
-`(PUT|PATCH) /tickets/:ticket_id`
+`(PUT|PATCH) /simplified_invoices/:simplified_invoice_id`
 
-## Deleting a ticket
+## Deleting a simplified invoice
 
 > Example request
 
@@ -403,13 +403,13 @@ curl "https://getquipu.com/simplified_invoices/2988939" \
   -H "Accept: application/vnd.quipu.v1+json"
 ```
 
-`DELETE /tickets/:ticket_id`
+`DELETE /simplified_invoices/:simplified_invoice_id`
 
-## Refunds and amending tickets
+## Refunds and amending simplified invoices
 
-A ticket can be totally or partially amended. The minimal amount of data needed to create an amending ticket is the relationship `amended_ticket`. With this data a complete refund of the original ticket will be created.
+A simplified invoice can be totally or partially amended. The minimal amount of data needed to create an amending simplified invoice is the relationship `amended_simplified_invoice`. With this data a complete refund of the original simplified invoice will be created.
 
-You can also partially amend a ticket setting the items of the amending ticket manually.
+You can also partially amend a simplified invoice setting the items of the amending simplified invoice manually.
 
 > Example request for a complete refund
 
@@ -422,7 +422,7 @@ curl "https://getquipu.com/simplified_invoices" \
         "data": {
           "type": "simplified_invoices",
           "relationships": {
-            "amended_ticket": {
+            "amended_simplified_invoice": {
               "data": {
                 "id": 879495,
                 "type": "simplified_invoices"
@@ -444,7 +444,7 @@ curl "https://getquipu.com/simplified_invoices" \
         "data": {
           "type": "simplified_invoices",
           "relationships": {
-            "amended_ticket": {
+            "amended_simplified_invoice": {
               "data": {
                 "id": 879495,
                 "type": "simplified_invoices"

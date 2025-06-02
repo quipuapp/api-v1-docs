@@ -196,12 +196,40 @@
 
 <h3 id="tickets"><a href="#tickets-section">Tickets</a></h3>
 
+<aside class="warning">
+Tickets endpoints are being deprecated.
+
+If you need the `stage` field, you&rsquo;ll need to migrate to <a href="#simplified-invoices-section">Simplified invoices</a> and/or <a href="#additional-income-section">Additional income</a>.
+
+Tickets will be created as <a href="#simplified-invoices-section">Simplified invoices</a> by default. If you need Additional income, then you&rsquo;ll have to use the specific <a href="#additional-income-section">Additional income</a> endpoints
+</aside>
+
 <ul>
 <li><code class="prettyprint">GET    /tickets</code></li>
 <li><code class="prettyprint">POST   /tickets</code></li>
 <li><code class="prettyprint">GET    /tickets/:id</code></li>
 <li><code class="prettyprint">PATCH  /tickets/:id</code></li>
 <li><code class="prettyprint">DELETE /tickets/:id</code></li>
+</ul>
+
+<h3 id="simplified-invoices"><a href="#simplified-invoices-section">Simplified invoices</a></h3>
+
+<ul>
+<li><code class="prettyprint">GET    /simplified_invoices</code></li>
+<li><code class="prettyprint">GET   /simplified_invoices/:id</code></li>
+<li><code class="prettyprint">POST   /simplified_invoices</code></li>
+<li><code class="prettyprint">PATCH  /simplified_invoices/:id</code></li>
+<li><code class="prettyprint">DELETE /simplified_invoices/:id</code></li>
+</ul>
+
+<h3 id="additional-income"><a href="#additional-income-section">Additional income</a></h3>
+
+<ul>
+<li><code class="prettyprint">GET    /additional_income</code></li>
+<li><code class="prettyprint">GET   /additional_income/:id</code></li>
+<li><code class="prettyprint">POST   /additional_income</code></li>
+<li><code class="prettyprint">PATCH  /additional_income/:id</code></li>
+<li><code class="prettyprint">DELETE /additional_income/:id</code></li>
 </ul>
 
 <h3 id="paysheets"><a href="#paysheets-section">Paysheets</a></h3>
@@ -703,7 +731,7 @@ with it.</p>
 
 <p>Only one available action. Get a list with different type of resources</p>
 
-<h2 id="listing-invoices-tickets-and-paysheets-alltoghether">Listing invoices, tickets and paysheets alltoghether</h2>
+<h2 id="listing-invoices-tickets-simplified-invoices-additional-income-and-paysheets-alltoghether">Listing invoices, tickets, simplified invoices, additional income and paysheets alltoghether</h2>
 
 <blockquote>
 <p>Example request</p>
@@ -926,7 +954,7 @@ with it.</p>
 <tr>
 <td>type</td>
 <td>Filters resources by type</td>
-<td><code class="prettyprint">invoices</code>, <code class="prettyprint">tickets</code> or <code class="prettyprint">paysheets</code></td>
+<td><code class="prettyprint">invoices</code>, <code class="prettyprint">tickets</code>, <code class="prettyprint">simplified_invoices</code>, <code class="prettyprint">additional_income</code> or <code class="prettyprint">paysheets</code></td>
 <td><code class="prettyprint">/book_entries?filter[type]=invoices</code></td>
 </tr>
 <tr>
@@ -1709,13 +1737,13 @@ but in the responses we will find the details about items in the <code class="pr
 Tickets endpoints are being deprecated. Please read below.
 </aside>
 
-<p>Due to the upcoming <a href="https://sede.agenciatributaria.gob.es/Sede/iva/sistemas-informaticos-facturacion-verifactu.html">Verifactu</a> requirements we decided to split Tickets into two new types: <a href="#simplified-invoices">Simplified invoices</a> and <a href="#additional-income">Additional income</a>.</p>
+<p>Due to the upcoming <a href="https://sede.agenciatributaria.gob.es/Sede/iva/sistemas-informaticos-facturacion-verifactu.html">Verifactu</a> requirements we decided to split Tickets into two new types: <a href="#simplified-invoices">Simplified invoices</a> and <a href="#additional-income-section">Additional income</a>.</p>
 
 <p>Outbound (income) tickets for services or products not tied to your main activity become &ldquo;Additional Income&rdquo; and they won&rsquo;t be sent to the Verifactu verification service.</p>
 
 <p>The rest of the tickets will become &ldquo;Simplified Invoices&rdquo;. Outbound (income) ones will be sent to Verifactu if required.</p>
 
-<p>If you need the <code class="prettyprint">stage</code> field, then it&rsquo;s time to migrate to the new endpoints (Tickets don&rsquo;t have it but Simplified invoices do)</p>
+<p>If you need the <code class="prettyprint">stage</code> field, then it&rsquo;s time to migrate to the new endpoints (Tickets don&rsquo;t have it but Simplified invoices do). If you need to create an Additional income, you can use the new endpoint for that.</p>
 
 <h2 id="attributes">Attributes</h2>
 
@@ -2877,7 +2905,7 @@ curl <span class="s2">"https://getquipu.com/simplified_invoices/2682381"</span> 
       }'</span>
 </code></pre>
 
-          <h1 id="additional-income"><a name="additional-income"></a> Additional Income</h1>
+          <h1 id="additional-income"><a name="additional-income-section"></a> Additional Income</h1>
 
 <p>Endpoints to manage Additional Income documents (income not tied to your main activity).</p>
 
@@ -3879,7 +3907,7 @@ curl <span class="s2">"https://getquipu.com/additional_incomes/2682381"</span> <
 </tr>
 <tr>
 <td>applicable_to</td>
-<td>REQUIRED. Accepted values: <code class="prettyprint">&quot;tickets&quot;</code> or <code class="prettyprint">&quot;invoices&quot;</code></td>
+<td>REQUIRED. Accepted values: <code class="prettyprint">&quot;tickets&quot;</code>, <code class="prettyprint">&quot;simplified_invoices&quot;</code> or <code class="prettyprint">&quot;invoices&quot;</code></td>
 </tr>
 <tr>
 <td>default</td>

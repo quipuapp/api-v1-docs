@@ -98,11 +98,33 @@ In the event that a request surpasses the allocated limit for that account, a 42
 
 ### [Tickets](#tickets-section)
 
+<aside class="warning">
+Tickets endpoints are being deprecated.
+
+If you need the `stage` field, you'll need to migrate to <a href="#simplified-invoices-section">Simplified invoices</a> and/or <a href="#additional-income-section">Additional income</a>.
+
+Tickets will be created as <a href="#simplified-invoices-section">Simplified invoices</a> by default. If you need Additional income, then you'll have to use the specific <a href="#additional-income-section">Additional income</a> endpoints
+</aside>
+
 - `GET    /tickets`
 - `POST   /tickets`
 - `GET    /tickets/:id`
 - `PATCH  /tickets/:id`
 - `DELETE /tickets/:id`
+
+### [Simplified invoices](#simplified-invoices-section)
+- `GET    /simplified_invoices`
+- `GET   /simplified_invoices/:id`
+- `POST   /simplified_invoices`
+- `PATCH  /simplified_invoices/:id`
+- `DELETE /simplified_invoices/:id`
+
+### [Additional income](#additional-income-section)
+- `GET    /additional_income`
+- `GET   /additional_income/:id`
+- `POST   /additional_income`
+- `PATCH  /additional_income/:id`
+- `DELETE /additional_income/:id`
 
 ### [Paysheets](#paysheets-section)
 

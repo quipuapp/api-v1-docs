@@ -2,7 +2,7 @@
 
 Only one available action. Get a list with different type of resources
 
-## Listing invoices, tickets and paysheets alltoghether
+## Listing invoices, tickets, simplified invoices, additional income and paysheets alltoghether
 
 > Example request
 
@@ -216,7 +216,7 @@ curl "https://getquipu.com/book_entries" \
 
 Filter name | Description | Valid values | Example
 ------------| ------------| ------------ | -------
-type | Filters resources by type | `invoices`, `tickets` or `paysheets` | `/book_entries?filter[type]=invoices`
+type | Filters resources by type | `invoices`, `tickets`, `simplified_invoices`, `additional_income` or `paysheets` | `/book_entries?filter[type]=invoices`
 kind | Filter resources by kind | `expenses` or `income` | `/book_entries?filter[kind]=expenses`
 q | Search | Any | `/book_entries?filter[q]=android development`
 period | Filter resources issued in the specified period | year-[month number,Q1,Q2,Q3,Q4]<br>from=DATE&to=DATE (the difference between them must be less than one year) | `/book_entries?filter[period]=2015-Q1` =>  First quarter of 2015 <br> `/book_entries?filter[period]=2016-2` => February 2016 <br> `/book_entries?filter[period]=2015` => 2015 <br> `book_entries?filter[period][from]=2015-04-03&filter[period][to]=2015-07-14`

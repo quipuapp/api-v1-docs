@@ -8,13 +8,13 @@ The main difference between invoices and tickets is that the latest don't have a
 Tickets endpoints are being deprecated. Please read below.
 </aside>
 
-Due to the upcoming [Verifactu](https://sede.agenciatributaria.gob.es/Sede/iva/sistemas-informaticos-facturacion-verifactu.html) requirements we decided to split Tickets into two new types: [Simplified invoices](#simplified-invoices) and [Additional income](#additional-income).
+Due to the upcoming [Verifactu](https://sede.agenciatributaria.gob.es/Sede/iva/sistemas-informaticos-facturacion-verifactu.html) requirements we decided to split Tickets into two new types: [Simplified invoices](#simplified-invoices) and [Additional income](#additional-income-section).
 
 Outbound (income) tickets for services or products not tied to your main activity become "Additional Income" and they won't be sent to the Verifactu verification service.
 
 The rest of the tickets will become "Simplified Invoices". Outbound (income) ones will be sent to Verifactu if required.
 
-If you need the `stage` field, then it's time to migrate to the new endpoints (Tickets don't have it but Simplified invoices do)
+If you need the `stage` field, then it's time to migrate to the new endpoints (Tickets don't have it but Simplified invoices do). If you need to create an Additional income, you can use the new endpoint for that.
 
 ## Attributes
 

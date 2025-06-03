@@ -1,4 +1,4 @@
-#<a name="additional-income"></a> Additional Income
+#<a name="additional-income-section"></a> Additional Income
 
 Endpoints to manage Additional Income documents (income not tied to your main activity).
 

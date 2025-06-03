@@ -7,7 +7,7 @@ The numbering series are applicable only to income tickets and invoices.
 Attr. name |  Constraints
 ---------- |  -----------
 prefix | REQUIRED. Must be unique. The prefix that will be preppended to the invoice, or ticket
-applicable_to | REQUIRED. Accepted values: `"tickets"` or `"invoices"`
+applicable_to | REQUIRED. Accepted values: `"tickets"`, `"simplified_invoices"` or `"invoices"`
 default | Accepted values: `true` or `false`. Used only in the fronted when creating a new income invoice or ticket.
 amending | Accepted values: `true` or `false`. Indicates if the series is applicable to amendig tickets or invoices
 deletable | READ ONLY. Indicates if the numeration can be deleted. If there are invoices or tickets using a numeration this numeration can not be deleted

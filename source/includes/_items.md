@@ -16,7 +16,7 @@ retention_percent          | Percentage. Between 0 and 100
 discount_percent           | Percentage. Between 0 and 100
 deductible_vat_percent     | Percentage. Between 0 and 100
 deductible_expense_percent | Percentage. Between 0 and 100
-description                | String. Item description 
+description                | String. Item description
 vat_amount                 | Read only
 retention_amount           | Read only
 discount_amount            | Read only
@@ -26,3 +26,10 @@ total_amount               | Read only
 \* Items with kind `assets`:
 
 \** Items with kind `reimbursement`:
+
+## Relationships
+
+Relationship name |  Constraints
+----------------- |  -----------
+accounting_category | Can only be set for invoice, simplified invoice and additional income items
+accounting_subcategory | Can only be set for invoice, simplified invoice and additional income items. If you set this, you must also set the accounting category

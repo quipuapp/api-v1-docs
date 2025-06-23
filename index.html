@@ -1603,6 +1603,20 @@ with it.</p>
                   "quantity": 30,
                   "vat_percent": 21,
                   "retention_percent": 0
+                },
+                "relationships": {
+                  "accounting_category": {
+                    "data": {
+                      "type": "accounting_categories",
+                      "id": "133"
+                    }
+                  },
+                  "accounting_subcategory": {
+                    "data": {
+                      "type": "accounting_subcategories",
+                      "id": "1234"
+                    }
+                  },
                 }
               }, {
                 "type": "book_entry_items",
@@ -1646,6 +1660,34 @@ but in the responses we will find the details about items in the <code class="pr
           "id": 2988939,
           "attributes": {
             "issue_date": "2016-02-21"
+          },
+          "relationships": {
+            "items": {
+              "data": [{
+                "type": "book_entry_items",
+                "attributes": {
+                  "concept": "Tornillos",
+                  "unitary_amount": "0.50",
+                  "quantity": 30,
+                  "vat_percent": 21,
+                  "retention_percent": 0
+                },
+                "relationships": {
+                  "accounting_category": {
+                    "data": {
+                      "type": "accounting_categories",
+                      "id": "133"
+                    }
+                  },
+                  "accounting_subcategory": {
+                    "data": {
+                      "type": "accounting_subcategories",
+                      "id": "1234"
+                    }
+                  },
+                }
+              }]
+            }
           }
         }
       }'</span>
@@ -2764,6 +2806,20 @@ curl <span class="s2">"https://getquipu.com/tickets/2682381"</span> <span class=
                   "unitary_amount": "0.50",
                   "quantity": 30,
                   "vat_percent": 21
+                },
+                "relationships": {
+                  "accounting_category": {
+                    "data": {
+                      "type": "accounting_categories",
+                      "id": "133"
+                    }
+                  },
+                  "accounting_subcategory": {
+                    "data": {
+                      "type": "accounting_subcategories",
+                      "id": "1234"
+                    }
+                  },
                 }
               }, {
                 "type": "book_entry_items",
@@ -2813,6 +2869,20 @@ curl <span class="s2">"https://getquipu.com/simplified_invoices/2682381"</span> 
                   "unitary_amount": "0.50",
                   "quantity": 30,
                   "vat_percent": 21
+                },
+                "relationships": {
+                  "accounting_category": {
+                    "data": {
+                      "type": "accounting_categories",
+                      "id": "133"
+                    }
+                  },
+                  "accounting_subcategory": {
+                    "data": {
+                      "type": "accounting_subcategories",
+                      "id": "1234"
+                    }
+                  },
                 }
               }, {
                 "type": "book_entry_items",
@@ -3278,6 +3348,20 @@ curl <span class="s2">"https://getquipu.com/simplified_invoices/2682381"</span> 
                   "concept": "Tornillos",
                   "unitary_amount": "0.50",
                   "vat_percent": 21
+                },
+                "relationships": {
+                  "accounting_category": {
+                    "data": {
+                      "type": "accounting_categories",
+                      "id": "133"
+                    }
+                  },
+                  "accounting_subcategory": {
+                    "data": {
+                      "type": "accounting_subcategories",
+                      "id": "1234"
+                    }
+                  },
                 }
               }, {
                 "type": "book_entry_items",
@@ -3293,7 +3377,7 @@ curl <span class="s2">"https://getquipu.com/simplified_invoices/2682381"</span> 
       }'</span>
 </code></pre>
 
-<p><code class="prettyprint">POST /addintional_incomes</code></p>
+<p><code class="prettyprint">POST /additional_incomes</code></p>
 
 <h2 id="updating-an-additional-income">Updating an Additional Income</h2>
 
@@ -3325,6 +3409,20 @@ curl <span class="s2">"https://getquipu.com/additional_incomes/2682381"</span> <
                   "concept": "Tornillos",
                   "unitary_amount": "0.50",
                   "vat_percent": 21
+                },
+                "relationships": {
+                  "accounting_category": {
+                    "data": {
+                      "type": "accounting_categories",
+                      "id": "133"
+                    }
+                  },
+                  "accounting_subcategory": {
+                    "data": {
+                      "type": "accounting_subcategories",
+                      "id": "1234"
+                    }
+                  },
                 }
               }, {
                 "type": "book_entry_items",
@@ -3436,6 +3534,24 @@ curl <span class="s2">"https://getquipu.com/additional_incomes/2682381"</span> <
 <p>* Items with kind <code class="prettyprint">assets</code>:</p>
 
 <p>** Items with kind <code class="prettyprint">reimbursement</code>:</p>
+
+<h2 id="relationships">Relationships</h2>
+
+<table><thead>
+<tr>
+<th>Relationship name</th>
+<th>Constraints</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>accounting_category</td>
+<td>Can only be set for invoice, simplified invoice and additional income items</td>
+</tr>
+<tr>
+<td>accounting_subcategory</td>
+<td>Can only be set for invoice, simplified invoice and additional income items. If you set this, you must also set the accounting category</td>
+</tr>
+</tbody></table>
 
           <h1 id="paysheets"><a name="paysheets-section"></a> Paysheets</h1>
 

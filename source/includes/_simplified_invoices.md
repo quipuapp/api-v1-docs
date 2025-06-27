@@ -324,6 +324,20 @@ curl "https://getquipu.com/simplified_invoices" \
                   "unitary_amount": "0.50",
                   "quantity": 30,
                   "vat_percent": 21
+                },
+                "relationships": {
+                  "accounting_category": {
+                    "data": {
+                      "type": "accounting_categories",
+                      "id": "133"
+                    }
+                  },
+                  "accounting_subcategory": {
+                    "data": {
+                      "type": "accounting_subcategories",
+                      "id": "1234"
+                    }
+                  },
                 }
               }, {
                 "type": "book_entry_items",
@@ -374,6 +388,20 @@ curl "https://getquipu.com/simplified_invoices/2682381" \
                   "unitary_amount": "0.50",
                   "quantity": 30,
                   "vat_percent": 21
+                },
+                "relationships": {
+                  "accounting_category": {
+                    "data": {
+                      "type": "accounting_categories",
+                      "id": "133"
+                    }
+                  },
+                  "accounting_subcategory": {
+                    "data": {
+                      "type": "accounting_subcategories",
+                      "id": "1234"
+                    }
+                  },
                 }
               }, {
                 "type": "book_entry_items",

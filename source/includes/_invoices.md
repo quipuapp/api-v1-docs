@@ -440,6 +440,20 @@ curl "https://getquipu.com/invoices" \
                   "quantity": 30,
                   "vat_percent": 21,
                   "retention_percent": 0
+                },
+                "relationships": {
+                  "accounting_category": {
+                    "data": {
+                      "type": "accounting_categories",
+                      "id": "133"
+                    }
+                  },
+                  "accounting_subcategory": {
+                    "data": {
+                      "type": "accounting_subcategories",
+                      "id": "1234"
+                    }
+                  },
                 }
               }, {
                 "type": "book_entry_items",
@@ -483,6 +497,34 @@ curl "https://getquipu.com/invoices/2988939" \
           "id": 2988939,
           "attributes": {
             "issue_date": "2016-02-21"
+          },
+          "relationships": {
+            "items": {
+              "data": [{
+                "type": "book_entry_items",
+                "attributes": {
+                  "concept": "Tornillos",
+                  "unitary_amount": "0.50",
+                  "quantity": 30,
+                  "vat_percent": 21,
+                  "retention_percent": 0
+                },
+                "relationships": {
+                  "accounting_category": {
+                    "data": {
+                      "type": "accounting_categories",
+                      "id": "133"
+                    }
+                  },
+                  "accounting_subcategory": {
+                    "data": {
+                      "type": "accounting_subcategories",
+                      "id": "1234"
+                    }
+                  },
+                }
+              }]
+            }
           }
         }
       }'

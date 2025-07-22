@@ -289,6 +289,20 @@ curl "https://getquipu.com/additional_incomes" \
                   "concept": "Tornillos",
                   "unitary_amount": "0.50",
                   "vat_percent": 21
+                },
+                "relationships": {
+                  "accounting_category": {
+                    "data": {
+                      "type": "accounting_categories",
+                      "id": "133"
+                    }
+                  },
+                  "accounting_subcategory": {
+                    "data": {
+                      "type": "accounting_subcategories",
+                      "id": "1234"
+                    }
+                  },
                 }
               }, {
                 "type": "book_entry_items",
@@ -304,7 +318,7 @@ curl "https://getquipu.com/additional_incomes" \
       }'
 ```
 
-`POST /addintional_incomes`
+`POST /additional_incomes`
 
 ## Updating an Additional Income
 
@@ -337,6 +351,20 @@ curl "https://getquipu.com/additional_incomes/2682381" \
                   "concept": "Tornillos",
                   "unitary_amount": "0.50",
                   "vat_percent": 21
+                },
+                "relationships": {
+                  "accounting_category": {
+                    "data": {
+                      "type": "accounting_categories",
+                      "id": "133"
+                    }
+                  },
+                  "accounting_subcategory": {
+                    "data": {
+                      "type": "accounting_subcategories",
+                      "id": "1234"
+                    }
+                  },
                 }
               }, {
                 "type": "book_entry_items",

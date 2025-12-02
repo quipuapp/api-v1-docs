@@ -350,6 +350,36 @@ Tickets will be created as <a href="#simplified-invoices-section">Simplified inv
 
 <p>Endpoints to manage contacts</p>
 
+<h2 id="mandatory-attributes">Mandatory attributes</h2>
+
+<table><thead>
+<tr>
+<th>Attr. name</th>
+<th>Constraints</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>name</td>
+<td></td>
+</tr>
+<tr>
+<td>country</td>
+<td>2 character ISO</td>
+</tr>
+<tr>
+<td>tax_id</td>
+<td></td>
+</tr>
+<tr>
+<td>document_type</td>
+<td>NIF passport official_id_from_residence_country residence_permit other none</td>
+</tr>
+<tr>
+<td>zip</td>
+<td></td>
+</tr>
+</tbody></table>
+
 <h2 id="listing-contacts">Listing contacts</h2>
 
 <blockquote>
@@ -1171,9 +1201,141 @@ with it.</p>
 <td>ephemeral_open_download_pdf_url</td>
 <td>Url to download the pdf document for the invoice. Present only in income invoices. Does not need any authorization header, but can only be used for an hour after getting it.</td>
 </tr>
+<tr>
+<td>exempt_reason</td>
+<td>REQUIRED if VAT exempt and contact is not from spain</td>
+</tr>
+<tr>
+<td>collection_type</td>
+<td>REQUIRED if VAT exempt</td>
+</tr>
+<tr>
+<td>canary_island_special_zone</td>
+<td>REQUIRED if VAT exempt and is from canary island</td>
+</tr>
+<tr>
+<td>counter_reason</td>
+<td>REQUIRED for amending invoices</td>
+</tr>
 </tbody></table>
 
 <p>* This fields will be populated and updated each time an invoice is saved from the information of the Quipu account owner and the contact associated with the book entry.</p>
+
+<h3 id="credit-note-reasons">Credit note reasons</h3>
+
+<table><thead>
+<tr>
+<th>Value</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>R1</td>
+<td>Return of goods or correction of VAT or other tax errors</td>
+</tr>
+<tr>
+<td>R2</td>
+<td>Unpaid Invoice due to a bad debt (with VAT recovery)</td>
+</tr>
+<tr>
+<td>R3</td>
+<td>Customer bankruptcy or insolvency</td>
+</tr>
+<tr>
+<td>R4</td>
+<td>Correction of Invoice details (name, tax ID, address, etc.)</td>
+</tr>
+<tr>
+<td>R5</td>
+<td>Correction of calculation errors (amounts, discounts, surcharges, etc.)</td>
+</tr>
+<tr>
+<td>R6</td>
+<td>Correction of description errors</td>
+</tr>
+<tr>
+<td>R7</td>
+<td>Modification of payment method or commercial terms</td>
+</tr>
+<tr>
+<td>R8</td>
+<td>Correction of product/service identification errors</td>
+</tr>
+</tbody></table>
+
+<h3 id="collection-type">Collection type</h3>
+
+<table><thead>
+<tr>
+<th>Value</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>R1</td>
+<td>Collection of professional fees on behalf of members or members of a professional association</td>
+</tr>
+<tr>
+<td>R2</td>
+<td>Receipts of royalties on behalf of third parties</td>
+</tr>
+<tr>
+<td>R3</td>
+<td>Receipts of industrial property rights on behalf of third parties</td>
+</tr>
+<tr>
+<td>R4</td>
+<td>Collections managed by associations, schools or other entities on behalf of their members</td>
+</tr>
+</tbody></table>
+
+<h3 id="exempt-reason">Exempt reason</h3>
+
+<table><thead>
+<tr>
+<th>Value</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>R1</td>
+<td>Diplomatic</td>
+</tr>
+<tr>
+<td>R2</td>
+<td>Universities</td>
+</tr>
+<tr>
+<td>R3</td>
+<td>None</td>
+</tr>
+</tbody></table>
+
+<h3 id="exempt-reason">Exempt reason</h3>
+
+<table><thead>
+<tr>
+<th>Value</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>R1</td>
+<td>Goods/services in the ZEC territory</td>
+</tr>
+<tr>
+<td>R2</td>
+<td>Operation related to an authorized activity in the ZEC</td>
+</tr>
+<tr>
+<td>R3</td>
+<td>Recipient is ZEC or not established in the Canary Islands</td>
+</tr>
+<tr>
+<td>R4</td>
+<td>None</td>
+</tr>
+</tbody></table>
 
 <h2 id="relationships">Relationships</h2>
 
@@ -2492,9 +2654,141 @@ curl <span class="s2">"https://getquipu.com/tickets/2682381"</span> <span class=
 <td>download_pdf_url</td>
 <td>Url to download the pdf document for the invoice. Present only in income simplified invoices. Needs the same authorization header.</td>
 </tr>
+<tr>
+<td>exempt_reason</td>
+<td>REQUIRED if VAT exempt and contact is not from spain</td>
+</tr>
+<tr>
+<td>collection_type</td>
+<td>REQUIRED if VAT exempt</td>
+</tr>
+<tr>
+<td>canary_island_special_zone</td>
+<td>REQUIRED if VAT exempt and is from canary island</td>
+</tr>
+<tr>
+<td>counter_reason</td>
+<td>REQUIRED for amending invoices</td>
+</tr>
 </tbody></table>
 
 <p>* These fields will be populated and updated each time an invoice is saved from the information of the Quipu account owner and the contact associatied with the book entry.</p>
+
+<h3 id="credit-note-reasons">Credit note reasons</h3>
+
+<table><thead>
+<tr>
+<th>Value</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>R1</td>
+<td>Return of goods or correction of VAT or other tax errors</td>
+</tr>
+<tr>
+<td>R2</td>
+<td>Unpaid Invoice due to a bad debt (with VAT recovery)</td>
+</tr>
+<tr>
+<td>R3</td>
+<td>Customer bankruptcy or insolvency</td>
+</tr>
+<tr>
+<td>R4</td>
+<td>Correction of Invoice details (name, tax ID, address, etc.)</td>
+</tr>
+<tr>
+<td>R5</td>
+<td>Correction of calculation errors (amounts, discounts, surcharges, etc.)</td>
+</tr>
+<tr>
+<td>R6</td>
+<td>Correction of description errors</td>
+</tr>
+<tr>
+<td>R7</td>
+<td>Modification of payment method or commercial terms</td>
+</tr>
+<tr>
+<td>R8</td>
+<td>Correction of product/service identification errors</td>
+</tr>
+</tbody></table>
+
+<h3 id="collection-type">Collection type</h3>
+
+<table><thead>
+<tr>
+<th>Value</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>R1</td>
+<td>Collection of professional fees on behalf of members or members of a professional association</td>
+</tr>
+<tr>
+<td>R2</td>
+<td>Receipts of royalties on behalf of third parties</td>
+</tr>
+<tr>
+<td>R3</td>
+<td>Receipts of industrial property rights on behalf of third parties</td>
+</tr>
+<tr>
+<td>R4</td>
+<td>Collections managed by associations, schools or other entities on behalf of their members</td>
+</tr>
+</tbody></table>
+
+<h3 id="exempt-reason">Exempt reason</h3>
+
+<table><thead>
+<tr>
+<th>Value</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>R1</td>
+<td>Diplomatic</td>
+</tr>
+<tr>
+<td>R2</td>
+<td>Universities</td>
+</tr>
+<tr>
+<td>R3</td>
+<td>None</td>
+</tr>
+</tbody></table>
+
+<h3 id="exempt-reason">Exempt reason</h3>
+
+<table><thead>
+<tr>
+<th>Value</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>R1</td>
+<td>Goods/services in the ZEC territory</td>
+</tr>
+<tr>
+<td>R2</td>
+<td>Operation related to an authorized activity in the ZEC</td>
+</tr>
+<tr>
+<td>R3</td>
+<td>Recipient is ZEC or not established in the Canary Islands</td>
+</tr>
+<tr>
+<td>R4</td>
+<td>None</td>
+</tr>
+</tbody></table>
 
 <h2 id="relationships">Relationships</h2>
 
@@ -3471,7 +3765,7 @@ curl <span class="s2">"https://getquipu.com/additional_incomes/2682381"</span> <
 </tr>
 <tr>
 <td>concept</td>
-<td></td>
+<td>REQUIRED</td>
 </tr>
 <tr>
 <td>unitary_amount</td>
@@ -3529,6 +3823,14 @@ curl <span class="s2">"https://getquipu.com/additional_incomes/2682381"</span> <
 <td>total_amount</td>
 <td>Read only</td>
 </tr>
+<tr>
+<td>kind</td>
+<td>REQUIRED current or reimbursement</td>
+</tr>
+<tr>
+<td>equivalence_surcharge</td>
+<td>boolean</td>
+</tr>
 </tbody></table>
 
 <p>* Items with kind <code class="prettyprint">assets</code>:</p>
@@ -3545,7 +3847,7 @@ curl <span class="s2">"https://getquipu.com/additional_incomes/2682381"</span> <
 </thead><tbody>
 <tr>
 <td>accounting_category</td>
-<td>Can only be set for invoice, simplified invoice and additional income items</td>
+<td>REQUIRED Can only be set for invoice, simplified invoice and additional income items</td>
 </tr>
 <tr>
 <td>accounting_subcategory</td>

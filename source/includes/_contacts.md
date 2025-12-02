@@ -2,6 +2,16 @@
 
 Endpoints to manage contacts
 
+## Mandatory attributes
+
+Attr. name |  Constraints
+---------- |  -----------
+name | 
+country | 2 character ISO
+tax_id | 
+document_type | NIF passport official_id_from_residence_country residence_permit other none
+zip | 
+
 ## Listing contacts
 
 > Example request

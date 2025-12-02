@@ -37,8 +37,49 @@ tags | Format: a list of strings separated by comma
 notes | Format: a string
 download_pdf_url | Url to download the pdf document for the simplified invoice. Present only in income simplified invoices. Needs the same authorization header.
 download_pdf_url | Url to download the pdf document for the invoice. Present only in income simplified invoices. Needs the same authorization header.
+exempt_reason | REQUIRED if VAT exempt and contact is not from spain
+collection_type | REQUIRED if VAT exempt
+canary_island_special_zone | REQUIRED if VAT exempt and is from canary island
+counter_reason | REQUIRED for amending invoices
 
 \* These fields will be populated and updated each time an invoice is saved from the information of the Quipu account owner and the contact associatied with the book entry.
+
+
+
+### Credit note reasons
+Value | Description
+----- |  -----------
+R1 | Return of goods or correction of VAT or other tax errors
+R2 | Unpaid Invoice due to a bad debt (with VAT recovery)
+R3 | Customer bankruptcy or insolvency
+R4 | Correction of Invoice details (name, tax ID, address, etc.)
+R5 | Correction of calculation errors (amounts, discounts, surcharges, etc.)
+R6 | Correction of description errors
+R7 | Modification of payment method or commercial terms
+R8 | Correction of product/service identification errors
+
+### Collection type
+Value | Description
+----- |  -----------
+R1 | Collection of professional fees on behalf of members or members of a professional association
+R2 | Receipts of royalties on behalf of third parties
+R3 | Receipts of industrial property rights on behalf of third parties
+R4 | Collections managed by associations, schools or other entities on behalf of their members
+
+### Exempt reason
+Value | Description
+----- |  -----------
+R1 | Diplomatic
+R2 | Universities
+R3 | None
+
+### Exempt reason
+Value | Description
+----- |  -----------
+R1 | Goods/services in the ZEC territory
+R2 | Operation related to an authorized activity in the ZEC
+R3 | Recipient is ZEC or not established in the Canary Islands
+R4 | None
 
 ## Relationships
 

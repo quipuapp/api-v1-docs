@@ -7,7 +7,7 @@ There aren't specific endpoints to manage items. Items are always associated to 
 Attr. name |  Constraints
 ---------- |  -----------
 id         | Read only
-concept |
+concept | REQUIRED
 unitary_amount |
 quantity |
 kind | Must be `current` or `assets` (\*) for items associated to expenses.  Must be `current` or `reimbursement` (\*\*) for items associated to income.  Default is `current`
@@ -22,6 +22,9 @@ retention_amount           | Read only
 discount_amount            | Read only
 decuctible_vat_amount      | Read only
 total_amount               | Read only
+kind | REQUIRED current or reimbursement
+equivalence_surcharge | boolean
+
 
 \* Items with kind `assets`:
 
@@ -31,5 +34,5 @@ total_amount               | Read only
 
 Relationship name |  Constraints
 ----------------- |  -----------
-accounting_category | Can only be set for invoice, simplified invoice and additional income items
+accounting_category | REQUIRED Can only be set for invoice, simplified invoice and additional income items
 accounting_subcategory | Can only be set for invoice, simplified invoice and additional income items. If you set this, you must also set the accounting category

@@ -9,7 +9,7 @@ NOTE: These replace part of the deprecated [Tickets endopoints](#tickets-section
 Attr. name |  Constraints
 ---------- |  -----------
 kind | REQUIRED <br> Accepted values: `income` or `expenses`
-number | For income simplified invoices we recommend leave it blank, and Quipu will assign it (and they also need to be unique within a fiscal year).
+filing_number | For income simplified invoices we recommend leave it blank, and Quipu will assign it (and they also need to be unique within a fiscal year).
 issue_date | REQUIRED <br> Format: `YYYY-mm-dd`
 paid_at  | Format: `YYYY-mm-dd`
 payment_method | Accepted valued: `cash`, `bank_transfer`, `bank_card`, `direct_debit`, `paypal`, `check`, `factoring`

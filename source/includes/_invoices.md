@@ -115,6 +115,7 @@ curl "https://getquipu.com/invoices" \
     "attributes": {
       "kind": "income",
       "number": "2016-2",
+      "filing_number": "2"
       "issue_date": "2016-02-29",
       "due_dates": ["2016-03-31","2016-04-25"],
       "paid_at": "2016-03-02",
@@ -179,6 +180,7 @@ curl "https://getquipu.com/invoices" \
     "attributes": {
       "kind": "income",
       "number": "2016-1",
+      "filing_number": "1",
       "issue_date": "2016-01-31",
       "due_dates": [],
       "paid_at": "2016-02-03",

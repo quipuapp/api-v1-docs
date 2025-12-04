@@ -38,10 +38,10 @@ tags | Format: a list of strings separated by comma
 notes | Format: a string
 download_pdf_url | Url to download the pdf document for the invoice. Present only in income invoices. Needs the same authorization header.
 ephemeral_open_download_pdf_url | Url to download the pdf document for the invoice. Present only in income invoices. Does not need any authorization header, but can only be used for an hour after getting it.
-exempt_reason | REQUIRED if VAT exempt and contact is not from spain
-collection_type | REQUIRED if VAT exempt
-canary_island_special_zone | REQUIRED if VAT exempt and is from canary island
-counter_reason | REQUIRED for amending invoices
+exempt_reason | REQUIRED FOR VERIFACTU ACCOUNTS if VAT exempt and contact is not from spain
+collection_type | REQUIRED FOR VERIFACTU ACCOUNTS if VAT exempt
+canary_island_special_zone | REQUIRED FOR VERIFACTU ACCOUNTS if VAT exempt and is from canary island
+counter_reason | REQUIRED FOR VERIFACTU ACCOUNTS for amending invoices
 
 \* This fields will be populated and updated each time an invoice is saved from the information of the Quipu account owner and the contact associated with the book entry.
 

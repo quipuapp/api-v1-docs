@@ -7,7 +7,7 @@ Endpoints to manage invoices.
 Attr. name |  Constraints
 ---------- |  -----------
 kind | REQUIRED <br> Accepted values: `income` or `expenses`
-number | For income invoices we recommend leave it blank, and Quipu will assign it.<br>For income invoices must be unique within a fiscal year.<br>For expense invoices must be unique within a fiscal year for the invoice supplier.
+filling_number | For income invoices we recommend leave it blank, and Quipu will assign it.<br>For income invoices must be unique within a fiscal year.<br>For expense invoices must be unique within a fiscal year for the invoice supplier.
 issue_date | REQUIRED <br> Format: `YYYY-mm-dd`
 due_dates | Format: an array of dates with format `YYYY-mm-dd`
 paid_at  | Format: `YYYY-mm-dd`
@@ -38,10 +38,10 @@ tags | Format: a list of strings separated by comma
 notes | Format: a string
 download_pdf_url | Url to download the pdf document for the invoice. Present only in income invoices. Needs the same authorization header.
 ephemeral_open_download_pdf_url | Url to download the pdf document for the invoice. Present only in income invoices. Does not need any authorization header, but can only be used for an hour after getting it.
-exempt_reason | REQUIRED if VAT exempt and contact is not from spain
-collection_type | REQUIRED if VAT exempt
-canary_island_special_zone | REQUIRED if VAT exempt and is from canary island
-counter_reason | REQUIRED for amending invoices
+exempt_reason | REQUIRED FOR VERIFACTU ACCOUNTS if VAT exempt and contact is not from spain
+collection_type | REQUIRED FOR VERIFACTU ACCOUNTS if VAT exempt
+canary_island_special_zone | REQUIRED FOR VERIFACTU ACCOUNTS if VAT exempt and is from canary island
+counter_reason | REQUIRED FOR VERIFACTU ACCOUNTS for amending invoices
 
 \* This fields will be populated and updated each time an invoice is saved from the information of the Quipu account owner and the contact associated with the book entry.
 
@@ -114,7 +114,7 @@ curl "https://getquipu.com/invoices" \
     "type": "invoices",
     "attributes": {
       "kind": "income",
-      "number": "2016-2",
+      "filing_number": "2"
       "issue_date": "2016-02-29",
       "due_dates": ["2016-03-31","2016-04-25"],
       "paid_at": "2016-03-02",
@@ -178,7 +178,7 @@ curl "https://getquipu.com/invoices" \
     "type": "invoices",
     "attributes": {
       "kind": "income",
-      "number": "2016-1",
+      "filing_number": "1",
       "issue_date": "2016-01-31",
       "due_dates": [],
       "paid_at": "2016-02-03",

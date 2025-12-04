@@ -2,7 +2,7 @@
 
 Endpoints to manage contacts
 
-## Mandatory attributes
+## Mandatory attributes for verifactu accounts
 
 Attr. name |  Constraints
 ---------- |  -----------

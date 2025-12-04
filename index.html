@@ -1078,7 +1078,7 @@ with it.</p>
 <td>REQUIRED <br> Accepted values: <code class="prettyprint">income</code> or <code class="prettyprint">expenses</code></td>
 </tr>
 <tr>
-<td>number</td>
+<td>filling_number</td>
 <td>For income invoices we recommend leave it blank, and Quipu will assign it.<br>For income invoices must be unique within a fiscal year.<br>For expense invoices must be unique within a fiscal year for the invoice supplier.</td>
 </tr>
 <tr>
@@ -1398,7 +1398,7 @@ with it.</p>
     <span class="s2">"type"</span>: <span class="s2">"invoices"</span>,
     <span class="s2">"attributes"</span>: <span class="o">{</span>
       <span class="s2">"kind"</span>: <span class="s2">"income"</span>,
-      <span class="s2">"number"</span>: <span class="s2">"2016-2"</span>,
+      <span class="s2">"filing_number"</span>: <span class="s2">"2"</span>
       <span class="s2">"issue_date"</span>: <span class="s2">"2016-02-29"</span>,
       <span class="s2">"due_dates"</span>: <span class="o">[</span><span class="s2">"2016-03-31"</span>,<span class="s2">"2016-04-25"</span><span class="o">]</span>,
       <span class="s2">"paid_at"</span>: <span class="s2">"2016-03-02"</span>,
@@ -1462,7 +1462,7 @@ with it.</p>
     <span class="s2">"type"</span>: <span class="s2">"invoices"</span>,
     <span class="s2">"attributes"</span>: <span class="o">{</span>
       <span class="s2">"kind"</span>: <span class="s2">"income"</span>,
-      <span class="s2">"number"</span>: <span class="s2">"2016-1"</span>,
+      <span class="s2">"filing_number"</span>: <span class="s2">"1"</span>,
       <span class="s2">"issue_date"</span>: <span class="s2">"2016-01-31"</span>,
       <span class="s2">"due_dates"</span>: <span class="o">[]</span>,
       <span class="s2">"paid_at"</span>: <span class="s2">"2016-02-03"</span>,
@@ -2543,7 +2543,7 @@ curl <span class="s2">"https://getquipu.com/tickets/2682381"</span> <span class=
 <td>REQUIRED <br> Accepted values: <code class="prettyprint">income</code> or <code class="prettyprint">expenses</code></td>
 </tr>
 <tr>
-<td>number</td>
+<td>filing_number</td>
 <td>For income simplified invoices we recommend leave it blank, and Quipu will assign it (and they also need to be unique within a fiscal year).</td>
 </tr>
 <tr>
@@ -2847,7 +2847,7 @@ curl <span class="s2">"https://getquipu.com/tickets/2682381"</span> <span class=
     <span class="s2">"type"</span>: <span class="s2">"simplified_invoices"</span>,
     <span class="s2">"attributes"</span>: <span class="o">{</span>
       <span class="s2">"kind"</span>: <span class="s2">"income"</span>,
-      <span class="s2">"number"</span>: <span class="s2">"t16-53"</span>,
+      <span class="s2">"filling_number"</span>: <span class="s2">"53"</span>,
       <span class="s2">"issue_date"</span>: <span class="s2">"2016-02-29"</span>,
       <span class="s2">"paid_at"</span>: <span class="s2">"2016-03-02"</span>,
       <span class="s2">"payment_method"</span>: <span class="s2">"cash"</span>,

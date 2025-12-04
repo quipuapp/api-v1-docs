@@ -7,7 +7,7 @@ Endpoints to manage invoices.
 Attr. name |  Constraints
 ---------- |  -----------
 kind | REQUIRED <br> Accepted values: `income` or `expenses`
-number | For income invoices we recommend leave it blank, and Quipu will assign it.<br>For income invoices must be unique within a fiscal year.<br>For expense invoices must be unique within a fiscal year for the invoice supplier.
+filling_number | For income invoices we recommend leave it blank, and Quipu will assign it.<br>For income invoices must be unique within a fiscal year.<br>For expense invoices must be unique within a fiscal year for the invoice supplier.
 issue_date | REQUIRED <br> Format: `YYYY-mm-dd`
 due_dates | Format: an array of dates with format `YYYY-mm-dd`
 paid_at  | Format: `YYYY-mm-dd`
@@ -114,7 +114,6 @@ curl "https://getquipu.com/invoices" \
     "type": "invoices",
     "attributes": {
       "kind": "income",
-      "number": "2016-2",
       "filing_number": "2"
       "issue_date": "2016-02-29",
       "due_dates": ["2016-03-31","2016-04-25"],
@@ -179,7 +178,6 @@ curl "https://getquipu.com/invoices" \
     "type": "invoices",
     "attributes": {
       "kind": "income",
-      "number": "2016-1",
       "filing_number": "1",
       "issue_date": "2016-01-31",
       "due_dates": [],

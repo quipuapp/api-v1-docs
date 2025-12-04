@@ -112,7 +112,7 @@ curl "https://getquipu.com/simplified_invoices" \
     "type": "simplified_invoices",
     "attributes": {
       "kind": "income",
-      "number": "t16-53",
+      "filling_number": "53",
       "issue_date": "2016-02-29",
       "paid_at": "2016-03-02",
       "payment_method": "cash",

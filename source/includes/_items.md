@@ -22,8 +22,8 @@ retention_amount           | Read only
 discount_amount            | Read only
 decuctible_vat_amount      | Read only
 total_amount               | Read only
-kind | REQUIRED current or reimbursement
-equivalence_surcharge | boolean
+kind | REQUIRED FOR VERIFACTU ACCOUNTS current or reimbursement
+equivalence_surcharge | REQUIRED FOR VERIFACTU ACCOUNTS boolean
 
 
 \* Items with kind `assets`:
@@ -34,5 +34,5 @@ equivalence_surcharge | boolean
 
 Relationship name |  Constraints
 ----------------- |  -----------
-accounting_category | REQUIRED Can only be set for invoice, simplified invoice and additional income items
+accounting_category | REQUIRED FOR VERIFACTU ACCOUNTS Can only be set for invoice, simplified invoice and additional income items
 accounting_subcategory | Can only be set for invoice, simplified invoice and additional income items. If you set this, you must also set the accounting category

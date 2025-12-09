@@ -41,12 +41,12 @@ ephemeral_open_download_pdf_url | Url to download the pdf document for the invoi
 exempt_reason | REQUIRED FOR VERIFACTU ACCOUNTS if VAT exempt and contact is not from spain
 collection_type | REQUIRED FOR VERIFACTU ACCOUNTS if VAT exempt
 canary_island_special_zone | REQUIRED FOR VERIFACTU ACCOUNTS if VAT exempt and is from canary island
-counter_reason | REQUIRED FOR VERIFACTU ACCOUNTS for amending invoices
+counter_reason | REQUIRED FOR VERIFACTU ACCOUNTS for credit notes
 
 \* This fields will be populated and updated each time an invoice is saved from the information of the Quipu account owner and the contact associated with the book entry.
 
 
-### Credit note reasons
+### Credit note reasons (Counter reason)
 Value | Description
 ----- |  -----------
 R1 | Return of goods or correction of VAT or other tax errors
@@ -65,6 +65,7 @@ R1 | Collection of professional fees on behalf of members or members of a profes
 R2 | Receipts of royalties on behalf of third parties
 R3 | Receipts of industrial property rights on behalf of third parties
 R4 | Collections managed by associations, schools or other entities on behalf of their members
+none | none
 
 ### Exempt reason
 Value | Description
@@ -73,7 +74,7 @@ R1 | Diplomatic
 R2 | Universities
 R3 | None
 
-### Exempt reason
+### Canary island special zone
 Value | Description
 ----- |  -----------
 R1 | Goods/services in the ZEC territory

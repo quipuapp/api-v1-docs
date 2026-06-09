@@ -11,40 +11,35 @@
     <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@300;400;600;700&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet" />
     <style>
-      body {
-        margin: 0;
-      }
+      body { margin: 0; }
       .light-mode {
-        --scalar-font: "Open Sans", sans-serif;
-        --scalar-font-code: "JetBrains Mono", monospace;
+        --scalar-font: 'Open Sans', sans-serif;
+        --scalar-font-code: 'JetBrains Mono', monospace;
         --scalar-color-1: #1a1a2e;
         --scalar-color-2: #4a4a68;
         --scalar-color-3: #6b7280;
         --scalar-color-accent: #009b72;
         --scalar-background-1: #ffffff;
-        --scalar-background-2: #f6f7f9;
-        --scalar-background-3: #eceef2;
+        --scalar-background-2: #F6F7F9;
+        --scalar-background-3: #ECEEF2;
         --scalar-border-color: #d5d9e2;
         --scalar-button-1: #009b72;
         --scalar-button-1-color: #ffffff;
         --scalar-button-1-hover: #007d5c;
-        --scalar-sidebar-background-1: #f6f7f9;
+        --scalar-sidebar-background-1: #F6F7F9;
         --scalar-sidebar-color-1: #1a1a2e;
         --scalar-sidebar-color-2: #4a4a68;
         --scalar-sidebar-color-active: #009b72;
-        --scalar-sidebar-border-color: #eceef2;
+        --scalar-sidebar-border-color: #ECEEF2;
         --scalar-sidebar-search-background: #ffffff;
         --scalar-sidebar-search-border-color: #d5d9e2;
         --scalar-radius: 8px;
         --scalar-radius-lg: 12px;
       }
       .dark-mode {
-        --scalar-font: "Open Sans", sans-serif;
+        --scalar-font: 'Open Sans', sans-serif;
         --scalar-color-1: #f0f0f5;
         --scalar-color-2: #b0b0c8;
         --scalar-color-3: #8888a8;
@@ -73,11 +68,9 @@
         align-items: center;
         gap: 10px;
       }
-      .quipu-sidebar-logo img {
-        height: 30px;
-      }
+      .quipu-sidebar-logo img { height: 30px; }
       .quipu-sidebar-logo .api-label {
-        font-family: "Montserrat", sans-serif;
+        font-family: 'Montserrat', sans-serif;
         font-size: 11px;
         font-weight: 600;
         color: var(--scalar-sidebar-color-2);
@@ -85,13 +78,9 @@
         padding-left: 10px;
         border-left: 1px solid var(--scalar-sidebar-border-color);
       }
-      .dark-mode .quipu-sidebar-logo img {
-        filter: brightness(0) invert(1);
-      }
+      .dark-mode .quipu-sidebar-logo img { filter: brightness(0) invert(1); }
       /* Reduce top padding on introduction section */
-      .introduction-section {
-        padding-top: 60px !important;
-      }
+      .introduction-section { padding-top: 60px !important; }
       /* Deprecated badge */
       .dep-badge {
         background: #dc3545;
@@ -127,35 +116,31 @@
         "metaData": {
           "title": "Quipu API v1 Reference"
         }
-      }'
-    ></script>
+      }'></script>
     <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
     <script>
       const observer = new MutationObserver(() => {
         // Target the sidebar using the exact class from the rendered DOM
-        const sidebar = document.querySelector("aside.t-doc__sidebar");
+        const sidebar = document.querySelector('aside.t-doc__sidebar');
         if (!sidebar) return;
 
         // Inject logo above the search bar (first child of sidebar)
-        if (!document.getElementById("quipu-sidebar-logo")) {
-          const logoDiv = document.createElement("div");
-          logoDiv.id = "quipu-sidebar-logo";
-          logoDiv.className = "quipu-sidebar-logo";
-          logoDiv.innerHTML =
-            '<a href="https://getquipu.com" target="_blank" style="display:flex;align-items:center;gap:10px;text-decoration:none;"><img src="./logo.png" alt="Quipu" /><span class="api-label">API v1</span></a>';
+        if (!document.getElementById('quipu-sidebar-logo')) {
+          const logoDiv = document.createElement('div');
+          logoDiv.id = 'quipu-sidebar-logo';
+          logoDiv.className = 'quipu-sidebar-logo';
+          logoDiv.innerHTML = '<a href="https://getquipu.com" target="_blank" style="display:flex;align-items:center;gap:10px;text-decoration:none;"><img src="./logo.png" alt="Quipu" /><span class="api-label">API v1</span></a>';
           sidebar.insertBefore(logoDiv, sidebar.firstChild);
         }
 
         // Add deprecated badge to Tickets in sidebar
-        const ticketsItem = document.querySelector(
-          '[data-sidebar-id="api-1/tag/tickets"]',
-        );
-        if (ticketsItem && !ticketsItem.querySelector(".dep-badge")) {
-          const label = ticketsItem.querySelector(".group\\/button-label");
+        const ticketsItem = document.querySelector('[data-sidebar-id="api-1/tag/tickets"]');
+        if (ticketsItem && !ticketsItem.querySelector('.dep-badge')) {
+          const label = ticketsItem.querySelector('.group\\/button-label');
           if (label) {
-            const badge = document.createElement("span");
-            badge.className = "dep-badge";
-            badge.textContent = "deprecated";
+            const badge = document.createElement('span');
+            badge.className = 'dep-badge';
+            badge.textContent = 'deprecated';
             label.appendChild(badge);
             observer.disconnect();
           }

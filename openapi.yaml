@@ -339,6 +339,17 @@ paths:
           schema:
             type: string
           description: Search term for field-level query filter
+        - name: filter[economic_activity_id]
+          in: query
+          schema:
+            type: integer
+          description: Filter by economic activity ID
+        - name: filter[verifactu_status]
+          in: query
+          schema:
+            type: string
+            enum: [noop, draft, final, sent_aeat, approved_aeat, approved_with_errors_aeat, rejected_aeat]
+          description: Filter by Verifactu submission status
         - name: sort
           in: query
           schema:
@@ -416,6 +427,17 @@ paths:
           schema:
             type: string
           description: Search term for field-level query filter
+        - name: filter[economic_activity_id]
+          in: query
+          schema:
+            type: integer
+          description: Filter by economic activity ID
+        - name: filter[verifactu_status]
+          in: query
+          schema:
+            type: string
+            enum: [noop, draft, final, sent_aeat, approved_aeat, approved_with_errors_aeat, rejected_aeat]
+          description: Filter by Verifactu submission status
       responses:
         "200":
           description: Paginated list of invoices
@@ -760,6 +782,11 @@ paths:
         - $ref: "#/components/parameters/PageNumber"
         - $ref: "#/components/parameters/PageSize"
         - $ref: "#/components/parameters/IncludeAdditionalIncome"
+        - name: filter[economic_activity_id]
+          in: query
+          schema:
+            type: integer
+          description: Filter by economic activity ID
       responses:
         "200":
           description: Paginated list of additional income
@@ -896,6 +923,17 @@ paths:
         - $ref: "#/components/parameters/PageNumber"
         - $ref: "#/components/parameters/PageSize"
         - $ref: "#/components/parameters/IncludePaysheet"
+        - name: filter[economic_activity_id]
+          in: query
+          schema:
+            type: integer
+          description: Filter by economic activity ID
+        - name: filter[verifactu_status]
+          in: query
+          schema:
+            type: string
+            enum: [noop, draft, final, sent_aeat, approved_aeat, approved_with_errors_aeat, rejected_aeat]
+          description: Filter by Verifactu submission status
       responses:
         "200":
           description: Paginated list of paysheets
@@ -1836,6 +1874,10 @@ components:
             Computed per-request from the caller's abilities (not a persistent flag);
             typically `true` when the contact has no associated book entries and the
             caller can destroy it.
+        account_code:
+          type: string
+          nullable: true
+          description: Accounting code assigned to this contact (Aplifisa integration field).
 
     ContactResource:
       type: object

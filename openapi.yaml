@@ -1783,6 +1783,25 @@ components:
         deductible_expense_percent:
           type: number
           description: Deductible expense percentage
+        counterpart_account_code:
+          type: string
+          nullable: true
+          description: Accounting ledger code for the counterpart account on this line item (Aplifisa).
+        isp:
+          type: boolean
+          description: Whether reverse charge (Inversión del Sujeto Pasivo) applies. Placeholder — always false until B0.
+        retention_key:
+          type: string
+          nullable: true
+          description: IRPF retention key code from owner preferences (e.g. "01" for professional activities).
+        model_190_key:
+          type: string
+          nullable: true
+          description: Modelo 190 key for this retention. Placeholder — not yet populated.
+        model_190_subkey:
+          type: string
+          nullable: true
+          description: Modelo 190 subkey for this retention. Placeholder — not yet populated.
 
     ItemWritableAttributes:
       type: object
@@ -2027,6 +2046,82 @@ components:
         recipient_country_code:
           type: string
           nullable: true
+        retention_amount:
+          type: string
+          description: Total retention (IRPF) amount withheld across all items.
+        retention_rates:
+          type: array
+          description: Retention breakdown grouped by rate. Each entry gives the rate percentage and the total amount withheld at that rate.
+          items:
+            type: object
+            properties:
+              rate:
+                type: number
+                description: Retention percentage (e.g. 15.0)
+              amount:
+                type: number
+                description: Total amount withheld at this rate
+        economic_activity_id:
+          type: integer
+          nullable: true
+          description: ID of the economic activity associated with this document (Aplifisa).
+        document_type:
+          type: string
+          nullable: true
+          description: SII fiscal document type (F1/F2 for normal, R1–R5 for credit notes). Placeholder — not yet populated.
+        tax_form:
+          type: string
+          nullable: true
+          description: Tax form reference (e.g. 303, 130). Placeholder — not yet populated.
+        contact_account_code:
+          type: string
+          nullable: true
+          description: Accounting ledger code for the counterpart contact (Aplifisa).
+        vat_breakdown:
+          type: object
+          nullable: true
+          description: VAT breakdown grouped by rate. Keys are rate percentages (e.g. "21"). Each entry contains `tax` (VAT amounts by rate) and `base` (taxable bases by rate).
+          properties:
+            tax:
+              type: object
+              additionalProperties:
+                type: number
+            base:
+              type: object
+              additionalProperties:
+                type: number
+        equalization_tax_amount:
+          type: string
+          nullable: true
+          description: Equalization surcharge amount (recargo de equivalencia).
+        equalization_tax_rate:
+          type: number
+          nullable: true
+          description: Equalization surcharge rate. Placeholder — not yet populated.
+        rectification_type:
+          type: string
+          nullable: true
+          description: Veri*factu rectification type. Placeholder.
+        rectification_kind:
+          type: string
+          nullable: true
+          description: Veri*factu rectification kind. Placeholder.
+        operation_classification:
+          type: string
+          nullable: true
+          description: Veri*factu operation classification. Placeholder.
+        exempt_operation_type:
+          type: string
+          nullable: true
+          description: Veri*factu exempt operation type. Placeholder.
+        regime_key:
+          type: string
+          nullable: true
+          description: Veri*factu regime key. Placeholder.
+        operation_description:
+          type: string
+          nullable: true
+          description: Veri*factu operation description. Placeholder.
 
     BookEntryResource:
       type: object
@@ -2058,8 +2153,6 @@ components:
             total_amount_without_taxes:
               type: string
             vat_amount:
-              type: string
-            retention_amount:
               type: string
             last_sent_at:
               type: string

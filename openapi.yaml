@@ -344,6 +344,11 @@ paths:
           schema:
             type: integer
           description: Filter by economic activity ID
+        - name: filter[economic_activity_epigraph]
+          in: query
+          schema:
+            type: string
+          description: Filter by economic activity epigraph
         - name: filter[verifactu_status]
           in: query
           schema:
@@ -432,6 +437,11 @@ paths:
           schema:
             type: integer
           description: Filter by economic activity ID
+        - name: filter[economic_activity_epigraph]
+          in: query
+          schema:
+            type: string
+          description: Filter by economic activity epigraph
         - name: filter[verifactu_status]
           in: query
           schema:
@@ -787,6 +797,11 @@ paths:
           schema:
             type: integer
           description: Filter by economic activity ID
+        - name: filter[economic_activity_epigraph]
+          in: query
+          schema:
+            type: string
+          description: Filter by economic activity epigraph
       responses:
         "200":
           description: Paginated list of additional income
@@ -928,6 +943,11 @@ paths:
           schema:
             type: integer
           description: Filter by economic activity ID
+        - name: filter[economic_activity_epigraph]
+          in: query
+          schema:
+            type: string
+          description: Filter by economic activity epigraph
         - name: filter[verifactu_status]
           in: query
           schema:

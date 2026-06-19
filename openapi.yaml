@@ -2154,9 +2154,6 @@ components:
               type: string
             vat_amount:
               type: string
-            retention_amount:
-              type: string
-              description: Total retention (IRPF) amount withheld. Also present on all book entry types via BookEntryAttributes.
             last_sent_at:
               type: string
               format: date-time
@@ -2312,8 +2309,6 @@ components:
               type: string
             vat_amount:
               type: string
-            retention_amount:
-              type: string
             notes:
               type: string
               nullable: true
@@ -2430,8 +2425,6 @@ components:
             total_amount_without_taxes:
               type: string
             vat_amount:
-              type: string
-            retention_amount:
               type: string
             notes:
               type: string

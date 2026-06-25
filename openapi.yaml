@@ -1802,6 +1802,20 @@ components:
           type: string
           nullable: true
           description: Modelo 190 subkey for this retention. Placeholder — not yet populated.
+        tax_form:
+          type: string
+          nullable: true
+          description: "IRPF/VAT reporting form code. Values: 00 (non-EU import), 01 (standard retention), 02 (EU goods), 03 (transport), 05 (other services), 09 (1% retention), 11 (EU services). Null if not applicable."
+        equalization_tax_rate:
+          type: string
+          nullable: true
+          description: "Equivalence surcharge rate for this item's VAT rate (e.g. \"5.2\" for 21% VAT, \"1.4\" for 10% VAT). Null if no surcharge."
+        equalization_tax_amount:
+          type: string
+          description: Equivalence surcharge amount for this line item. "0.0" if none.
+        retention_rate:
+          type: number
+          description: Retention percentage for this line item (e.g. 21, 15, 7). 0 if no retention.
 
     ItemWritableAttributes:
       type: object
@@ -2068,11 +2082,11 @@ components:
         document_type:
           type: string
           nullable: true
-          description: SII fiscal document type (F1/F2 for normal, R1–R5 for credit notes). Placeholder — not yet populated.
+          description: "Verifactu document type code: F1 (standard invoice), F2 (simplified invoice), R1–R5 (credit notes)."
         tax_form:
           type: string
           nullable: true
-          description: Tax form reference (e.g. 303, 130). Placeholder — not yet populated.
+          description: Tax form reference (e.g. 303, 130).
         contact_account_code:
           type: string
           nullable: true
@@ -2097,31 +2111,57 @@ components:
         equalization_tax_rate:
           type: number
           nullable: true
-          description: Equalization surcharge rate. Placeholder — not yet populated.
+          description: Equalization surcharge rate.
         rectification_type:
           type: string
           nullable: true
-          description: Veri*factu rectification type. Placeholder.
+          description: "For credit notes: S (full substitution) or I (by differences). Null for non-credit entries."
         rectification_kind:
           type: string
           nullable: true
-          description: Veri*factu rectification kind. Placeholder.
+          description: "For credit notes: R1–R5 matching document_type. Null for non-credit entries."
         operation_classification:
-          type: string
+          type: array
           nullable: true
-          description: Veri*factu operation classification. Placeholder.
+          description: Operation classification per VAT rate. One element per distinct rate in the document's current line items.
+          items:
+            type: object
+            properties:
+              vat:
+                type: number
+                description: VAT rate percentage (e.g. 21.0, 10.0, 0.0)
+              value:
+                type: string
+                nullable: true
+                description: "Classification code: S1, S2, N1, N2, or null (exempt — see exempt_operation_types)"
         exempt_operation_type:
-          type: string
-          nullable: true
-          description: Veri*factu exempt operation type. Placeholder.
+          type: array
+          description: Exemption type per VAT rate. One element per distinct exempt rate. Empty array when no exempt items.
+          items:
+            type: object
+            properties:
+              vat:
+                type: number
+                description: VAT rate percentage (typically 0.0 for exempt items)
+              value:
+                type: string
+                description: "Exemption code: E1, E2, E3, E5, or E6"
         regime_key:
-          type: string
-          nullable: true
-          description: Veri*factu regime key. Placeholder.
+          type: array
+          description: VAT regime key per rate. One element per distinct rate in the document's current line items.
+          items:
+            type: object
+            properties:
+              vat:
+                type: number
+                description: VAT rate percentage
+              value:
+                type: string
+                description: "Regime key code (e.g. \"01\", \"02\", \"08\") or empty string when not determined"
         operation_description:
           type: string
           nullable: true
-          description: Veri*factu operation description. Placeholder.
+          description: "Human-readable summary of line items: \"account - concept - amount€\" per item, joined with \" | \". Max 500 characters."
 
     BookEntryResource:
       type: object

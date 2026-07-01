@@ -1557,6 +1557,176 @@ paths:
         "404":
           $ref: "#/components/responses/NotFound"
 
+  /{owner_slug}/money_accounts:
+    get:
+      operationId: listMoneyAccounts
+      summary: List bank accounts
+      tags: [MoneyAccounts]
+      parameters:
+        - $ref: "#/components/parameters/OwnerSlug"
+        - $ref: "#/components/parameters/AcceptHeader"
+        - $ref: "#/components/parameters/PageNumber"
+        - $ref: "#/components/parameters/PageSize"
+      responses:
+        "200":
+          description: Paginated list of bank accounts
+          content:
+            application/vnd.quipu.v1+json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/MoneyAccountResource"
+                  meta:
+                    $ref: "#/components/schemas/PaginationMeta"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /{owner_slug}/money_accounts/{id}:
+    get:
+      operationId: getMoneyAccount
+      summary: Show bank account
+      tags: [MoneyAccounts]
+      parameters:
+        - $ref: "#/components/parameters/OwnerSlug"
+        - $ref: "#/components/parameters/AcceptHeader"
+        - $ref: "#/components/parameters/ResourceId"
+      responses:
+        "200":
+          description: Bank account found
+          content:
+            application/vnd.quipu.v1+json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/MoneyAccountResource"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /{owner_slug}/money_entries:
+    get:
+      operationId: listMoneyEntries
+      summary: List bank movements
+      tags: [MoneyEntries]
+      parameters:
+        - $ref: "#/components/parameters/OwnerSlug"
+        - $ref: "#/components/parameters/AcceptHeader"
+        - $ref: "#/components/parameters/PageNumber"
+        - $ref: "#/components/parameters/PageSize"
+        - name: filter[date][from]
+          in: query
+          schema:
+            type: string
+            format: date
+          description: >
+            Start of date range (YYYY-MM-DD).
+            Must be provided together with filter[date][to] — returns 400 if only one is present.
+        - name: filter[date][to]
+          in: query
+          schema:
+            type: string
+            format: date
+          description: >
+            End of date range (YYYY-MM-DD).
+            Must be provided together with filter[date][from] — returns 400 if only one is present.
+      responses:
+        "200":
+          description: Paginated list of bank movements
+          content:
+            application/vnd.quipu.v1+json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/MoneyEntryResource"
+                  meta:
+                    $ref: "#/components/schemas/PaginationMeta"
+        "400":
+          description: >
+            Bad request. Returned when only one of filter[date][from] /
+            filter[date][to] is provided, or the date format is invalid.
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /{owner_slug}/money_entries/{id}:
+    get:
+      operationId: getMoneyEntry
+      summary: Show bank movement
+      tags: [MoneyEntries]
+      parameters:
+        - $ref: "#/components/parameters/OwnerSlug"
+        - $ref: "#/components/parameters/AcceptHeader"
+        - $ref: "#/components/parameters/ResourceId"
+      responses:
+        "200":
+          description: Bank movement found
+          content:
+            application/vnd.quipu.v1+json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/MoneyEntryResource"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /{owner_slug}/liquidations:
+    get:
+      operationId: listLiquidations
+      summary: List reconciliation links
+      tags: [Liquidations]
+      parameters:
+        - $ref: "#/components/parameters/OwnerSlug"
+        - $ref: "#/components/parameters/AcceptHeader"
+        - $ref: "#/components/parameters/PageNumber"
+        - $ref: "#/components/parameters/PageSize"
+      responses:
+        "200":
+          description: Paginated list of reconciliation links
+          content:
+            application/vnd.quipu.v1+json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/LiquidationResource"
+                  meta:
+                    $ref: "#/components/schemas/PaginationMeta"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /{owner_slug}/liquidations/{id}:
+    get:
+      operationId: getLiquidation
+      summary: Show reconciliation link
+      tags: [Liquidations]
+      parameters:
+        - $ref: "#/components/parameters/OwnerSlug"
+        - $ref: "#/components/parameters/AcceptHeader"
+        - $ref: "#/components/parameters/ResourceId"
+      responses:
+        "200":
+          description: Reconciliation link found
+          content:
+            application/vnd.quipu.v1+json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/LiquidationResource"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
 # ═════════════════════════════════════════════════════════════════════════
 # Components
 # ═════════════════════════════════════════════════════════════════════════
@@ -2845,6 +3015,128 @@ components:
           properties:
             book_entry:
               $ref: "#/components/schemas/RelationshipLinkage"
+    MoneyAccountResource:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          enum: [money_accounts]
+        attributes:
+          $ref: "#/components/schemas/MoneyAccountAttributes"
+
+    MoneyAccountAttributes:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Display name of the bank account.
+          example: "Cuenta corriente BBVA"
+        accounting_number:
+          type: string
+          description: Full concatenated accounting ledger code for this bank account (all digits).
+          example: "57200001"
+        currency:
+          type: string
+          description: Currency of the account. Always "eur".
+          example: "eur"
+
+    MoneyEntryResource:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          enum: [money_entries]
+        attributes:
+          $ref: "#/components/schemas/MoneyEntryAttributes"
+
+    MoneyEntryAttributes:
+      type: object
+      properties:
+        concept:
+          type: string
+          description: Description or reference of the bank movement.
+          example: "Transferencia cliente ABC"
+        amount:
+          type: string
+          description: >
+            Movement amount as a decimal string.
+            Positive = collection (cobro); negative = payment (pago).
+          example: "1500.00"
+        transaction_date:
+          type: string
+          format: date
+          description: Date the movement was recorded (YYYY-MM-DD).
+          example: "2025-03-15"
+        status:
+          type: string
+          enum: [pending, reconciled, partially_reconciled, overconciled]
+          description: >
+            Reconciliation status of the movement.
+            pending = not yet matched to any document;
+            reconciled = fully matched;
+            partially_reconciled = partially matched;
+            overconciled = matched amount exceeds the movement amount.
+        money_account_id:
+          type: integer
+          description: ID of the bank account this movement belongs to.
+        money_account_accounting_number:
+          type: string
+          nullable: true
+          description: Full concatenated accounting ledger code of the associated bank account.
+          example: "57200001"
+
+    LiquidationResource:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          enum: [liquidations]
+        attributes:
+          $ref: "#/components/schemas/LiquidationAttributes"
+
+    LiquidationAttributes:
+      type: object
+      properties:
+        amount:
+          type: string
+          description: Reconciled amount for this link, as a decimal string.
+          example: "500.00"
+        money_entry_id:
+          type: integer
+          nullable: true
+          description: >
+            ID of the bank movement. Null for manual reconciliations
+            not linked to a bank movement.
+        book_entry_id:
+          type: integer
+          description: ID of the settled document (invoice, paysheet, etc.).
+        date:
+          type: string
+          format: date
+          nullable: true
+          description: Date of the reconciliation link (YYYY-MM-DD).
+        book_entry_number:
+          type: string
+          description: Document number of the settled book entry (e.g. "F-2025-001").
+        money_account_accounting_number:
+          type: string
+          nullable: true
+          description: >
+            Full concatenated accounting ledger code of the bank account
+            associated with the movement. Null when money_entry_id is null.
+          example: "57200001"
+        book_entry_counterpart_accounting_number:
+          type: string
+          description: >
+            Full concatenated accounting ledger code of the counterpart
+            (contact) on the settled document.
+          example: "43000001"
 
   # ── Responses ──────────────────────────────────────────────────────────
   responses:

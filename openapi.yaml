@@ -61,6 +61,12 @@ tags:
     description: Accounting subcategories
   - name: Attachments
     description: File attachments for book entries
+  - name: Money Accounts
+    description: Bank accounts linked to the owner
+  - name: Money Entries
+    description: Bank movements for a given bank account
+  - name: Liquidations
+    description: Reconciliation links between bank movements and documents
 
 paths:
   # ── Users ──────────────────────────────────────────────────────────────
@@ -1561,7 +1567,7 @@ paths:
     get:
       operationId: listMoneyAccounts
       summary: List bank accounts
-      tags: [MoneyAccounts]
+      tags: [Money Accounts]
       parameters:
         - $ref: "#/components/parameters/OwnerSlug"
         - $ref: "#/components/parameters/AcceptHeader"
@@ -1587,7 +1593,7 @@ paths:
     get:
       operationId: getMoneyAccount
       summary: Show bank account
-      tags: [MoneyAccounts]
+      tags: [Money Accounts]
       parameters:
         - $ref: "#/components/parameters/OwnerSlug"
         - $ref: "#/components/parameters/AcceptHeader"
@@ -1611,7 +1617,7 @@ paths:
     get:
       operationId: listMoneyEntries
       summary: List bank movements
-      tags: [MoneyEntries]
+      tags: [Money Entries]
       parameters:
         - $ref: "#/components/parameters/OwnerSlug"
         - $ref: "#/components/parameters/AcceptHeader"
@@ -1657,7 +1663,7 @@ paths:
     get:
       operationId: getMoneyEntry
       summary: Show bank movement
-      tags: [MoneyEntries]
+      tags: [Money Entries]
       parameters:
         - $ref: "#/components/parameters/OwnerSlug"
         - $ref: "#/components/parameters/AcceptHeader"
@@ -3022,7 +3028,7 @@ components:
           type: string
         type:
           type: string
-          enum: [money_accounts]
+          const: money_accounts
         attributes:
           $ref: "#/components/schemas/MoneyAccountAttributes"
 
@@ -3039,8 +3045,8 @@ components:
           example: "57200001"
         currency:
           type: string
-          description: Currency of the account. Always "eur".
-          example: "eur"
+          const: eur
+          description: Currency of the account.
 
     MoneyEntryResource:
       type: object
@@ -3049,7 +3055,7 @@ components:
           type: string
         type:
           type: string
-          enum: [money_entries]
+          const: money_entries
         attributes:
           $ref: "#/components/schemas/MoneyEntryAttributes"
 
@@ -3096,7 +3102,7 @@ components:
           type: string
         type:
           type: string
-          enum: [liquidations]
+          const: liquidations
         attributes:
           $ref: "#/components/schemas/LiquidationAttributes"
 
@@ -3140,6 +3146,15 @@ components:
 
   # ── Responses ──────────────────────────────────────────────────────────
   responses:
+    BadRequest:
+      description: Bad request — invalid or missing parameters
+      content:
+        application/vnd.quipu.v1+json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            errors:
+              - detail: filter[date][from] and filter[date][to] must both be present
     Unauthorized:
       description: Authentication required or token invalid
       content:

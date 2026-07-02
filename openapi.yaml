@@ -7,8 +7,32 @@ info:
     All requests require `Accept: application/vnd.quipu.v1+json` header.
 
     ## Authentication
-    All endpoints require a valid OAuth2 Bearer token passed via the
-    `Authorization` header.
+    All endpoints except `POST /oauth/token` require a valid OAuth2 Bearer
+    token passed via the `Authorization` header.
+
+    ### Obtaining an access token
+    Tokens are issued via the OAuth2 **Client Credentials Grant**:
+
+    ```
+    POST /oauth/token
+    Authorization: Basic <base64(client_id:client_secret)>
+    Content-Type: application/x-www-form-urlencoded
+
+    grant_type=client_credentials&scope=ecommerce
+    ```
+
+    - `client_id` / `client_secret`: your API credentials, sent via HTTP
+      Basic Auth in the `Authorization` header (NOT as body parameters).
+    - `grant_type` must be `client_credentials`.
+    - `scope` must always be `ecommerce`. This is REQUIRED on every token
+      request, even though you don't need to configure scopes manually
+      when setting up your application. Omitting it returns a
+      `400 invalid_scope` error.
+
+    The response includes an `access_token` valid for 2 hours
+    (`expires_in: 7200`). Use it as `Authorization: Bearer <access_token>`
+    on all other API calls. See the `POST /oauth/token` operation below for
+    the full request/response reference.
 
     ## Rate Limiting
     The API enforces a limit of **5 requests per 5 seconds**. Exceeding
@@ -39,6 +63,8 @@ security:
   - bearerAuth: []
 
 tags:
+  - name: Authentication
+    description: Obtaining OAuth2 access tokens via the Client Credentials Grant.
   - name: Users
     description: User account information
   - name: Contacts
@@ -63,6 +89,91 @@ tags:
     description: File attachments for book entries
 
 paths:
+  # ── Authentication ───────────────────────────────────────────────────────
+  /oauth/token:
+    post:
+      operationId: createAccessToken
+      summary: Generate access token
+      description: |
+        Exchanges API credentials for a Bearer access token using the
+        OAuth2 Client Credentials Grant. Use the resulting `access_token`
+        as `Authorization: Bearer <access_token>` on all other requests.
+      tags: [Authentication]
+      security:
+        - basicAuth: []
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required: [grant_type, scope]
+              properties:
+                grant_type:
+                  type: string
+                  const: client_credentials
+                  description: Must be `client_credentials` (REQUIRED).
+                scope:
+                  type: string
+                  const: ecommerce
+                  description: >
+                    Must always be `ecommerce` (REQUIRED on every token
+                    request), even though scopes do not need to be
+                    configured manually in your app settings. Omitting it
+                    returns `400 invalid_scope`.
+            example:
+              grant_type: client_credentials
+              scope: ecommerce
+      responses:
+        "200":
+          description: Access token issued
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                  token_type:
+                    type: string
+                    const: Bearer
+                  expires_in:
+                    type: integer
+                    example: 7200
+                    description: Token lifetime in seconds.
+                  scope:
+                    type: string
+                    example: ecommerce
+                  created_at:
+                    type: integer
+                    description: Unix timestamp of issuance.
+              example:
+                access_token: "abc123..."
+                token_type: Bearer
+                expires_in: 7200
+                scope: ecommerce
+                created_at: 1719999999
+        "400":
+          description: Invalid or missing scope/grant_type
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OAuthErrorResponse"
+              example:
+                error: invalid_scope
+                error_description: The requested scope is invalid, unknown, or malformed.
+                status_code: 401
+        "401":
+          description: Missing or invalid client credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OAuthErrorResponse"
+              example:
+                error: invalid_client
+                error_description: Client authentication failed.
+                status_code: 401
+
   # ── Users ──────────────────────────────────────────────────────────────
   /users/{id}:
     get:
@@ -1508,7 +1619,15 @@ components:
       type: http
       scheme: bearer
       bearerFormat: OAuth2
-      description: OAuth2 Bearer token
+      description: >
+        OAuth2 Bearer token. Obtain it via `POST /oauth/token` (see the
+        Authentication tag / `## Authentication` section above).
+    basicAuth:
+      type: http
+      scheme: basic
+      description: >
+        HTTP Basic Auth with your API `client_id`/`client_secret`. Used only
+        to request an access token via `POST /oauth/token`.
 
   # ── Parameters ─────────────────────────────────────────────────────────
   parameters:
@@ -1661,6 +1780,25 @@ components:
               detail:
                 type: string
                 example: can't be blank
+
+    # ── OAuth Error (POST /oauth/token) ──────────────────────────────────
+    OAuthErrorResponse:
+      type: object
+      description: >
+        Error shape returned by `POST /oauth/token`. Unlike the rest of the
+        API, this does NOT follow the JSON:API `ErrorResponse` format.
+      properties:
+        error:
+          type: string
+          example: invalid_scope
+        error_description:
+          type: string
+        status_code:
+          type: integer
+          description: >
+            Always 401 due to a custom error handler, even when the actual
+            HTTP status code returned is different (e.g. 400 for
+            invalid_scope).
 
     # ── Item (nested resource) ───────────────────────────────────────────
     ItemResource:

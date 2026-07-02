@@ -4,7 +4,9 @@ info:
   version: 1.0.0
   description: |
     REST API for Quipu invoicing and accounting software. JSON API format.
-    All requests require `Accept: application/vnd.quipu.v1+json` header.
+    All requests require `Accept: application/vnd.quipu.v1+json` header,
+    except `POST /oauth/token`, which is a plain OAuth2 endpoint and
+    returns `application/json` (not JSON:API).
 
     ## Authentication
     All endpoints except `POST /oauth/token` require a valid OAuth2 Bearer
@@ -154,7 +156,10 @@ paths:
                 scope: ecommerce
                 created_at: 1719999999
         "400":
-          description: Invalid or missing scope/grant_type
+          description: >
+            Invalid or missing scope/grant_type. Note: the response body's
+            `status_code` field is always `401` regardless of this actual
+            HTTP status code (see `OAuthErrorResponse`).
           content:
             application/json:
               schema:

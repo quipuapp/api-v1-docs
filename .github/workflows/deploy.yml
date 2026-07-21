@@ -92,7 +92,7 @@ jobs:
           FULL_ARTIFACT_ID: ${{ steps.upload-full-html.outputs.artifact-id }}
         with:
           script: |
-            const marker = '<!-- openapi-pdf-comment -->'
+            const marker = '<!-- openapi-doc-comment -->'
             const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
             const publicUrl = `${runUrl}/artifacts/${process.env.PUBLIC_ARTIFACT_ID}`
             const fullUrl = `${runUrl}/artifacts/${process.env.FULL_ARTIFACT_ID}`

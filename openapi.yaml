@@ -2194,9 +2194,16 @@ components:
           x-internal: true
           type: string
           nullable: true
-          description: >
-            Verifactu document type code: `F1` (standard invoice/document), `F2` (simplified invoice),
-            `R1`–`R5` (credit notes). (Aplifisa integration only.)
+          description: |
+            Verifactu document type code.
+
+            - `F1` — Invoices and simplified invoices with name, country, type of tax id type and tax id number.
+            - `F2` — Invoices and simplified invoices without NIF in the recipient (client) and missing the tax id type. Also, Additional Income entries always, regardless of whether the contact has a complete NIF or not. If the Additional Income is itself a credit note, the credit-note criteria below take precedence.
+            - `R1` — Credit notes due to an error founded in law, misapplied VAT or other errors. Also the default for expense (purchase invoice) credit notes when no motive is selected.
+            - `R2` — Credit notes due to a bad debt (customer does not pay). Customer does not pay after 6 months/year, company recovers VAT.
+            - `R3` — Credit note due to customer's bankruptcy or insolvency.
+            - `R4` — Rest of credit notes.
+            - `R5` — Simplified invoices credit notes.
         contact_account_code:
           x-internal: true
           type: string
@@ -2241,23 +2248,43 @@ components:
                 type: string
                 nullable: true
                 enum: [S1, S2, N1, N2]
-                description: >
-                  CalificaciónOperación code. Null when the group is exempt (see `exempt_operation_type`)
-                  or has no current-kind items.
+                description: |
+                  Classification code
+
+                  - `S1` — Subject and not exempt — no reverse charge (inversión del sujeto pasivo).
+                  - `S2` — Subject and not exempt — with reverse charge.
+                  - `N1` — Not subject — Articles 7, 14, or other.
+                  - `N2` — Not subject — localization rules.
+                  - `null` — Exempt — see `exempt_operation_type` for the specific exemption.
               exempt_operation_type:
                 type: string
                 nullable: true
                 enum: [E1, E2, E3, E5, E6]
-                description: >
-                  OperaciónExenta code. Null when `operation_classification` is present, or the group has
-                  no current-kind items.
+                description: |
+                  Exemption code.
+
+                  - `E1` — VAT-exempt owner operating with a Spanish contact, at 0% rate.
+                  - `E2` — 0%-rated operation with a non-EU contact.
+                  - `E3` — Intracommunity supply of goods (not services) to an EU contact with a valid VAT-IVA number.
+                  - `E5` — Explicit exemption reason set by the user in the "Imported by" field (e.g. diplomats, universities — see exempt_reason r1/r2/r3).
+                  - `E6` — Exemption with no more specific reason determined.
+                  - `null` — A classification code is present for this rate (mutually exclusive with `operation_classifications`).
               regime_key:
                 type: string
                 nullable: true
-                description: >
-                  ClaveRégimen code ("01"–"20", e.g. "18" for equivalence surcharge, "17" for OSS).
-                  Empty string when it could not be determined; null when the group has no current-kind
-                  items.
+                description: |
+                  Regime key code.
+
+                  - `01` — General VAT regime.
+                  - `02` — Export.
+                  - `08` — IPSI / IGIC.
+                  - `10` — Collections by third parties.
+                  - `11` — Business leases — VAT subject and not exempt.
+                  - `17` — OSS and IOSS.
+                  - `18` — Equivalence surcharge regime.
+                  - `19` — Agricultural regime.
+                  - `20` — Simplified regime.
+                  - `null` — Not determined (group has no current items).
               equalization_rate:
                 type: number
                 nullable: true

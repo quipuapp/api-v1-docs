@@ -3,6 +3,7 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
+  pull_request:
   workflow_dispatch:
 
 permissions:
@@ -15,7 +16,26 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Validate openapi.yaml is valid YAML
+        run: npm run lint:spec
+      - name: Run tests
+        run: npm test
+
   deploy:
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -23,6 +43,30 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Build public and full specs
+        run: npm run build
+      # dist-internal/openapi.json has every field, x-internal included. Uploaded as a
+      # private Actions artifact only — never published to Pages. Requires repo access
+      # to download (this repo is private); hand it to Aplifisa manually.
+      - name: Upload full spec (private, for Aplifisa)
+        uses: actions/upload-artifact@v4
+        with:
+          name: openapi-full
+          path: dist-internal/openapi.json
+          retention-days: 90
+      # Everything below here is what actually goes public — remove build tooling and
+      # the full spec from disk first so the Pages artifact can only ever contain the
+      # filtered openapi.yaml, regardless of what upload-pages-artifact does or doesn't
+      # exclude on its own.
+      - name: Strip build tooling and internal spec before publishing
+        run: rm -rf node_modules dist-internal
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact

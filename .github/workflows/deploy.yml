@@ -57,14 +57,13 @@ jobs:
           name: openapi-full
           path: dist-internal/openapi.json
           retention-days: 90
-      - name: Install PDF tooling
-        run: sudo apt-get update && sudo apt-get install -y wkhtmltopdf
+      # Renders the actual Scalar site (same index.html as production) with Puppeteer,
+      # expanding every collapsed sidebar group first — Scalar's "modern" layout mounts
+      # nothing for a collapsed group, so a naive print only captures the intro.
       - name: Render public and full spec to PDF
         run: |
-          npx --yes @redocly/cli build-docs openapi.yaml -o public-docs.html
-          wkhtmltopdf --enable-local-file-access public-docs.html openapi-public.pdf
-          npx --yes @redocly/cli build-docs dist-internal/openapi.json -o full-docs.html
-          wkhtmltopdf --enable-local-file-access full-docs.html openapi-full.pdf
+          npm run render-pdf -- openapi.yaml openapi-public.pdf
+          npm run render-pdf -- dist-internal/openapi.json openapi-full.pdf
       - name: Upload public spec PDF
         uses: actions/upload-artifact@v4
         with:
@@ -85,7 +84,7 @@ jobs:
       # Pages artifact that nothing will deploy from a PR run.
       - name: Strip build tooling and internal spec before publishing
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: rm -rf node_modules dist-internal *.html *.pdf
+        run: rm -rf node_modules dist-internal *.pdf
       - name: Setup Pages
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: actions/configure-pages@v5

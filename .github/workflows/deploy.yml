@@ -49,7 +49,7 @@ jobs:
         run: npm ci
       - name: Build public and full specs
         run: npm run build
-      # dist-internal/openapi.json has every field, x-internal included. Uploaded as a
+      # dist-internal/openapi.json has every field, with x-internal markers stripped. Uploaded as a
       # private Actions artifact only — never published to Pages. Requires repo access
       # to download (this repo is private); hand it to Aplifisa manually.
       - name: Upload full spec (private, for Aplifisa)
@@ -70,8 +70,8 @@ jobs:
         with:
           name: openapi-public-pdf
           path: openapi-public.pdf
-      # Same access restriction as the openapi-full JSON artifact above — x-internal
-      # fields included, never published to Pages.
+      # Same access restriction as the openapi-full JSON artifact above — internal-only
+      # fields included (x-internal markers stripped), never published to Pages.
       - name: Upload full spec PDF (private, for Aplifisa)
         uses: actions/upload-artifact@v4
         with:

@@ -25,10 +25,10 @@ Edit `openapi.yaml` and push to `main`. The docs will be deployed automatically.
 Some API v1 fields only exist for a specific integration partner (e.g. Aplifisa) and are gated
 server-side in the Rails app — they only appear in a response when the owner has that integration
 activated (`owner.aplifisa?` in the serializers, passed down from the API v1 controllers as
-`with_aplifisa_data`). This repo is public documentation, so those fields must never ship in the
-published spec, and their descriptions must never name the partner integration by name (a public
-field's description saying "Aplifisa" would leak the association even if the field itself stays
-public).
+`with_aplifisa_data`). This repo is public documentation, so those partner-gated fields must never
+ship in the published spec (CI removes every `x-internal: true` field before deploying). Any field
+that *does* ship publicly (i.e. not `x-internal`) must never name the partner integration by name in
+its description — that would leak the association even though the field itself stays public.
 
 **Rule of thumb:** if a field is only serialized `if: -> { instance_options[:with_aplifisa_data] }`
 (or the equivalent gate) in `app/serializers/api/v1/**` in the main app, tag it here:

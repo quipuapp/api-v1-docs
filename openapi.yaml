@@ -2268,7 +2268,7 @@ components:
                   - `E3` — Intracommunity supply of goods (not services) to an EU contact with a valid VAT-IVA number.
                   - `E5` — Explicit exemption reason set by the user in the "Imported by" field (e.g. diplomats, universities — see exempt_reason r1/r2/r3).
                   - `E6` — Exemption with no more specific reason determined.
-                  - `null` — A classification code is present for this rate (mutually exclusive with `operation_classifications`).
+                  - `null` — A classification code is present for this rate (mutually exclusive with `operation_classification`).
               regime_key:
                 type: string
                 nullable: true

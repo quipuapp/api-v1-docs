@@ -8,10 +8,9 @@
     "test": "node --test scripts/",
     "build": "node scripts/filter-internal.js",
     "lint:spec": "node -e \"require('js-yaml').load(require('fs').readFileSync('openapi.yaml', 'utf8')); console.log('openapi.yaml: valid YAML')\"",
-    "render-pdf": "node scripts/render-pdf.js"
+    "build-html": "node scripts/build-standalone-html.js"
   },
   "devDependencies": {
-    "js-yaml": "^4.1.0",
-    "puppeteer": "^24.15.0"
+    "js-yaml": "^4.1.0"
   }
 }

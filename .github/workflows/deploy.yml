@@ -58,37 +58,38 @@ jobs:
           name: openapi-full
           path: dist-internal/openapi.json
           retention-days: 90
-      # Renders the actual Scalar site (same index.html as production) with Puppeteer,
-      # expanding every collapsed sidebar group first — Scalar's "modern" layout mounts
-      # nothing for a collapsed group, so a naive print only captures the intro.
-      - name: Render public and full spec to PDF
+      # Single self-contained HTML file per spec: Scalar UI + spec embedded inline, no
+      # fetch, no other files. Open directly in a browser — nothing to serve, nothing to
+      # convert. (Previously rendered to PDF via Puppeteer, but printing an SPA hits page
+      # breaks that cut content mid-element; HTML has no pages, so nothing to cut.)
+      - name: Build public and full standalone HTML docs
         run: |
-          npm run render-pdf -- openapi.yaml openapi-public.pdf
-          npm run render-pdf -- dist-internal/openapi.json openapi-full.pdf
-      - name: Upload public spec PDF
-        id: upload-public-pdf
+          npm run build-html -- openapi.yaml openapi-public.html
+          npm run build-html -- dist-internal/openapi.json openapi-full.html
+      - name: Upload public HTML doc
+        id: upload-public-html
         uses: actions/upload-artifact@v4
         with:
-          name: openapi-public-pdf
-          path: openapi-public.pdf
+          name: openapi-public-html
+          path: openapi-public.html
       # Same access restriction as the openapi-full JSON artifact above — internal-only
       # fields included (x-internal markers stripped), never published to Pages.
-      - name: Upload full spec PDF (private, for Aplifisa)
-        id: upload-full-pdf
+      - name: Upload full HTML doc (private, for Aplifisa)
+        id: upload-full-html
         uses: actions/upload-artifact@v4
         with:
-          name: openapi-full-pdf
-          path: openapi-full.pdf
+          name: openapi-full-html
+          path: openapi-full.html
           retention-days: 90
       # Deep-links straight to each artifact (.../artifacts/{id}) instead of just the run —
       # still requires repo access to download (private repo), same as before. Upserts via
       # the marker so repeated pushes update one comment instead of piling up a new one.
-      - name: Comment PR with PDF links
+      - name: Comment PR with doc links
         if: github.event_name == 'pull_request'
         uses: actions/github-script@v7
         env:
-          PUBLIC_ARTIFACT_ID: ${{ steps.upload-public-pdf.outputs.artifact-id }}
-          FULL_ARTIFACT_ID: ${{ steps.upload-full-pdf.outputs.artifact-id }}
+          PUBLIC_ARTIFACT_ID: ${{ steps.upload-public-html.outputs.artifact-id }}
+          FULL_ARTIFACT_ID: ${{ steps.upload-full-html.outputs.artifact-id }}
         with:
           script: |
             const marker = '<!-- openapi-pdf-comment -->'
@@ -97,9 +98,9 @@ jobs:
             const fullUrl = `${runUrl}/artifacts/${process.env.FULL_ARTIFACT_ID}`
             const body = [
               marker,
-              '**API spec PDFs for this run are ready.**',
-              `- [openapi-public-pdf](${publicUrl}) — public spec, what ships to the docs site`,
-              `- [openapi-full-pdf](${fullUrl}) — full spec including \`x-internal\` (Aplifisa) fields`
+              '**API docs for this run are ready** (single self-contained HTML file each — download and open in a browser):',
+              `- [openapi-public-html](${publicUrl}) — public spec, what ships to the docs site`,
+              `- [openapi-full-html](${fullUrl}) — full spec including \`x-internal\` (Aplifisa) fields`
             ].join('\n')
 
             const { data: comments } = await github.rest.issues.listComments({
@@ -130,7 +131,7 @@ jobs:
       # Pages artifact that nothing will deploy from a PR run.
       - name: Strip build tooling and internal spec before publishing
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: rm -rf node_modules dist-internal *.pdf
+        run: rm -rf node_modules dist-internal openapi-public.html openapi-full.html
       - name: Setup Pages
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: actions/configure-pages@v5

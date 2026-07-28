@@ -1868,6 +1868,70 @@ components:
         deductible_expense_percent:
           type: number
           description: Deductible expense percentage
+        counterpart_account_code:
+          x-internal: true
+          type: string
+          nullable: true
+          description: >
+            Accounting ledger code for this line item's category/subcategory (Aplifisa integration only —
+            present only when the owner has Aplifisa activated).
+        isp:
+          x-internal: true
+          type: boolean
+          description: >
+            Whether reverse charge (Inversión del Sujeto Pasivo) applies to this line item — always `false`
+            for outbound documents. (Aplifisa integration only.)
+        retention_key:
+          x-internal: true
+          type: string
+          nullable: true
+          description: >
+            IRPF retention key code configured in the owner's preferences for this item's retention percentage
+            (e.g. "01" for professional activities). Null when the item has no retention.
+            (Aplifisa integration only.)
+        model_190_key:
+          x-internal: true
+          type: string
+          nullable: true
+          description: >
+            Modelo 190 key for this item's retention, looked up by year and retention percentage. Null when the
+            item has no retention. (Aplifisa integration only.)
+        model_190_subkey:
+          x-internal: true
+          type: string
+          nullable: true
+          description: >
+            Modelo 190 subkey paired with `model_190_key`. Null when the item has no retention.
+            (Aplifisa integration only.)
+        tax_form:
+          x-internal: true
+          type: string
+          nullable: true
+          enum: ["00", "01", "02", "03", "05", "09", "11"]
+          description: >
+            IRPF/VAT reporting form code for this line item: `00` (non-EU import), `01` (standard),
+            `02` (EU goods), `03` (transport), `05` (other services), `09` (1% retention professional),
+            `11` (EU services). Null for tickets and disbursement items. (Aplifisa integration only.)
+        equalization_tax_rate:
+          x-internal: true
+          type: number
+          nullable: true
+          description: >
+            Equivalence surcharge (recargo de equivalencia) rate matching this item's VAT rate
+            (e.g. 5.2 for 21% VAT, 1.4 for 10% VAT). Null when the item has no surcharge.
+            (Aplifisa integration only.)
+        equalization_tax_amount:
+          x-internal: true
+          type: string
+          description: >
+            Equivalence surcharge amount for this line item. "0.0" when none applies.
+            (Aplifisa integration only.)
+        retention_rate:
+          x-internal: true
+          type: number
+          description: >
+            Retention percentage for this line item (e.g. 21, 15, 7). 0 when no retention applies.
+            (Aplifisa integration only.)
 
     ItemWritableAttributes:
       type: object
@@ -1979,6 +2043,12 @@ components:
             Computed per-request from the caller's abilities (not a persistent flag);
             typically `true` when the contact has no associated book entries and the
             caller can destroy it.
+        account_code:
+          type: string
+          nullable: true
+          description: >
+            Accounting ledger code assigned to this contact (client or supplier account,
+            depending on context).
 
     ContactResource:
       type: object
@@ -2108,6 +2178,158 @@ components:
         recipient_country_code:
           type: string
           nullable: true
+        accounting_account_code:
+          type: string
+          nullable: true
+          description: >
+            Full accounting ledger code for this document's main accounting category/subcategory.
+        economic_activity_id:
+          x-internal: true
+          type: integer
+          nullable: true
+          description: >
+            ID of the economic activity (epígrafe) associated with this document.
+            (Aplifisa integration only.)
+        document_type:
+          x-internal: true
+          type: string
+          nullable: true
+          description: |
+            Verifactu document type code.
+
+            - `F1` — Invoices and simplified invoices with name, country, type of tax id type and tax id number.
+            - `F2` — Invoices and simplified invoices without NIF in the recipient (client) and missing the tax id type. Also, Additional Income entries always, regardless of whether the contact has a complete NIF or not. If the Additional Income is itself a credit note, the credit-note criteria below take precedence.
+            - `R1` — Credit notes due to an error founded in law, misapplied VAT or other errors. Also the default for expense (purchase invoice) credit notes when no motive is selected.
+            - `R2` — Credit notes due to a bad debt (customer does not pay). Customer does not pay after 6 months/year, company recovers VAT.
+            - `R3` — Credit note due to customer's bankruptcy or insolvency.
+            - `R4` — Rest of credit notes.
+            - `R5` — Simplified invoices credit notes.
+        contact_account_code:
+          x-internal: true
+          type: string
+          nullable: true
+          description: >
+            Accounting ledger code for the counterpart contact on this document (client account for
+            outbound documents, supplier account for inbound). Null when the document has no contact.
+            (Aplifisa integration only.)
+        account_breakdown:
+          x-internal: true
+          type: object
+          nullable: true
+          description: >
+            Document total broken down by accounting account code, mirroring the account selection used
+            for A3/Sage export (asset reclassification, non-deductible expense routing, disbursement
+            accounts included). Always `null` for paysheets — breakdowns are only computed for invoices,
+            tickets, simplified invoices and additional incomes. (Aplifisa integration only.)
+          properties:
+            base:
+              type: object
+              description: Map of accounting account code (string) to the amount booked to it (number).
+              additionalProperties:
+                type: number
+        vat_breakdown:
+          x-internal: true
+          type: object
+          nullable: true
+          description: >
+            Document's VAT groups keyed by VAT rate (e.g. "21", "10", "0"), each carrying its Verifactu
+            fiscal classification. Always `null` for paysheets — breakdowns are only computed for
+            invoices, tickets, simplified invoices and additional incomes. (Aplifisa integration only.)
+          additionalProperties:
+            type: object
+            properties:
+              tax:
+                type: number
+                description: Total VAT amount for this rate group.
+              base:
+                type: number
+                description: Total taxable base for this rate group.
+              operation_classification:
+                type: string
+                nullable: true
+                enum: [S1, S2, N1, N2]
+                description: |
+                  Classification code
+
+                  - `S1` — Subject and not exempt — no reverse charge (inversión del sujeto pasivo).
+                  - `S2` — Subject and not exempt — with reverse charge.
+                  - `N1` — Not subject — Articles 7, 14, or other.
+                  - `N2` — Not subject — localization rules.
+                  - `null` — Exempt — see `exempt_operation_type` for the specific exemption.
+              exempt_operation_type:
+                type: string
+                nullable: true
+                enum: [E1, E2, E3, E5, E6]
+                description: |
+                  Exemption code.
+
+                  - `E1` — VAT-exempt owner operating with a Spanish contact, at 0% rate.
+                  - `E2` — 0%-rated operation with a non-EU contact.
+                  - `E3` — Intracommunity supply of goods (not services) to an EU contact with a valid VAT-IVA number.
+                  - `E5` — Explicit exemption reason set by the user in the "Imported by" field (e.g. diplomats, universities — see exempt_reason r1/r2/r3).
+                  - `E6` — Exemption with no more specific reason determined.
+                  - `null` — A classification code is present for this rate (mutually exclusive with `operation_classification`).
+              regime_key:
+                type: string
+                nullable: true
+                description: |
+                  Regime key code.
+
+                  - `01` — General VAT regime.
+                  - `02` — Export.
+                  - `08` — IPSI / IGIC.
+                  - `10` — Collections by third parties.
+                  - `11` — Business leases — VAT subject and not exempt.
+                  - `17` — OSS and IOSS.
+                  - `18` — Equivalence surcharge regime.
+                  - `19` — Agricultural regime.
+                  - `20` — Simplified regime.
+                  - `null` — Not determined (group has no current items).
+              equalization_rate:
+                type: number
+                nullable: true
+                description: Equivalence surcharge rate for this VAT group. Null when no item in the group has a surcharge.
+              equalization_amount:
+                type: number
+                description: Total equivalence surcharge amount for this VAT group. 0 when none.
+        rectification_type:
+          x-internal: true
+          type: string
+          nullable: true
+          enum: [S, I]
+          description: >
+            For credit notes: `S` (full substitution — same absolute total as the countered document) or
+            `I` (by differences). Null for non-credit-note documents. (Aplifisa integration only.)
+        rectification_kind:
+          x-internal: true
+          type: string
+          nullable: true
+          enum: [R1, R2, R3, R4, R5]
+          description: >
+            For credit notes: `R1`–`R5`, matching `document_type`. Null for non-credit-note documents.
+            (Aplifisa integration only.)
+        operation_description:
+          x-internal: true
+          type: string
+          description: >
+            Human-readable summary of the document's current-kind line items, formatted as
+            "account - concept - amount€" per item and joined with " | ", truncated to 500 characters.
+            Falls back to "Operación" when there are no current-kind items. (Aplifisa integration only.)
+        retention_rates:
+          x-internal: true
+          type: array
+          description: >
+            Retention breakdown across this document's line items, grouped by retention rate.
+            (Aplifisa integration only.)
+          items:
+            type: object
+            properties:
+              rate:
+                type: number
+                description: Retention percentage (e.g. 15.0).
+              amount:
+                type: number
+                description: Total amount withheld at this rate across the document's items.
 
     BookEntryResource:
       type: object
@@ -2546,6 +2768,8 @@ components:
               type: string
             company_ss_amount:
               type: string
+            retention_amount:
+              type: string
 
     PaysheetResource:
       type: object
@@ -2709,6 +2933,11 @@ components:
           type: string
         kind:
           type: string
+        accounting_digits_number:
+          type: integer
+          nullable: true
+          description: >
+            Number of digits used in this owner's chart-of-accounts codes (e.g. 8).
 
     AccountingCategoryResource:
       type: object

@@ -1,0 +1,16 @@
+{
+  "name": "api-v1-docs",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Build tooling for the Quipu API v1 public documentation (Scalar)",
+  "type": "module",
+  "scripts": {
+    "test": "node --test scripts/",
+    "build": "node scripts/filter-internal.js",
+    "lint:spec": "node -e \"require('js-yaml').load(require('fs').readFileSync('openapi.yaml', 'utf8')); console.log('openapi.yaml: valid YAML')\"",
+    "build-html": "node scripts/build-standalone-html.js"
+  },
+  "devDependencies": {
+    "js-yaml": "^4.1.0"
+  }
+}

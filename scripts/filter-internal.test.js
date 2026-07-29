@@ -22,6 +22,37 @@ test('removeInternalProperties drops only x-internal properties', () => {
   assert.deepEqual(Object.keys(doc.properties), ['public_field'])
 })
 
+test('removeInternalProperties drops only x-internal entries from a parameters array', () => {
+  const doc = {
+    get: {
+      parameters: [
+        { name: 'public_filter', in: 'query', schema: { type: 'string' } },
+        { name: 'secret_filter', in: 'query', 'x-internal': true, schema: { type: 'string' } }
+      ]
+    }
+  }
+
+  removeInternalProperties(doc)
+
+  assert.deepEqual(doc.get.parameters.map((p) => p.name), ['public_filter'])
+})
+
+test('removeInternalProperties leaves a parameters array with no internal entries unchanged', () => {
+  const doc = {
+    get: {
+      parameters: [
+        { name: 'a', in: 'query', schema: { type: 'string' } },
+        { name: 'b', in: 'query', schema: { type: 'string' } }
+      ]
+    }
+  }
+  const before = structuredClone(doc)
+
+  removeInternalProperties(doc)
+
+  assert.deepEqual(doc, before)
+})
+
 test('removeInternalProperties cleans up the required array', () => {
   const doc = {
     type: 'object',
@@ -135,6 +166,38 @@ test('buildSpecs: filtered spec has no x-internal fields and no "x-internal" str
   assert.equal(JSON.stringify(full).includes('x-internal'), false)
 })
 
+test('buildSpecs: filtered spec drops x-internal query parameters, full spec keeps them marker-stripped', () => {
+  const source = yaml.dump({
+    paths: {
+      '/things': {
+        get: {
+          parameters: [
+            { name: 'filter[open]', in: 'query', schema: { type: 'string' }, description: 'visible to everyone' },
+            {
+              name: 'filter[hidden]',
+              in: 'query',
+              'x-internal': true,
+              schema: { type: 'string' },
+              description: 'Vendor integration only.'
+            }
+          ]
+        }
+      }
+    }
+  })
+
+  const { filtered, full } = buildSpecs(source)
+
+  const filteredParams = filtered.paths['/things'].get.parameters
+  assert.deepEqual(filteredParams.map((p) => p.name), ['filter[open]'])
+  assert.equal(JSON.stringify(filtered).includes('x-internal'), false)
+
+  // full keeps both parameters, marker stripped
+  const fullParams = full.paths['/things'].get.parameters
+  assert.deepEqual(fullParams.map((p) => p.name).sort(), ['filter[hidden]', 'filter[open]'])
+  assert.equal(JSON.stringify(full).includes('x-internal'), false)
+})
+
 // Finds every (schemaName, propertyName) pair tagged x-internal directly under
 // components.schemas.*.properties in the ORIGINAL doc (field names can repeat
 // across unrelated schemas, e.g. "document_type" exists on both ContactAttributes
@@ -183,6 +246,42 @@ test('the real openapi.yaml: every x-internal field disappears from the filtered
     Object.keys(filtered.components.schemas.AccountingCategoryAttributes.properties).includes('accounting_digits_number'),
     true
   )
+})
+
+// Finds every (path, method, paramName) tuple tagged x-internal directly under
+// paths.*.<http_method>.parameters in the ORIGINAL doc.
+function findTaggedParameters(sourceDoc) {
+  const tuples = []
+  for (const [pathKey, pathItem] of Object.entries(sourceDoc.paths || {})) {
+    for (const [method, operation] of Object.entries(pathItem || {})) {
+      if (!Array.isArray(operation?.parameters)) continue
+      for (const param of operation.parameters) {
+        if (param && param['x-internal'] === true) {
+          tuples.push({ pathKey, method, paramName: param.name })
+        }
+      }
+    }
+  }
+  return tuples
+}
+
+test('the real openapi.yaml: every x-internal query parameter disappears from the filtered spec, survives in the full spec', () => {
+  const sourcePath = path.join(__dirname, '..', 'openapi.yaml')
+  const sourceYaml = fs.readFileSync(sourcePath, 'utf8')
+  const sourceDoc = yaml.load(sourceYaml)
+
+  const tagged = findTaggedParameters(sourceDoc)
+  assert.ok(tagged.length > 0, 'expected at least one x-internal query parameter in openapi.yaml')
+
+  const { filtered, full } = buildSpecs(sourceYaml)
+
+  for (const { pathKey, method, paramName } of tagged) {
+    const filteredNames = filtered.paths[pathKey][method].parameters.map((p) => p.name)
+    const fullNames = full.paths[pathKey][method].parameters.map((p) => p.name)
+
+    assert.equal(filteredNames.includes(paramName), false, `${method} ${pathKey} ${paramName} leaked into the public spec`)
+    assert.ok(fullNames.includes(paramName), `${method} ${pathKey} ${paramName} missing from the full spec`)
+  }
 })
 
 test('the real openapi.yaml: no "Aplifisa" mention survives in the public spec', () => {

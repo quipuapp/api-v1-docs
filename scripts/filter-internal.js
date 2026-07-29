@@ -1,10 +1,10 @@
-// Splits openapi.yaml (the source of truth, which may contain fields tagged
-// `x-internal: true`) into two artifacts:
+// Splits openapi.yaml (the source of truth, which may contain fields and
+// query parameters tagged `x-internal: true`) into two artifacts:
 //
-//   - a PUBLIC spec with every `x-internal` property removed entirely
-//     (published to GitHub Pages)
-//   - a FULL spec with every field intact, only the `x-internal` marker
-//     stripped (uploaded as a private CI artifact, e.g. for Aplifisa)
+//   - a PUBLIC spec with every `x-internal` property and parameter removed
+//     entirely (published to GitHub Pages)
+//   - a FULL spec with every field/parameter intact, only the `x-internal`
+//     marker stripped (uploaded as a private CI artifact, e.g. for Aplifisa)
 //
 // See ../README.md for the full pipeline and the reasoning behind it.
 
@@ -16,9 +16,12 @@ import yaml from 'js-yaml'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const ROOT = path.resolve(__dirname, '..')
 
-// Recursively removes any `properties` entry whose schema is tagged
-// `x-internal: true`, and drops its name from a sibling `required` array
-// if present. Mutates and returns `node`.
+// Recursively removes:
+//   - any `properties` entry whose schema is tagged `x-internal: true`
+//     (dropping its name from a sibling `required` array if present)
+//   - any entry in a `parameters` array (path-item or operation level)
+//     that is itself tagged `x-internal: true`
+// Mutates and returns `node`.
 export function removeInternalProperties(node) {
   if (Array.isArray(node)) {
     node.forEach(removeInternalProperties)
@@ -42,6 +45,12 @@ export function removeInternalProperties(node) {
     if (Array.isArray(node.required) && removedKeys.length > 0) {
       node.required = node.required.filter((key) => !removedKeys.includes(key))
     }
+  }
+
+  if (Array.isArray(node.parameters)) {
+    node.parameters = node.parameters.filter(
+      (param) => !(param && typeof param === 'object' && param['x-internal'] === true)
+    )
   }
 
   for (const value of Object.values(node)) {

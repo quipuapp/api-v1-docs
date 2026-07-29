@@ -4,7 +4,14 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import yaml from 'js-yaml'
-import { removeInternalProperties, stripInternalMarkers, buildSpecs } from './filter-internal.js'
+import {
+  removeInternalProperties,
+  removeInternalPaths,
+  removeInternalComponents,
+  removeInternalTags,
+  stripInternalMarkers,
+  buildSpecs
+} from './filter-internal.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -291,4 +298,107 @@ test('the real openapi.yaml: no "Aplifisa" mention survives in the public spec',
   const { filtered } = buildSpecs(sourceYaml)
 
   assert.equal(JSON.stringify(filtered).toLowerCase().includes('aplifisa'), false)
+})
+
+test('removeInternalPaths drops a whole x-internal path, keeps others', () => {
+  const doc = {
+    paths: {
+      '/public': { get: { summary: 'keep' } },
+      '/internal': { 'x-internal': true, get: { summary: 'drop' } }
+    }
+  }
+
+  removeInternalPaths(doc)
+
+  assert.deepEqual(Object.keys(doc.paths), ['/public'])
+})
+
+test('removeInternalPaths drops only the x-internal operation when the path itself is not tagged', () => {
+  const doc = {
+    paths: {
+      '/mixed': {
+        get: { summary: 'keep' },
+        post: { 'x-internal': true, summary: 'drop' }
+      }
+    }
+  }
+
+  removeInternalPaths(doc)
+
+  assert.deepEqual(Object.keys(doc.paths['/mixed']), ['get'])
+})
+
+test('removeInternalComponents drops x-internal schemas/parameters/responses, keeps others', () => {
+  const doc = {
+    components: {
+      schemas: {
+        PublicResource: { type: 'object' },
+        InternalResource: { 'x-internal': true, type: 'object' }
+      },
+      parameters: {
+        PublicParam: { name: 'a' },
+        InternalParam: { 'x-internal': true, name: 'b' }
+      },
+      responses: {
+        PublicResponse: { description: 'ok' },
+        InternalResponse: { 'x-internal': true, description: 'secret' }
+      }
+    }
+  }
+
+  removeInternalComponents(doc)
+
+  assert.deepEqual(Object.keys(doc.components.schemas), ['PublicResource'])
+  assert.deepEqual(Object.keys(doc.components.parameters), ['PublicParam'])
+  assert.deepEqual(Object.keys(doc.components.responses), ['PublicResponse'])
+})
+
+test('removeInternalTags drops only x-internal tags', () => {
+  const doc = {
+    tags: [
+      { name: 'Public' },
+      { name: 'Internal', 'x-internal': true }
+    ]
+  }
+
+  removeInternalTags(doc)
+
+  assert.deepEqual(doc.tags.map((t) => t.name), ['Public'])
+})
+
+test('the real openapi.yaml: every x-internal path/operation disappears from the filtered spec, survives (marker-stripped) in the full spec', () => {
+  const sourcePath = path.join(__dirname, '..', 'openapi.yaml')
+  const sourceYaml = fs.readFileSync(sourcePath, 'utf8')
+  const sourceDoc = yaml.load(sourceYaml)
+
+  const taggedPaths = Object.entries(sourceDoc.paths || {}).filter(
+    ([, item]) => item && item['x-internal'] === true
+  )
+  assert.ok(taggedPaths.length > 0, 'expected at least one x-internal path in openapi.yaml')
+
+  const { filtered, full } = buildSpecs(sourceYaml)
+
+  for (const [pathKey] of taggedPaths) {
+    assert.equal(pathKey in filtered.paths, false, `${pathKey} leaked into the public spec`)
+    assert.ok(pathKey in full.paths, `${pathKey} missing from the full spec`)
+  }
+  assert.equal(JSON.stringify(filtered).includes('x-internal'), false)
+})
+
+test('the real openapi.yaml: every x-internal schema disappears from the filtered spec, survives in the full spec', () => {
+  const sourcePath = path.join(__dirname, '..', 'openapi.yaml')
+  const sourceYaml = fs.readFileSync(sourcePath, 'utf8')
+  const sourceDoc = yaml.load(sourceYaml)
+
+  const taggedSchemas = Object.entries(sourceDoc.components?.schemas || {}).filter(
+    ([, schema]) => schema && schema['x-internal'] === true
+  )
+  assert.ok(taggedSchemas.length > 0, 'expected at least one x-internal schema in openapi.yaml')
+
+  const { filtered, full } = buildSpecs(sourceYaml)
+
+  for (const [name] of taggedSchemas) {
+    assert.equal(name in filtered.components.schemas, false, `${name} leaked into the public spec`)
+    assert.ok(name in full.components.schemas, `${name} missing from the full spec`)
+  }
 })

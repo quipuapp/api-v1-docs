@@ -249,7 +249,7 @@ test('the real openapi.yaml: every x-internal field disappears from the filtered
 })
 
 // Finds every (path, method, paramName) tuple tagged x-internal directly under
-// paths.*.*.parameters in the ORIGINAL doc.
+// paths.*.<http_method>.parameters in the ORIGINAL doc.
 function findTaggedParameters(sourceDoc) {
   const tuples = []
   for (const [pathKey, pathItem] of Object.entries(sourceDoc.paths || {})) {

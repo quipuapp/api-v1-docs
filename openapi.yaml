@@ -455,6 +455,17 @@ paths:
           schema:
             type: string
           description: Search term for field-level query filter
+        - name: filter[economic_activity_id]
+          in: query
+          x-internal: true
+          schema:
+            type: string
+          description: >
+            Filter by economic activity (epígrafe) ID. Accepts a numeric ID, or the sentinel
+            values `none` (only entries with no economic activity assigned) or `any` (only
+            entries with some economic activity assigned). Any other non-numeric value returns
+            an empty result rather than an error.
+            (Aplifisa integration only.)
         - name: sort
           in: query
           schema:
@@ -532,6 +543,17 @@ paths:
           schema:
             type: string
           description: Search term for field-level query filter
+        - name: filter[economic_activity_id]
+          in: query
+          x-internal: true
+          schema:
+            type: string
+          description: >
+            Filter by economic activity (epígrafe) ID. Accepts a numeric ID, or the sentinel
+            values `none` (only entries with no economic activity assigned) or `any` (only
+            entries with some economic activity assigned). Any other non-numeric value returns
+            an empty result rather than an error.
+            (Aplifisa integration only.)
       responses:
         "200":
           description: Paginated list of invoices
@@ -740,6 +762,17 @@ paths:
         - $ref: "#/components/parameters/PageNumber"
         - $ref: "#/components/parameters/PageSize"
         - $ref: "#/components/parameters/IncludeSimplifiedInvoice"
+        - name: filter[economic_activity_id]
+          in: query
+          x-internal: true
+          schema:
+            type: string
+          description: >
+            Filter by economic activity (epígrafe) ID. Accepts a numeric ID, or the sentinel
+            values `none` (only entries with no economic activity assigned) or `any` (only
+            entries with some economic activity assigned). Any other non-numeric value returns
+            an empty result rather than an error.
+            (Aplifisa integration only.)
       responses:
         "200":
           description: Paginated list of simplified invoices
@@ -876,6 +909,17 @@ paths:
         - $ref: "#/components/parameters/PageNumber"
         - $ref: "#/components/parameters/PageSize"
         - $ref: "#/components/parameters/IncludeAdditionalIncome"
+        - name: filter[economic_activity_id]
+          in: query
+          x-internal: true
+          schema:
+            type: string
+          description: >
+            Filter by economic activity (epígrafe) ID. Accepts a numeric ID, or the sentinel
+            values `none` (only entries with no economic activity assigned) or `any` (only
+            entries with some economic activity assigned). Any other non-numeric value returns
+            an empty result rather than an error.
+            (Aplifisa integration only.)
       responses:
         "200":
           description: Paginated list of additional income
@@ -1012,6 +1056,17 @@ paths:
         - $ref: "#/components/parameters/PageNumber"
         - $ref: "#/components/parameters/PageSize"
         - $ref: "#/components/parameters/IncludePaysheet"
+        - name: filter[economic_activity_id]
+          in: query
+          x-internal: true
+          schema:
+            type: string
+          description: >
+            Filter by economic activity (epígrafe) ID. Accepts a numeric ID, or the sentinel
+            values `none` (only entries with no economic activity assigned) or `any` (only
+            entries with some economic activity assigned). Any other non-numeric value returns
+            an empty result rather than an error.
+            (Aplifisa integration only.)
       responses:
         "200":
           description: Paginated list of paysheets

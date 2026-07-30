@@ -3341,6 +3341,18 @@ components:
                 present. For outbound invoices, sets the invoice's internal number directly
                 (overriding `number` if both are sent). For inbound invoices, sets the internal
                 number while `number` is stored as the supplier's external reference.
+            filing_number:
+              type: string
+              nullable: true
+              description: >
+                Legacy per-numeration-series ordinal (a positive integer, sent as a string).
+                Only meaningful together with an explicit numeration series: the final `number`
+                is then derived from the series prefix plus this ordinal. A non-integer value
+                is treated the same as `number`. Distinct from `complete_number`, which replaces
+                `number` itself rather than this series-ordinal role. Kept for backward
+                compatibility with historical/manually-numbered entries; prefer `number` /
+                `complete_number` otherwise. Only accepted on creation — ignored if sent on an
+                update.
             due_dates:
               type: array
               items:
@@ -3506,6 +3518,18 @@ components:
               description: >
                 Full simplified invoice number including prefix, authoritative when present
                 (overrides `number` if both are sent).
+            filing_number:
+              type: string
+              nullable: true
+              description: >
+                Legacy per-numeration-series ordinal (a positive integer, sent as a string).
+                Only meaningful together with an explicit numeration series: the final `number`
+                is then derived from the series prefix plus this ordinal. A non-integer value
+                is treated the same as `number`. Distinct from `complete_number`, which replaces
+                `number` itself rather than this series-ordinal role. Kept for backward
+                compatibility with historical/manually-numbered entries; prefer `number` /
+                `complete_number` otherwise. Only accepted on creation — ignored if sent on an
+                update.
             due_dates:
               type: array
               items:
@@ -3628,6 +3652,18 @@ components:
               description: >
                 Full additional income number including prefix, authoritative when present
                 (overrides `number` if both are sent).
+            filing_number:
+              type: string
+              nullable: true
+              description: >
+                Legacy per-numeration-series ordinal (a positive integer, sent as a string).
+                Only meaningful together with an explicit numeration series: the final `number`
+                is then derived from the series prefix plus this ordinal. A non-integer value
+                is treated the same as `number`. Distinct from `complete_number`, which replaces
+                `number` itself rather than this series-ordinal role. Kept for backward
+                compatibility with historical/manually-numbered entries; prefer `number` /
+                `complete_number` otherwise. Only accepted on creation — ignored if sent on an
+                update.
             due_dates:
               type: array
               items:

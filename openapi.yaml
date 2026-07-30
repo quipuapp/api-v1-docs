@@ -2489,6 +2489,11 @@ components:
       description: |
         Comma-separated list of related resources to embed in the `included`
         array (JSON:API sideloading). Allowed values: `items`, `contact`,
+        `accounting_category`, `accounting_subcategory`.
+        Example: `?include=items,contact`.
+      x-internal-description: |
+        Comma-separated list of related resources to embed in the `included`
+        array (JSON:API sideloading). Allowed values: `items`, `contact`,
         `accounting_category`, `accounting_subcategory`, `liquidations`.
         Example: `?include=items,contact`.
     IncludeSimplifiedInvoice:
@@ -2497,6 +2502,10 @@ components:
       schema:
         type: string
       description: |
+        Comma-separated list of related resources to embed in the `included`
+        array. Allowed values: `items`, `accounting_category`,
+        `accounting_subcategory`, `attachments`. Example: `?include=items`.
+      x-internal-description: |
         Comma-separated list of related resources to embed in the `included`
         array. Allowed values: `items`, `accounting_category`,
         `accounting_subcategory`, `attachments`, `liquidations`. Example: `?include=items`.
@@ -2508,6 +2517,10 @@ components:
       description: |
         Comma-separated list of related resources to embed in the `included`
         array. Allowed values: `items`, `accounting_category`,
+        `accounting_subcategory`, `attachments`. Example: `?include=items`.
+      x-internal-description: |
+        Comma-separated list of related resources to embed in the `included`
+        array. Allowed values: `items`, `accounting_category`,
         `accounting_subcategory`, `attachments`, `liquidations`. Example: `?include=items`.
     IncludePaysheet:
       name: include
@@ -2515,6 +2528,11 @@ components:
       schema:
         type: string
       description: |
+        Comma-separated list of related resources to embed in the `included`
+        array. Allowed values: `contact`, `accounting_category`,
+        `accounting_subcategory`, `attachments`.
+        Example: `?include=contact,accounting_subcategory`.
+      x-internal-description: |
         Comma-separated list of related resources to embed in the `included`
         array. Allowed values: `contact`, `accounting_category`,
         `accounting_subcategory`, `attachments`, `liquidations`.

@@ -10,6 +10,7 @@ import {
   removeInternalComponents,
   removeInternalTags,
   stripInternalMarkers,
+  applyInternalDescriptions,
   buildSpecs
 } from './filter-internal.js'
 
@@ -145,6 +146,67 @@ test('stripInternalMarkers removes the marker but keeps the field', () => {
   stripInternalMarkers(doc)
 
   assert.deepEqual(doc.properties.secret_field, { type: 'string', description: 'shh' })
+})
+
+test('stripInternalMarkers also removes a stray x-internal-description', () => {
+  const doc = { description: 'public', 'x-internal-description': 'full' }
+
+  stripInternalMarkers(doc)
+
+  assert.deepEqual(doc, { description: 'public' })
+})
+
+test('applyInternalDescriptions swaps description for x-internal-description where present', () => {
+  const doc = {
+    name: 'include',
+    description: 'public-safe text',
+    'x-internal-description': 'full text mentioning the internal detail'
+  }
+
+  applyInternalDescriptions(doc)
+
+  assert.equal(doc.description, 'full text mentioning the internal detail')
+})
+
+test('applyInternalDescriptions leaves fields with no x-internal-description untouched', () => {
+  const doc = { name: 'plain', description: 'only description' }
+  const before = structuredClone(doc)
+
+  applyInternalDescriptions(doc)
+
+  assert.deepEqual(doc, before)
+})
+
+test('buildSpecs: public spec keeps the safe description, full spec gets the complete one, marker gone from both', () => {
+  const source = yaml.dump({
+    paths: {
+      '/things': {
+        get: {
+          parameters: [
+            {
+              name: 'include',
+              in: 'query',
+              schema: { type: 'string' },
+              description: 'Allowed values: `a`, `b`.',
+              'x-internal-description': 'Allowed values: `a`, `b`, `internal_only`.'
+            }
+          ]
+        }
+      }
+    }
+  })
+
+  const { filtered, full } = buildSpecs(source)
+
+  const filteredParam = filtered.paths['/things'].get.parameters[0]
+  const fullParam = full.paths['/things'].get.parameters[0]
+
+  assert.equal(filteredParam.description, 'Allowed values: `a`, `b`.')
+  assert.equal(filteredParam.description.includes('internal_only'), false)
+  assert.equal('x-internal-description' in filteredParam, false)
+
+  assert.equal(fullParam.description, 'Allowed values: `a`, `b`, `internal_only`.')
+  assert.equal('x-internal-description' in fullParam, false)
 })
 
 test('buildSpecs: filtered spec has no x-internal fields and no "x-internal" strings left anywhere', () => {
@@ -298,6 +360,24 @@ test('the real openapi.yaml: no "Aplifisa" mention survives in the public spec',
   const { filtered } = buildSpecs(sourceYaml)
 
   assert.equal(JSON.stringify(filtered).toLowerCase().includes('aplifisa'), false)
+})
+
+// Structural x-internal removal only strips whole fields/parameters/paths —
+// it can't catch an internal-only concept named in plain free-text
+// `description` prose elsewhere (e.g. "liquidations" listed as an allowed
+// `include=` value on an otherwise-public parameter). This guards against
+// that leak shape specifically, independent of any single field/path.
+test('the real openapi.yaml: no internal-only concept name leaks into public description text', () => {
+  const sourcePath = path.join(__dirname, '..', 'openapi.yaml')
+  const sourceYaml = fs.readFileSync(sourcePath, 'utf8')
+
+  const { filtered, full } = buildSpecs(sourceYaml)
+
+  // Sanity check: the term must still exist in the full/internal spec —
+  // otherwise this test would pass by accident (term removed everywhere).
+  assert.ok(JSON.stringify(full).includes('liquidations'), 'expected "liquidations" to survive in the full spec')
+
+  assert.equal(JSON.stringify(filtered).includes('liquidations'), false)
 })
 
 test('removeInternalPaths drops a whole x-internal path, keeps others', () => {

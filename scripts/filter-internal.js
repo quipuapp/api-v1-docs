@@ -115,8 +115,9 @@ export function removeInternalComponents(node) {
   return node
 }
 
-// Recursively deletes the `x-internal` marker key itself, leaving the
-// field it was attached to untouched. Mutates and returns `node`.
+// Recursively deletes the `x-internal` and `x-internal-description` marker
+// keys, leaving the field they were attached to untouched. Mutates and
+// returns `node`.
 export function stripInternalMarkers(node) {
   if (Array.isArray(node)) {
     node.forEach(stripInternalMarkers)
@@ -128,9 +129,41 @@ export function stripInternalMarkers(node) {
   }
 
   delete node['x-internal']
+  delete node['x-internal-description']
 
   for (const value of Object.values(node)) {
     stripInternalMarkers(value)
+  }
+
+  return node
+}
+
+// A field that's shared between public and internal consumers (e.g. a
+// query parameter whose allowed-values list includes an internal-only
+// value) can't be dropped wholesale like an `x-internal: true` field — it
+// still needs a public-facing description. For those, `description` holds
+// the public-safe text and a sibling `x-internal-description` holds the
+// complete text (mentioning the internal-only detail). This replaces
+// `description` with `x-internal-description` wherever both are present,
+// for use on the FULL spec only — the filtered/public spec should never
+// call this, it already has the safe text in `description`. Mutates and
+// returns `node`.
+export function applyInternalDescriptions(node) {
+  if (Array.isArray(node)) {
+    node.forEach(applyInternalDescriptions)
+    return node
+  }
+
+  if (node === null || typeof node !== 'object') {
+    return node
+  }
+
+  if (typeof node['x-internal-description'] === 'string') {
+    node.description = node['x-internal-description']
+  }
+
+  for (const value of Object.values(node)) {
+    applyInternalDescriptions(value)
   }
 
   return node
@@ -148,7 +181,7 @@ export function removeInternalTags(node) {
 export function buildSpecs(sourceYaml) {
   const source = yaml.load(sourceYaml)
 
-  const full = stripInternalMarkers(structuredClone(source))
+  const full = stripInternalMarkers(applyInternalDescriptions(structuredClone(source)))
   const filtered = removeInternalPaths(structuredClone(source))
   removeInternalComponents(filtered)
   removeInternalTags(filtered)

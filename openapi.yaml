@@ -751,6 +751,7 @@ paths:
                         - $ref: "#/components/schemas/ContactResource"
                         - $ref: "#/components/schemas/AccountingCategoryResource"
                         - $ref: "#/components/schemas/AccountingSubcategoryResource"
+                        - $ref: "#/components/schemas/LiquidationResource"
               examples:
                 bare:
                   summary: Without sideloading
@@ -1287,6 +1288,15 @@ paths:
                 properties:
                   data:
                     $ref: "#/components/schemas/AdditionalIncomeResource"
+                  included:
+                    type: array
+                    description: Populated when `?include=` is used. Contains sideloaded resources.
+                    items:
+                      oneOf:
+                        - $ref: "#/components/schemas/ItemResource"
+                        - $ref: "#/components/schemas/AccountingCategoryResource"
+                        - $ref: "#/components/schemas/AccountingSubcategoryResource"
+                        - $ref: "#/components/schemas/LiquidationResource"
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -1553,6 +1563,15 @@ paths:
                 properties:
                   data:
                     $ref: "#/components/schemas/PaysheetResource"
+                  included:
+                    type: array
+                    description: Populated when `?include=` is used. Contains sideloaded resources.
+                    items:
+                      oneOf:
+                        - $ref: "#/components/schemas/ContactResource"
+                        - $ref: "#/components/schemas/AccountingCategoryResource"
+                        - $ref: "#/components/schemas/AccountingSubcategoryResource"
+                        - $ref: "#/components/schemas/LiquidationResource"
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -3323,6 +3342,11 @@ components:
               $ref: "#/components/schemas/RelationshipLinkageArray"
             amended_invoice:
               $ref: "#/components/schemas/RelationshipLinkage"
+            liquidations:
+              x-internal: true
+              allOf:
+                - $ref: "#/components/schemas/RelationshipLinkageArray"
+              description: Money entries/book entries reconciled against this invoice. (Aplifisa integration only.)
 
     InvoiceWritable:
       type: object
@@ -3639,6 +3663,11 @@ components:
               $ref: "#/components/schemas/RelationshipLinkage"
             accounting_subcategory:
               $ref: "#/components/schemas/RelationshipLinkage"
+            liquidations:
+              x-internal: true
+              allOf:
+                - $ref: "#/components/schemas/RelationshipLinkageArray"
+              description: Money entries/book entries reconciled against this additional income. (Aplifisa integration only.)
 
     AdditionalIncomeWritable:
       type: object
@@ -3775,6 +3804,11 @@ components:
               $ref: "#/components/schemas/RelationshipLinkage"
             accounting_subcategory:
               $ref: "#/components/schemas/RelationshipLinkage"
+            liquidations:
+              x-internal: true
+              allOf:
+                - $ref: "#/components/schemas/RelationshipLinkageArray"
+              description: Money entries/book entries reconciled against this paysheet. (Aplifisa integration only.)
 
     PaysheetWritable:
       type: object

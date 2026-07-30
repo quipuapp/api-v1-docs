@@ -169,6 +169,41 @@ export function applyInternalDescriptions(node) {
   return node
 }
 
+// After removeInternalComponents drops a whole `components.schemas` entry
+// (e.g. a partner-only resource like LiquidationResource), any `oneOf`/
+// `anyOf` list elsewhere in the doc that still `$ref`s it (e.g. a
+// polymorphic `included` items schema) is left pointing at a schema that no
+// longer exists. Prunes those dangling entries so the filtered spec stays
+// resolvable. `validSchemaNames` is the set of schema names still present
+// in `components.schemas` — call this AFTER removeInternalComponents.
+// Mutates and returns `node`.
+export function removeDanglingRefs(node, validSchemaNames) {
+  if (Array.isArray(node)) {
+    node.forEach((item) => removeDanglingRefs(item, validSchemaNames))
+    return node
+  }
+
+  if (node === null || typeof node !== 'object') {
+    return node
+  }
+
+  for (const key of ['oneOf', 'anyOf']) {
+    if (Array.isArray(node[key])) {
+      node[key] = node[key].filter((entry) => {
+        if (!entry || typeof entry !== 'object' || typeof entry.$ref !== 'string') return true
+        const match = entry.$ref.match(/^#\/components\/schemas\/(.+)$/)
+        return match ? validSchemaNames.has(match[1]) : true
+      })
+    }
+  }
+
+  for (const value of Object.values(node)) {
+    removeDanglingRefs(value, validSchemaNames)
+  }
+
+  return node
+}
+
 // Drops top-level `tags` entries (the tag registry used for grouping in the
 // docs UI) tagged `x-internal: true`. Mutates and returns `node`.
 export function removeInternalTags(node) {
@@ -186,6 +221,7 @@ export function buildSpecs(sourceYaml) {
   removeInternalComponents(filtered)
   removeInternalTags(filtered)
   removeInternalProperties(filtered)
+  removeDanglingRefs(filtered, new Set(Object.keys(filtered.components?.schemas || {})))
   stripInternalMarkers(filtered) // belt-and-braces: no stray markers should survive on kept fields
 
   return { full, filtered }

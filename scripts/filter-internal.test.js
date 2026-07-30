@@ -9,6 +9,7 @@ import {
   removeInternalPaths,
   removeInternalComponents,
   removeInternalTags,
+  removeDanglingRefs,
   stripInternalMarkers,
   applyInternalDescriptions,
   buildSpecs
@@ -431,6 +432,103 @@ test('removeInternalComponents drops x-internal schemas/parameters/responses, ke
   assert.deepEqual(Object.keys(doc.components.schemas), ['PublicResource'])
   assert.deepEqual(Object.keys(doc.components.parameters), ['PublicParam'])
   assert.deepEqual(Object.keys(doc.components.responses), ['PublicResponse'])
+})
+
+test('removeDanglingRefs drops a oneOf entry pointing at a schema no longer present', () => {
+  const doc = {
+    components: {
+      schemas: {
+        PublicResource: { type: 'object' }
+      }
+    },
+    included: {
+      items: {
+        oneOf: [
+          { $ref: '#/components/schemas/PublicResource' },
+          { $ref: '#/components/schemas/DroppedInternalResource' }
+        ]
+      }
+    }
+  }
+
+  removeDanglingRefs(doc, new Set(Object.keys(doc.components.schemas)))
+
+  assert.deepEqual(doc.included.items.oneOf, [{ $ref: '#/components/schemas/PublicResource' }])
+})
+
+test('removeDanglingRefs leaves a oneOf list with no dangling refs unchanged', () => {
+  const doc = {
+    components: { schemas: { A: {}, B: {} } },
+    oneOf: [{ $ref: '#/components/schemas/A' }, { $ref: '#/components/schemas/B' }]
+  }
+  const before = structuredClone(doc)
+
+  removeDanglingRefs(doc, new Set(Object.keys(doc.components.schemas)))
+
+  assert.deepEqual(doc, before)
+})
+
+test('removeDanglingRefs leaves non-schema refs (e.g. parameters) alone', () => {
+  const doc = {
+    components: { schemas: {} },
+    oneOf: [{ $ref: '#/components/parameters/SomeParam' }]
+  }
+
+  removeDanglingRefs(doc, new Set())
+
+  assert.deepEqual(doc.oneOf, [{ $ref: '#/components/parameters/SomeParam' }])
+})
+
+test('buildSpecs: an internal-only schema referenced from a oneOf disappears from both the schemas map and the oneOf list in the filtered spec, survives in the full spec', () => {
+  const source = yaml.dump({
+    components: {
+      schemas: {
+        PublicResource: { type: 'object' },
+        InternalResource: { 'x-internal': true, type: 'object' }
+      }
+    },
+    paths: {
+      '/things': {
+        get: {
+          responses: {
+            '200': {
+              content: {
+                'application/json': {
+                  schema: {
+                    properties: {
+                      included: {
+                        type: 'array',
+                        items: {
+                          oneOf: [
+                            { $ref: '#/components/schemas/PublicResource' },
+                            { $ref: '#/components/schemas/InternalResource' }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  })
+
+  const { filtered, full } = buildSpecs(source)
+
+  const filteredOneOf =
+    filtered.paths['/things'].get.responses['200'].content['application/json'].schema.properties.included.items.oneOf
+  assert.deepEqual(filteredOneOf, [{ $ref: '#/components/schemas/PublicResource' }])
+  assert.equal('InternalResource' in filtered.components.schemas, false)
+
+  const fullOneOf =
+    full.paths['/things'].get.responses['200'].content['application/json'].schema.properties.included.items.oneOf
+  assert.deepEqual(fullOneOf, [
+    { $ref: '#/components/schemas/PublicResource' },
+    { $ref: '#/components/schemas/InternalResource' }
+  ])
 })
 
 test('removeInternalTags drops only x-internal tags', () => {

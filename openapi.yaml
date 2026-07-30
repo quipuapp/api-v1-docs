@@ -4062,6 +4062,13 @@ components:
             book_entry_id:
               type: integer
               nullable: true
+            kind:
+              type: string
+              enum: [charge, payment]
+              description: >
+                Money movement direction: "charge" (cobro) or "payment" (pago). Based on the
+                money entry's amount sign when present, otherwise on the settled document's
+                direction — the same convention used by the A3/Sage accounting exports.
             date:
               type: string
               format: date

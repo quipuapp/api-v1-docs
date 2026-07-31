@@ -3979,7 +3979,7 @@ components:
         name:
           type: string
         prefix:
-          type: string
+          type: integer
         kind:
           type: string
         accounting_digits_number:

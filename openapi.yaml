@@ -3979,7 +3979,7 @@ components:
         name:
           type: string
         prefix:
-          type: string
+          type: integer
         kind:
           type: string
         accounting_digits_number:
@@ -4185,6 +4185,22 @@ components:
             money_account_accounting_number:
               type: string
               nullable: true
+            accounting_category_id:
+              type: integer
+              nullable: true
+              description: Present when this money entry is reconciled directly against an accounting category (no book entry involved).
+            accounting_category_prefix:
+              type: integer
+              nullable: true
+              description: The linked accounting category's `prefix` (its accounting number).
+            linked_money_entry_id:
+              type: integer
+              nullable: true
+              description: Present when this money entry is one side of an account-to-account transfer. Points at the counterpart money entry.
+            linked_money_account_accounting_number:
+              type: string
+              nullable: true
+              description: The counterpart money entry's money account accounting number, when `linked_money_entry_id` is present.
 
   # ── Responses ──────────────────────────────────────────────────────────
   responses:

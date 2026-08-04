@@ -4,7 +4,16 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import yaml from 'js-yaml'
-import { removeInternalProperties, stripInternalMarkers, buildSpecs } from './filter-internal.js'
+import {
+  removeInternalProperties,
+  removeInternalPaths,
+  removeInternalComponents,
+  removeInternalTags,
+  removeDanglingRefs,
+  stripInternalMarkers,
+  applyInternalDescriptions,
+  buildSpecs
+} from './filter-internal.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -138,6 +147,67 @@ test('stripInternalMarkers removes the marker but keeps the field', () => {
   stripInternalMarkers(doc)
 
   assert.deepEqual(doc.properties.secret_field, { type: 'string', description: 'shh' })
+})
+
+test('stripInternalMarkers also removes a stray x-internal-description', () => {
+  const doc = { description: 'public', 'x-internal-description': 'full' }
+
+  stripInternalMarkers(doc)
+
+  assert.deepEqual(doc, { description: 'public' })
+})
+
+test('applyInternalDescriptions swaps description for x-internal-description where present', () => {
+  const doc = {
+    name: 'include',
+    description: 'public-safe text',
+    'x-internal-description': 'full text mentioning the internal detail'
+  }
+
+  applyInternalDescriptions(doc)
+
+  assert.equal(doc.description, 'full text mentioning the internal detail')
+})
+
+test('applyInternalDescriptions leaves fields with no x-internal-description untouched', () => {
+  const doc = { name: 'plain', description: 'only description' }
+  const before = structuredClone(doc)
+
+  applyInternalDescriptions(doc)
+
+  assert.deepEqual(doc, before)
+})
+
+test('buildSpecs: public spec keeps the safe description, full spec gets the complete one, marker gone from both', () => {
+  const source = yaml.dump({
+    paths: {
+      '/things': {
+        get: {
+          parameters: [
+            {
+              name: 'include',
+              in: 'query',
+              schema: { type: 'string' },
+              description: 'Allowed values: `a`, `b`.',
+              'x-internal-description': 'Allowed values: `a`, `b`, `internal_only`.'
+            }
+          ]
+        }
+      }
+    }
+  })
+
+  const { filtered, full } = buildSpecs(source)
+
+  const filteredParam = filtered.paths['/things'].get.parameters[0]
+  const fullParam = full.paths['/things'].get.parameters[0]
+
+  assert.equal(filteredParam.description, 'Allowed values: `a`, `b`.')
+  assert.equal(filteredParam.description.includes('internal_only'), false)
+  assert.equal('x-internal-description' in filteredParam, false)
+
+  assert.equal(fullParam.description, 'Allowed values: `a`, `b`, `internal_only`.')
+  assert.equal('x-internal-description' in fullParam, false)
 })
 
 test('buildSpecs: filtered spec has no x-internal fields and no "x-internal" strings left anywhere', () => {
@@ -291,4 +361,222 @@ test('the real openapi.yaml: no "Aplifisa" mention survives in the public spec',
   const { filtered } = buildSpecs(sourceYaml)
 
   assert.equal(JSON.stringify(filtered).toLowerCase().includes('aplifisa'), false)
+})
+
+// Structural x-internal removal only strips whole fields/parameters/paths —
+// it can't catch an internal-only concept named in plain free-text
+// `description` prose elsewhere (e.g. "liquidations" listed as an allowed
+// `include=` value on an otherwise-public parameter). This guards against
+// that leak shape specifically, independent of any single field/path.
+test('the real openapi.yaml: no internal-only concept name leaks into public description text', () => {
+  const sourcePath = path.join(__dirname, '..', 'openapi.yaml')
+  const sourceYaml = fs.readFileSync(sourcePath, 'utf8')
+
+  const { filtered, full } = buildSpecs(sourceYaml)
+
+  // Sanity check: the term must still exist in the full/internal spec —
+  // otherwise this test would pass by accident (term removed everywhere).
+  assert.ok(JSON.stringify(full).includes('liquidations'), 'expected "liquidations" to survive in the full spec')
+
+  assert.equal(JSON.stringify(filtered).includes('liquidations'), false)
+})
+
+test('removeInternalPaths drops a whole x-internal path, keeps others', () => {
+  const doc = {
+    paths: {
+      '/public': { get: { summary: 'keep' } },
+      '/internal': { 'x-internal': true, get: { summary: 'drop' } }
+    }
+  }
+
+  removeInternalPaths(doc)
+
+  assert.deepEqual(Object.keys(doc.paths), ['/public'])
+})
+
+test('removeInternalPaths drops only the x-internal operation when the path itself is not tagged', () => {
+  const doc = {
+    paths: {
+      '/mixed': {
+        get: { summary: 'keep' },
+        post: { 'x-internal': true, summary: 'drop' }
+      }
+    }
+  }
+
+  removeInternalPaths(doc)
+
+  assert.deepEqual(Object.keys(doc.paths['/mixed']), ['get'])
+})
+
+test('removeInternalComponents drops x-internal schemas/parameters/responses, keeps others', () => {
+  const doc = {
+    components: {
+      schemas: {
+        PublicResource: { type: 'object' },
+        InternalResource: { 'x-internal': true, type: 'object' }
+      },
+      parameters: {
+        PublicParam: { name: 'a' },
+        InternalParam: { 'x-internal': true, name: 'b' }
+      },
+      responses: {
+        PublicResponse: { description: 'ok' },
+        InternalResponse: { 'x-internal': true, description: 'secret' }
+      }
+    }
+  }
+
+  removeInternalComponents(doc)
+
+  assert.deepEqual(Object.keys(doc.components.schemas), ['PublicResource'])
+  assert.deepEqual(Object.keys(doc.components.parameters), ['PublicParam'])
+  assert.deepEqual(Object.keys(doc.components.responses), ['PublicResponse'])
+})
+
+test('removeDanglingRefs drops a oneOf entry pointing at a schema no longer present', () => {
+  const doc = {
+    components: {
+      schemas: {
+        PublicResource: { type: 'object' }
+      }
+    },
+    included: {
+      items: {
+        oneOf: [
+          { $ref: '#/components/schemas/PublicResource' },
+          { $ref: '#/components/schemas/DroppedInternalResource' }
+        ]
+      }
+    }
+  }
+
+  removeDanglingRefs(doc, new Set(Object.keys(doc.components.schemas)))
+
+  assert.deepEqual(doc.included.items.oneOf, [{ $ref: '#/components/schemas/PublicResource' }])
+})
+
+test('removeDanglingRefs leaves a oneOf list with no dangling refs unchanged', () => {
+  const doc = {
+    components: { schemas: { A: {}, B: {} } },
+    oneOf: [{ $ref: '#/components/schemas/A' }, { $ref: '#/components/schemas/B' }]
+  }
+  const before = structuredClone(doc)
+
+  removeDanglingRefs(doc, new Set(Object.keys(doc.components.schemas)))
+
+  assert.deepEqual(doc, before)
+})
+
+test('removeDanglingRefs leaves non-schema refs (e.g. parameters) alone', () => {
+  const doc = {
+    components: { schemas: {} },
+    oneOf: [{ $ref: '#/components/parameters/SomeParam' }]
+  }
+
+  removeDanglingRefs(doc, new Set())
+
+  assert.deepEqual(doc.oneOf, [{ $ref: '#/components/parameters/SomeParam' }])
+})
+
+test('buildSpecs: an internal-only schema referenced from a oneOf disappears from both the schemas map and the oneOf list in the filtered spec, survives in the full spec', () => {
+  const source = yaml.dump({
+    components: {
+      schemas: {
+        PublicResource: { type: 'object' },
+        InternalResource: { 'x-internal': true, type: 'object' }
+      }
+    },
+    paths: {
+      '/things': {
+        get: {
+          responses: {
+            '200': {
+              content: {
+                'application/json': {
+                  schema: {
+                    properties: {
+                      included: {
+                        type: 'array',
+                        items: {
+                          oneOf: [
+                            { $ref: '#/components/schemas/PublicResource' },
+                            { $ref: '#/components/schemas/InternalResource' }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  })
+
+  const { filtered, full } = buildSpecs(source)
+
+  const filteredOneOf =
+    filtered.paths['/things'].get.responses['200'].content['application/json'].schema.properties.included.items.oneOf
+  assert.deepEqual(filteredOneOf, [{ $ref: '#/components/schemas/PublicResource' }])
+  assert.equal('InternalResource' in filtered.components.schemas, false)
+
+  const fullOneOf =
+    full.paths['/things'].get.responses['200'].content['application/json'].schema.properties.included.items.oneOf
+  assert.deepEqual(fullOneOf, [
+    { $ref: '#/components/schemas/PublicResource' },
+    { $ref: '#/components/schemas/InternalResource' }
+  ])
+})
+
+test('removeInternalTags drops only x-internal tags', () => {
+  const doc = {
+    tags: [
+      { name: 'Public' },
+      { name: 'Internal', 'x-internal': true }
+    ]
+  }
+
+  removeInternalTags(doc)
+
+  assert.deepEqual(doc.tags.map((t) => t.name), ['Public'])
+})
+
+test('the real openapi.yaml: every x-internal path/operation disappears from the filtered spec, survives (marker-stripped) in the full spec', () => {
+  const sourcePath = path.join(__dirname, '..', 'openapi.yaml')
+  const sourceYaml = fs.readFileSync(sourcePath, 'utf8')
+  const sourceDoc = yaml.load(sourceYaml)
+
+  const taggedPaths = Object.entries(sourceDoc.paths || {}).filter(
+    ([, item]) => item && item['x-internal'] === true
+  )
+  assert.ok(taggedPaths.length > 0, 'expected at least one x-internal path in openapi.yaml')
+
+  const { filtered, full } = buildSpecs(sourceYaml)
+
+  for (const [pathKey] of taggedPaths) {
+    assert.equal(pathKey in filtered.paths, false, `${pathKey} leaked into the public spec`)
+    assert.ok(pathKey in full.paths, `${pathKey} missing from the full spec`)
+  }
+  assert.equal(JSON.stringify(filtered).includes('x-internal'), false)
+})
+
+test('the real openapi.yaml: every x-internal schema disappears from the filtered spec, survives in the full spec', () => {
+  const sourcePath = path.join(__dirname, '..', 'openapi.yaml')
+  const sourceYaml = fs.readFileSync(sourcePath, 'utf8')
+  const sourceDoc = yaml.load(sourceYaml)
+
+  const taggedSchemas = Object.entries(sourceDoc.components?.schemas || {}).filter(
+    ([, schema]) => schema && schema['x-internal'] === true
+  )
+  assert.ok(taggedSchemas.length > 0, 'expected at least one x-internal schema in openapi.yaml')
+
+  const { filtered, full } = buildSpecs(sourceYaml)
+
+  for (const [name] of taggedSchemas) {
+    assert.equal(name in filtered.components.schemas, false, `${name} leaked into the public spec`)
+    assert.ok(name in full.components.schemas, `${name} missing from the full spec`)
+  }
 })

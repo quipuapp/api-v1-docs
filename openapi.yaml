@@ -72,7 +72,7 @@ tags:
   - name: Contacts
     description: Clients and suppliers
   - name: Book Entries
-    description: "Read-only listing of all book entries. The type filter accepts: invoices, paysheets, tickets."
+    description: "Read-only listing of all book entries. The type filter accepts: invoices, paysheets, tickets, additional_incomes."
   - name: Invoices
     description: Full invoices (income and expenses)
   - name: Simplified Invoices
@@ -89,6 +89,15 @@ tags:
     description: Accounting subcategories
   - name: Attachments
     description: File attachments for book entries
+  - name: Liquidations
+    x-internal: true
+    description: "Read-only. Only available for owners with a supported accounting-software integration enabled (Aplifisa integration only.)"
+  - name: Money Accounts
+    x-internal: true
+    description: "Read-only. Only available for owners with a supported accounting-software integration enabled (Aplifisa integration only.)"
+  - name: Money Entries
+    x-internal: true
+    description: "Read-only. Only available for owners with a supported accounting-software integration enabled (Aplifisa integration only.)"
 
 paths:
   # ── Authentication ───────────────────────────────────────────────────────
@@ -214,10 +223,16 @@ paths:
                     locale: es
                     sign_up_draft_data: null
                     is_full_admin: false
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
 
   # ── Contacts ───────────────────────────────────────────────────────────
   /{owner_slug}/contacts:
@@ -276,8 +291,14 @@ paths:
                       $ref: "#/components/schemas/ContactResource"
                   meta:
                     $ref: "#/components/schemas/PaginationMeta"
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
     post:
       operationId: createContact
       summary: Create contact
@@ -314,10 +335,16 @@ paths:
                 properties:
                   data:
                     $ref: "#/components/schemas/ContactResource"
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
         "422":
           $ref: "#/components/responses/UnprocessableEntity"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
 
   /{owner_slug}/contacts/{id}:
     get:
@@ -338,10 +365,16 @@ paths:
                 properties:
                   data:
                     $ref: "#/components/schemas/ContactResource"
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
     patch:
       operationId: updateContact
       summary: Update contact
@@ -371,12 +404,18 @@ paths:
                 properties:
                   data:
                     $ref: "#/components/schemas/ContactResource"
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
         "422":
           $ref: "#/components/responses/UnprocessableEntity"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
     delete:
       operationId: deleteContact
       summary: Delete contact
@@ -388,10 +427,16 @@ paths:
       responses:
         "204":
           description: Contact deleted
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
 
   # ── Book Entries (read-only) ───────────────────────────────────────────
   /{owner_slug}/book_entries:
@@ -407,11 +452,19 @@ paths:
         - $ref: "#/components/parameters/AcceptHeader"
         - $ref: "#/components/parameters/PageNumber"
         - $ref: "#/components/parameters/PageSize"
+        - $ref: "#/components/parameters/IncludeBookEntry"
+        - name: with_detailed_amounts
+          in: query
+          schema:
+            type: boolean
+          description: >
+            Include the `detailed_amounts` breakdown object in each entry. Presence of the
+            parameter is enough — any value (including empty) enables it.
         - name: filter[type]
           in: query
           schema:
             type: string
-            enum: [invoices, tickets, paysheets]
+            enum: [invoices, tickets, paysheets, additional_incomes]
           description: Filter by entry type
         - name: filter[kind]
           in: query
@@ -466,6 +519,16 @@ paths:
             entries with some economic activity assigned). Any other non-numeric value returns
             an empty result rather than an error.
             (Aplifisa integration only.)
+        - name: filter[economic_activity_epigraph]
+          in: query
+          x-internal: true
+          schema:
+            type: string
+          description: >
+            Filter by economic activity (epígrafe) code, e.g. `399`. Matches entries whose
+            assigned economic activity has this epigraph, scoped to the owner's own economic
+            activities.
+            (Aplifisa integration only.)
         - name: sort
           in: query
           schema:
@@ -486,8 +549,14 @@ paths:
                       $ref: "#/components/schemas/BookEntryResource"
                   meta:
                     $ref: "#/components/schemas/PaginationMeta"
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
 
   # ── Invoices ───────────────────────────────────────────────────────────
   /{owner_slug}/invoices:
@@ -554,6 +623,16 @@ paths:
             entries with some economic activity assigned). Any other non-numeric value returns
             an empty result rather than an error.
             (Aplifisa integration only.)
+        - name: filter[economic_activity_epigraph]
+          in: query
+          x-internal: true
+          schema:
+            type: string
+          description: >
+            Filter by economic activity (epígrafe) code, e.g. `399`. Matches entries whose
+            assigned economic activity has this epigraph, scoped to the owner's own economic
+            activities.
+            (Aplifisa integration only.)
       responses:
         "200":
           description: Paginated list of invoices
@@ -568,8 +647,14 @@ paths:
                       $ref: "#/components/schemas/InvoiceResource"
                   meta:
                     $ref: "#/components/schemas/PaginationMeta"
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
     post:
       operationId: createInvoice
       summary: Create invoice
@@ -626,10 +711,16 @@ paths:
                 properties:
                   data:
                     $ref: "#/components/schemas/InvoiceResource"
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
         "422":
           $ref: "#/components/responses/UnprocessableEntity"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
 
   /{owner_slug}/invoices/{id}:
     get:
@@ -660,6 +751,7 @@ paths:
                         - $ref: "#/components/schemas/ContactResource"
                         - $ref: "#/components/schemas/AccountingCategoryResource"
                         - $ref: "#/components/schemas/AccountingSubcategoryResource"
+                        - $ref: "#/components/schemas/LiquidationResource"
               examples:
                 bare:
                   summary: Without sideloading
@@ -695,10 +787,16 @@ paths:
                           unitary_amount: "1500.00"
                           quantity: 1
                           vat_percent: 21.0
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
     patch:
       operationId: updateInvoice
       summary: Update invoice
@@ -728,12 +826,18 @@ paths:
                 properties:
                   data:
                     $ref: "#/components/schemas/InvoiceResource"
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
         "422":
           $ref: "#/components/responses/UnprocessableEntity"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
     delete:
       operationId: deleteInvoice
       summary: Delete invoice
@@ -745,10 +849,79 @@ paths:
       responses:
         "204":
           description: Invoice deleted
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+
+  /{owner_slug}/invoices/{id}/download:
+    get:
+      operationId: downloadInvoicePdf
+      summary: Download invoice PDF
+      description: Returns the (outbound) invoice rendered as a PDF file.
+      tags: [Invoices]
+      parameters:
+        - $ref: "#/components/parameters/OwnerSlug"
+        - $ref: "#/components/parameters/ResourceId"
+      responses:
+        "200":
+          description: PDF file
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+
+  /{owner_slug}/invoices/{id}/ephemeral_open_download:
+    get:
+      operationId: ephemeralOpenDownloadInvoicePdf
+      summary: Download invoice PDF via ephemeral open token
+      description: >
+        Returns the invoice rendered as a PDF file using a short-lived, token-authenticated
+        link instead of a Bearer token (see `ephemeral_open_download_pdf_url` on the invoice
+        resource). Does not require authentication.
+      tags: [Invoices]
+      parameters:
+        - $ref: "#/components/parameters/OwnerSlug"
+        - $ref: "#/components/parameters/ResourceId"
+        - name: token
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Ephemeral open-download token issued alongside the document.
+      responses:
+        "200":
+          description: PDF file
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        "404":
+          description: Document not found, or the token is missing, invalid, or expired
+          content:
+            application/vnd.quipu.v1+json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
 
   # ── Simplified Invoices ────────────────────────────────────────────────
   /{owner_slug}/simplified_invoices:
@@ -773,6 +946,16 @@ paths:
             entries with some economic activity assigned). Any other non-numeric value returns
             an empty result rather than an error.
             (Aplifisa integration only.)
+        - name: filter[economic_activity_epigraph]
+          in: query
+          x-internal: true
+          schema:
+            type: string
+          description: >
+            Filter by economic activity (epígrafe) code, e.g. `399`. Matches entries whose
+            assigned economic activity has this epigraph, scoped to the owner's own economic
+            activities.
+            (Aplifisa integration only.)
       responses:
         "200":
           description: Paginated list of simplified invoices
@@ -787,8 +970,14 @@ paths:
                       $ref: "#/components/schemas/SimplifiedInvoiceResource"
                   meta:
                     $ref: "#/components/schemas/PaginationMeta"
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
     post:
       operationId: createSimplifiedInvoice
       summary: Create simplified invoice
@@ -817,10 +1006,16 @@ paths:
                 properties:
                   data:
                     $ref: "#/components/schemas/SimplifiedInvoiceResource"
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
         "422":
           $ref: "#/components/responses/UnprocessableEntity"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
 
   /{owner_slug}/simplified_invoices/{id}:
     get:
@@ -842,10 +1037,16 @@ paths:
                 properties:
                   data:
                     $ref: "#/components/schemas/SimplifiedInvoiceResource"
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
     patch:
       operationId: updateSimplifiedInvoice
       summary: Update simplified invoice
@@ -875,12 +1076,18 @@ paths:
                 properties:
                   data:
                     $ref: "#/components/schemas/SimplifiedInvoiceResource"
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
         "422":
           $ref: "#/components/responses/UnprocessableEntity"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
     delete:
       operationId: deleteSimplifiedInvoice
       summary: Delete simplified invoice
@@ -892,10 +1099,80 @@ paths:
       responses:
         "204":
           description: Simplified invoice deleted
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+
+  /{owner_slug}/simplified_invoices/{id}/download:
+    get:
+      operationId: downloadSimplifiedInvoicePdf
+      summary: Download simplified invoice PDF
+      description: Returns the simplified invoice rendered as a PDF file.
+      tags: [Simplified Invoices]
+      parameters:
+        - $ref: "#/components/parameters/OwnerSlug"
+        - $ref: "#/components/parameters/ResourceId"
+      responses:
+        "200":
+          description: PDF file
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+
+  /{owner_slug}/simplified_invoices/{id}/ephemeral_open_download:
+    get:
+      operationId: ephemeralOpenDownloadSimplifiedInvoicePdf
+      summary: Download simplified invoice PDF via ephemeral open token
+      description: >
+        Returns the simplified invoice rendered as a PDF file using a short-lived,
+        token-authenticated link instead of a Bearer token (see
+        `ephemeral_open_download_pdf_url` on the simplified invoice resource). Does not
+        require authentication.
+      tags: [Simplified Invoices]
+      parameters:
+        - $ref: "#/components/parameters/OwnerSlug"
+        - $ref: "#/components/parameters/ResourceId"
+        - name: token
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Ephemeral open-download token issued alongside the document.
+      responses:
+        "200":
+          description: PDF file
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        "404":
+          description: Document not found, or the token is missing, invalid, or expired
+          content:
+            application/vnd.quipu.v1+json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
 
   # ── Additional Incomes ─────────────────────────────────────────────────
   /{owner_slug}/additional_incomes:
@@ -920,6 +1197,16 @@ paths:
             entries with some economic activity assigned). Any other non-numeric value returns
             an empty result rather than an error.
             (Aplifisa integration only.)
+        - name: filter[economic_activity_epigraph]
+          in: query
+          x-internal: true
+          schema:
+            type: string
+          description: >
+            Filter by economic activity (epígrafe) code, e.g. `399`. Matches entries whose
+            assigned economic activity has this epigraph, scoped to the owner's own economic
+            activities.
+            (Aplifisa integration only.)
       responses:
         "200":
           description: Paginated list of additional income
@@ -934,8 +1221,14 @@ paths:
                       $ref: "#/components/schemas/AdditionalIncomeResource"
                   meta:
                     $ref: "#/components/schemas/PaginationMeta"
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
     post:
       operationId: createAdditionalIncome
       summary: Create additional income
@@ -964,10 +1257,16 @@ paths:
                 properties:
                   data:
                     $ref: "#/components/schemas/AdditionalIncomeResource"
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
         "422":
           $ref: "#/components/responses/UnprocessableEntity"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
 
   /{owner_slug}/additional_incomes/{id}:
     get:
@@ -989,10 +1288,25 @@ paths:
                 properties:
                   data:
                     $ref: "#/components/schemas/AdditionalIncomeResource"
+                  included:
+                    type: array
+                    description: Populated when `?include=` is used. Contains sideloaded resources.
+                    items:
+                      oneOf:
+                        - $ref: "#/components/schemas/ItemResource"
+                        - $ref: "#/components/schemas/AccountingCategoryResource"
+                        - $ref: "#/components/schemas/AccountingSubcategoryResource"
+                        - $ref: "#/components/schemas/LiquidationResource"
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
     patch:
       operationId: updateAdditionalIncome
       summary: Update additional income
@@ -1022,12 +1336,18 @@ paths:
                 properties:
                   data:
                     $ref: "#/components/schemas/AdditionalIncomeResource"
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
         "422":
           $ref: "#/components/responses/UnprocessableEntity"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
     delete:
       operationId: deleteAdditionalIncome
       summary: Delete additional income
@@ -1039,10 +1359,80 @@ paths:
       responses:
         "204":
           description: Additional income deleted
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+
+  /{owner_slug}/additional_incomes/{id}/download:
+    get:
+      operationId: downloadAdditionalIncomePdf
+      summary: Download additional income PDF
+      description: >
+        Additional incomes never generate or expose a PDF, so this always returns `404`.
+        The route exists for parity with the other book entry types.
+      tags: [Additional Incomes]
+      parameters:
+        - $ref: "#/components/parameters/OwnerSlug"
+        - $ref: "#/components/parameters/ResourceId"
+      responses:
+        "200":
+          description: PDF file
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+
+  /{owner_slug}/additional_incomes/{id}/ephemeral_open_download:
+    get:
+      operationId: ephemeralOpenDownloadAdditionalIncomePdf
+      summary: Download additional income PDF via ephemeral open token
+      description: >
+        Additional incomes never generate or expose a PDF, so this always returns `404`.
+        The route exists for parity with the other book entry types.
+      tags: [Additional Incomes]
+      parameters:
+        - $ref: "#/components/parameters/OwnerSlug"
+        - $ref: "#/components/parameters/ResourceId"
+        - name: token
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Ephemeral open-download token issued alongside the document.
+      responses:
+        "200":
+          description: PDF file
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        "404":
+          description: Always returned — additional incomes never generate a PDF
+          content:
+            application/vnd.quipu.v1+json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
 
   # ── Paysheets ──────────────────────────────────────────────────────────
   /{owner_slug}/paysheets:
@@ -1067,6 +1457,16 @@ paths:
             entries with some economic activity assigned). Any other non-numeric value returns
             an empty result rather than an error.
             (Aplifisa integration only.)
+        - name: filter[economic_activity_epigraph]
+          in: query
+          x-internal: true
+          schema:
+            type: string
+          description: >
+            Filter by economic activity (epígrafe) code, e.g. `399`. Matches entries whose
+            assigned economic activity has this epigraph, scoped to the owner's own economic
+            activities.
+            (Aplifisa integration only.)
       responses:
         "200":
           description: Paginated list of paysheets
@@ -1081,8 +1481,14 @@ paths:
                       $ref: "#/components/schemas/PaysheetResource"
                   meta:
                     $ref: "#/components/schemas/PaginationMeta"
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
     post:
       operationId: createPaysheet
       summary: Create paysheet
@@ -1126,10 +1532,16 @@ paths:
                 properties:
                   data:
                     $ref: "#/components/schemas/PaysheetResource"
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
         "422":
           $ref: "#/components/responses/UnprocessableEntity"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
 
   /{owner_slug}/paysheets/{id}:
     get:
@@ -1151,10 +1563,25 @@ paths:
                 properties:
                   data:
                     $ref: "#/components/schemas/PaysheetResource"
+                  included:
+                    type: array
+                    description: Populated when `?include=` is used. Contains sideloaded resources.
+                    items:
+                      oneOf:
+                        - $ref: "#/components/schemas/ContactResource"
+                        - $ref: "#/components/schemas/AccountingCategoryResource"
+                        - $ref: "#/components/schemas/AccountingSubcategoryResource"
+                        - $ref: "#/components/schemas/LiquidationResource"
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
     patch:
       operationId: updatePaysheet
       summary: Update paysheet
@@ -1184,12 +1611,18 @@ paths:
                 properties:
                   data:
                     $ref: "#/components/schemas/PaysheetResource"
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
         "422":
           $ref: "#/components/responses/UnprocessableEntity"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
     delete:
       operationId: deletePaysheet
       summary: Delete paysheet
@@ -1201,10 +1634,16 @@ paths:
       responses:
         "204":
           description: Paysheet deleted
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
 
   # ── Numbering Series ──────────────────────────────────────────────────
   /{owner_slug}/numbering_series:
@@ -1253,8 +1692,14 @@ paths:
                       $ref: "#/components/schemas/NumberingSeriesResource"
                   meta:
                     $ref: "#/components/schemas/PaginationMeta"
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
     post:
       operationId: createNumberingSeries
       summary: Create numbering series
@@ -1292,10 +1737,16 @@ paths:
                 properties:
                   data:
                     $ref: "#/components/schemas/NumberingSeriesResource"
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
         "422":
           $ref: "#/components/responses/UnprocessableEntity"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
 
   /{owner_slug}/numbering_series/{id}:
     get:
@@ -1316,10 +1767,16 @@ paths:
                 properties:
                   data:
                     $ref: "#/components/schemas/NumberingSeriesResource"
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
     patch:
       operationId: updateNumberingSeries
       summary: Update numbering series
@@ -1350,12 +1807,18 @@ paths:
                 properties:
                   data:
                     $ref: "#/components/schemas/NumberingSeriesResource"
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
         "422":
           $ref: "#/components/responses/UnprocessableEntity"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
     delete:
       operationId: deleteNumberingSeries
       summary: Delete numbering series
@@ -1367,10 +1830,16 @@ paths:
       responses:
         "204":
           description: Numbering series deleted
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
 
   # ── Accounting Categories (read-only) ─────────────────────────────────
   /{owner_slug}/accounting_categories:
@@ -1383,6 +1852,11 @@ paths:
         - $ref: "#/components/parameters/AcceptHeader"
         - $ref: "#/components/parameters/PageNumber"
         - $ref: "#/components/parameters/PageSize"
+        - name: filter[id]
+          in: query
+          schema:
+            type: string
+          description: Filter by ID (comma-separated for multiple)
         - name: filter[kind]
           in: query
           schema:
@@ -1414,8 +1888,14 @@ paths:
                       $ref: "#/components/schemas/AccountingCategoryResource"
                   meta:
                     $ref: "#/components/schemas/PaginationMeta"
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
 
   /{owner_slug}/accounting_categories/{id}:
     get:
@@ -1436,10 +1916,16 @@ paths:
                 properties:
                   data:
                     $ref: "#/components/schemas/AccountingCategoryResource"
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
 
   # ── Accounting Subcategories ──────────────────────────────────────────
   /{owner_slug}/accounting_subcategories:
@@ -1471,8 +1957,14 @@ paths:
                       $ref: "#/components/schemas/AccountingSubcategoryResource"
                   meta:
                     $ref: "#/components/schemas/PaginationMeta"
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
     post:
       operationId: createAccountingSubcategory
       summary: Create accounting subcategory
@@ -1512,10 +2004,16 @@ paths:
                 properties:
                   data:
                     $ref: "#/components/schemas/AccountingSubcategoryResource"
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
         "422":
           $ref: "#/components/responses/UnprocessableEntity"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
 
   /{owner_slug}/accounting_subcategories/{id}:
     get:
@@ -1536,10 +2034,16 @@ paths:
                 properties:
                   data:
                     $ref: "#/components/schemas/AccountingSubcategoryResource"
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
     patch:
       operationId: updateAccountingSubcategory
       summary: Update accounting subcategory
@@ -1558,7 +2062,7 @@ paths:
               required: [data]
               properties:
                 data:
-                  $ref: "#/components/schemas/AccountingSubcategoryWritable"
+                  $ref: "#/components/schemas/AccountingSubcategoryUpdateWritable"
       responses:
         "200":
           description: Accounting subcategory updated
@@ -1569,12 +2073,18 @@ paths:
                 properties:
                   data:
                     $ref: "#/components/schemas/AccountingSubcategoryResource"
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
         "422":
           $ref: "#/components/responses/UnprocessableEntity"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
     delete:
       operationId: deleteAccountingSubcategory
       summary: Delete accounting subcategory
@@ -1586,10 +2096,16 @@ paths:
       responses:
         "204":
           description: Accounting subcategory deleted
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
 
   # ── Attachments ────────────────────────────────────────────────────────
   /{owner_slug}/attachments:
@@ -1626,10 +2142,16 @@ paths:
                 properties:
                   data:
                     $ref: "#/components/schemas/AttachmentResource"
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
         "422":
           $ref: "#/components/responses/UnprocessableEntity"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
 
   /{owner_slug}/attachments/{id}:
     get:
@@ -1650,10 +2172,16 @@ paths:
                 properties:
                   data:
                     $ref: "#/components/schemas/AttachmentResource"
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
     delete:
       operationId: deleteAttachment
       summary: Delete attachment
@@ -1665,10 +2193,234 @@ paths:
       responses:
         "204":
           description: Attachment deleted
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+
+  # ── Liquidations (internal — Aplifisa integration only) ─────────────────
+  /{owner_slug}/liquidations:
+    x-internal: true
+    get:
+      operationId: listLiquidations
+      summary: List liquidations
+      description: >
+        Read-only. Only available for owners with a supported accounting-software integration
+        enabled — returns 403 otherwise. (Aplifisa integration only.)
+      tags: [Liquidations]
+      parameters:
+        - $ref: "#/components/parameters/OwnerSlug"
+        - $ref: "#/components/parameters/AcceptHeader"
+        - $ref: "#/components/parameters/PageNumber"
+        - $ref: "#/components/parameters/PageSize"
+      responses:
+        "200":
+          description: Paginated list of liquidations
+          content:
+            application/vnd.quipu.v1+json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/LiquidationResource"
+                  meta:
+                    $ref: "#/components/schemas/PaginationMeta"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+
+  /{owner_slug}/liquidations/{id}:
+    x-internal: true
+    get:
+      operationId: getLiquidation
+      summary: Show liquidation
+      description: >
+        Read-only. Only available for owners with a supported accounting-software integration
+        enabled — returns 403 otherwise. (Aplifisa integration only.)
+      tags: [Liquidations]
+      parameters:
+        - $ref: "#/components/parameters/OwnerSlug"
+        - $ref: "#/components/parameters/AcceptHeader"
+        - $ref: "#/components/parameters/ResourceId"
+      responses:
+        "200":
+          description: Liquidation found
+          content:
+            application/vnd.quipu.v1+json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/LiquidationResource"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+
+  # ── Money Accounts (internal — Aplifisa integration only) ────────────────
+  /{owner_slug}/money_accounts:
+    x-internal: true
+    get:
+      operationId: listMoneyAccounts
+      summary: List money accounts
+      description: >
+        Read-only. Only available for owners with a supported accounting-software integration
+        enabled — returns 403 otherwise. (Aplifisa integration only.)
+      tags: [Money Accounts]
+      parameters:
+        - $ref: "#/components/parameters/OwnerSlug"
+        - $ref: "#/components/parameters/AcceptHeader"
+        - $ref: "#/components/parameters/PageNumber"
+        - $ref: "#/components/parameters/PageSize"
+      responses:
+        "200":
+          description: Paginated list of money accounts
+          content:
+            application/vnd.quipu.v1+json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/MoneyAccountResource"
+                  meta:
+                    $ref: "#/components/schemas/PaginationMeta"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+
+  /{owner_slug}/money_accounts/{id}:
+    x-internal: true
+    get:
+      operationId: getMoneyAccount
+      summary: Show money account
+      description: >
+        Read-only. Only available for owners with a supported accounting-software integration
+        enabled — returns 403 otherwise. (Aplifisa integration only.)
+      tags: [Money Accounts]
+      parameters:
+        - $ref: "#/components/parameters/OwnerSlug"
+        - $ref: "#/components/parameters/AcceptHeader"
+        - $ref: "#/components/parameters/ResourceId"
+      responses:
+        "200":
+          description: Money account found
+          content:
+            application/vnd.quipu.v1+json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/MoneyAccountResource"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+
+  # ── Money Entries (internal — Aplifisa integration only) ─────────────────
+  /{owner_slug}/money_entries:
+    x-internal: true
+    get:
+      operationId: listMoneyEntries
+      summary: List money entries
+      description: >
+        Read-only. Only available for owners with a supported accounting-software integration
+        enabled — returns 403 otherwise. (Aplifisa integration only.)
+      tags: [Money Entries]
+      parameters:
+        - $ref: "#/components/parameters/OwnerSlug"
+        - $ref: "#/components/parameters/AcceptHeader"
+        - $ref: "#/components/parameters/PageNumber"
+        - $ref: "#/components/parameters/PageSize"
+        - name: filter[date][from]
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Filter entries with transaction_date on or after this date
+        - name: filter[date][to]
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Filter entries with transaction_date on or before this date
+      responses:
+        "200":
+          description: Paginated list of money entries
+          content:
+            application/vnd.quipu.v1+json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/MoneyEntryResource"
+                  meta:
+                    $ref: "#/components/schemas/PaginationMeta"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+
+  /{owner_slug}/money_entries/{id}:
+    x-internal: true
+    get:
+      operationId: getMoneyEntry
+      summary: Show money entry
+      description: >
+        Read-only. Only available for owners with a supported accounting-software integration
+        enabled — returns 403 otherwise. (Aplifisa integration only.)
+      tags: [Money Entries]
+      parameters:
+        - $ref: "#/components/parameters/OwnerSlug"
+        - $ref: "#/components/parameters/AcceptHeader"
+        - $ref: "#/components/parameters/ResourceId"
+      responses:
+        "200":
+          description: Money entry found
+          content:
+            application/vnd.quipu.v1+json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/MoneyEntryResource"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
 
 # ═════════════════════════════════════════════════════════════════════════
 # Components
@@ -1738,12 +2490,27 @@ components:
         maximum: 100
         default: 25
       description: Number of results per page
+    IncludeBookEntry:
+      name: include
+      in: query
+      schema:
+        type: string
+      description: |
+        Comma-separated list of related resources to embed in the `included`
+        array (JSON:API sideloading). Allowed values: `items`, `contact`,
+        `accounting_category`, `accounting_subcategory`.
+        Example: `?include=items,contact`.
     IncludeInvoice:
       name: include
       in: query
       schema:
         type: string
       description: |
+        Comma-separated list of related resources to embed in the `included`
+        array (JSON:API sideloading). Allowed values: `items`, `contact`,
+        `accounting_category`, `accounting_subcategory`.
+        Example: `?include=items,contact`.
+      x-internal-description: |
         Comma-separated list of related resources to embed in the `included`
         array (JSON:API sideloading). Allowed values: `items`, `contact`,
         `accounting_category`, `accounting_subcategory`, `liquidations`.
@@ -1755,8 +2522,12 @@ components:
         type: string
       description: |
         Comma-separated list of related resources to embed in the `included`
-        array. Allowed values: `items`, `contact`, `accounting_category`,
-        `accounting_subcategory`, `liquidations`. Example: `?include=items`.
+        array. Allowed values: `items`, `accounting_category`,
+        `accounting_subcategory`, `attachments`. Example: `?include=items`.
+      x-internal-description: |
+        Comma-separated list of related resources to embed in the `included`
+        array. Allowed values: `items`, `accounting_category`,
+        `accounting_subcategory`, `attachments`, `liquidations`. Example: `?include=items`.
     IncludeAdditionalIncome:
       name: include
       in: query
@@ -1764,14 +2535,23 @@ components:
         type: string
       description: |
         Comma-separated list of related resources to embed in the `included`
-        array. Allowed values: `items`, `contact`, `accounting_category`,
-        `accounting_subcategory`, `liquidations`. Example: `?include=items`.
+        array. Allowed values: `items`, `accounting_category`,
+        `accounting_subcategory`, `attachments`. Example: `?include=items`.
+      x-internal-description: |
+        Comma-separated list of related resources to embed in the `included`
+        array. Allowed values: `items`, `accounting_category`,
+        `accounting_subcategory`, `attachments`, `liquidations`. Example: `?include=items`.
     IncludePaysheet:
       name: include
       in: query
       schema:
         type: string
       description: |
+        Comma-separated list of related resources to embed in the `included`
+        array. Allowed values: `contact`, `accounting_category`,
+        `accounting_subcategory`, `attachments`.
+        Example: `?include=contact,accounting_subcategory`.
+      x-internal-description: |
         Comma-separated list of related resources to embed in the `included`
         array. Allowed values: `contact`, `accounting_category`,
         `accounting_subcategory`, `attachments`, `liquidations`.
@@ -2035,6 +2815,9 @@ components:
               nullable: true
             is_full_admin:
               type: boolean
+            accepted_commercial_communication:
+              type: boolean
+              description: Whether the user has opted in to receive commercial communications.
 
     # ── Contacts ─────────────────────────────────────────────────────────
     ContactAttributes:
@@ -2161,6 +2944,42 @@ components:
               type: string
             document_type:
               type: string
+            pdf_language:
+              type: string
+              description: Language used when rendering PDF documents for this contact.
+            incomes_due_date:
+              type: string
+              description: Default due-date preference applied to income documents issued to this contact.
+            incomes_payment_method:
+              type: string
+              description: Default payment method applied to income documents issued to this contact.
+            equivalence_subcharge:
+              type: boolean
+              description: Whether equivalence surcharge applies by default for this contact.
+            expenses_payment_method:
+              type: string
+              description: Default payment method applied to expense documents received from this contact.
+            expenses_due_date:
+              type: string
+              description: Default due-date preference applied to expense documents received from this contact.
+            contact_analytic_value_ids:
+              type: string
+              description: Comma-separated list of analytic value IDs to associate with the contact (e.g. "12,34").
+        relationships:
+          type: object
+          properties:
+            expense_category:
+              $ref: "#/components/schemas/RelationshipLinkage"
+              description: Default accounting category applied to expense documents for this contact.
+            expense_subcategory:
+              $ref: "#/components/schemas/RelationshipLinkage"
+              description: Default accounting subcategory applied to expense documents for this contact.
+            income_category:
+              $ref: "#/components/schemas/RelationshipLinkage"
+              description: Default accounting category applied to income documents for this contact.
+            income_subcategory:
+              $ref: "#/components/schemas/RelationshipLinkage"
+              description: Default accounting subcategory applied to income documents for this contact.
 
     # ── Book Entries (read-only) ─────────────────────────────────────────
     BookEntryAttributes:
@@ -2385,6 +3204,53 @@ components:
               amount:
                 type: number
                 description: Total amount withheld at this rate across the document's items.
+        detailed_amounts:
+          type: object
+          description: >
+            Breakdown of the document's totals into accounting/tax components. Only present
+            when the `with_detailed_amounts` query parameter is sent (any value, including
+            empty, enables it).
+          properties:
+            user_amount_without_taxes:
+              type: string
+            user_vat_amount:
+              type: string
+            user_equalization_tax_amount:
+              type: string
+            user_income_tax_amount:
+              type: string
+            user_total_amount:
+              type: string
+            expense_amount:
+              type: string
+            non_deductible_expense_amount:
+              type: string
+            income_amount:
+              type: string
+            input_vat_amount:
+              type: string
+            non_deductible_input_vat_amount:
+              type: string
+            non_deductible_assets_vat_amount:
+              type: string
+            non_computable_input_vat_amount:
+              type: string
+            output_vat_amount:
+              type: string
+            input_equalization_tax_amount:
+              type: string
+            output_equalization_tax_amount:
+              type: string
+            income_tax_withheld_amount:
+              type: string
+            income_tax_deducted_amount:
+              type: string
+            assets_amount:
+              type: string
+            non_deductible_assets_amount:
+              type: string
+            disbursements_amount:
+              type: string
 
     BookEntryResource:
       type: object
@@ -2399,6 +3265,10 @@ components:
         relationships:
           type: object
           properties:
+            items:
+              $ref: "#/components/schemas/RelationshipLinkageArray"
+            contact:
+              $ref: "#/components/schemas/RelationshipLinkage"
             accounting_category:
               $ref: "#/components/schemas/RelationshipLinkage"
             accounting_subcategory:
@@ -2429,6 +3299,13 @@ components:
             stage:
               type: string
               enum: [draft, final]
+            concepts:
+              type: array
+              items:
+                type: string
+              description: >
+                Distinct line item concepts on this invoice, in item order. Derived from the
+                invoice's items and kept in sync automatically — not directly writable.
             download_pdf_url:
               type: string
               format: uri
@@ -2465,6 +3342,11 @@ components:
               $ref: "#/components/schemas/RelationshipLinkageArray"
             amended_invoice:
               $ref: "#/components/schemas/RelationshipLinkage"
+            liquidations:
+              x-internal: true
+              allOf:
+                - $ref: "#/components/schemas/RelationshipLinkageArray"
+              description: Money entries/book entries reconciled against this invoice. (Aplifisa integration only.)
 
     InvoiceWritable:
       type: object
@@ -2488,11 +3370,31 @@ components:
             number:
               type: string
               nullable: true
-              description: Full invoice number including prefix (e.g. "INV-2024-001"). Mutually exclusive with `filing_number` when a numeration series is provided.
+              description: >
+                Invoice number. For outbound (income) invoices this is the internal filing
+                number/reference; for inbound (expense) invoices this is the supplier's own
+                external reference. `complete_number` takes priority over `number` when both
+                are sent.
+            complete_number:
+              type: string
+              nullable: true
+              description: >
+                Full invoice number including prefix (e.g. "INV-2024-001"), authoritative when
+                present. For outbound invoices, sets the invoice's internal number directly
+                (overriding `number` if both are sent). For inbound invoices, sets the internal
+                number while `number` is stored as the supplier's external reference.
             filing_number:
               type: string
               nullable: true
-              description: Numeric filing number within the assigned series.
+              description: >
+                Legacy per-numeration-series ordinal (a positive integer, sent as a string).
+                Only meaningful together with an explicit numeration series: the final `number`
+                is then derived from the series prefix plus this ordinal. A non-integer value
+                is treated the same as `number`. Distinct from `complete_number`, which replaces
+                `number` itself rather than this series-ordinal role. Kept for backward
+                compatibility with historical/manually-numbered entries; prefer `number` /
+                `complete_number` otherwise. Only accepted on creation — ignored if sent on an
+                update.
             due_dates:
               type: array
               items:
@@ -2547,6 +3449,20 @@ components:
               $ref: "#/components/schemas/RelationshipLinkage"
             accounting_subcategory:
               $ref: "#/components/schemas/RelationshipLinkage"
+            attachments:
+              $ref: "#/components/schemas/RelationshipLinkageArray"
+            project:
+              $ref: "#/components/schemas/RelationshipLinkage"
+            book_entry_draft:
+              $ref: "#/components/schemas/RelationshipLinkage"
+            economic_activity:
+              $ref: "#/components/schemas/RelationshipLinkage"
+              x-internal: true
+              description: Sets the entry's economic activity (Aplifisa integration only.)
+            liquidations:
+              $ref: "#/components/schemas/RelationshipLinkageArray"
+              x-internal: true
+              description: Links the entry to existing liquidations (Aplifisa integration only.)
             items:
               type: object
               properties:
@@ -2608,6 +3524,10 @@ components:
               $ref: "#/components/schemas/RelationshipLinkage"
             accounting_subcategory:
               $ref: "#/components/schemas/RelationshipLinkage"
+            amending_simplified_invoices:
+              $ref: "#/components/schemas/RelationshipLinkageArray"
+            amended_simplified_invoice:
+              $ref: "#/components/schemas/RelationshipLinkage"
 
     SimplifiedInvoiceWritable:
       type: object
@@ -2629,10 +3549,29 @@ components:
             number:
               type: string
               nullable: true
-              description: Full simplified invoice number including prefix.
+              description: >
+                Invoice number. For outbound (income) invoices this is the internal filing
+                number/reference; for inbound (expense) invoices this is the supplier's own
+                external reference. `complete_number` takes priority over `number` when both
+                are sent.
+            complete_number:
+              type: string
+              nullable: true
+              description: >
+                Full simplified invoice number including prefix, authoritative when present
+                (overrides `number` if both are sent).
             filing_number:
               type: string
               nullable: true
+              description: >
+                Legacy per-numeration-series ordinal (a positive integer, sent as a string).
+                Only meaningful together with an explicit numeration series: the final `number`
+                is then derived from the series prefix plus this ordinal. A non-integer value
+                is treated the same as `number`. Distinct from `complete_number`, which replaces
+                `number` itself rather than this series-ordinal role. Kept for backward
+                compatibility with historical/manually-numbered entries; prefer `number` /
+                `complete_number` otherwise. Only accepted on creation — ignored if sent on an
+                update.
             due_dates:
               type: array
               items:
@@ -2666,6 +3605,10 @@ components:
               $ref: "#/components/schemas/RelationshipLinkage"
             accounting_subcategory:
               $ref: "#/components/schemas/RelationshipLinkage"
+            economic_activity:
+              $ref: "#/components/schemas/RelationshipLinkage"
+              x-internal: true
+              description: Sets the entry's economic activity (Aplifisa integration only.)
             items:
               type: object
               properties:
@@ -2698,15 +3641,6 @@ components:
             notes:
               type: string
               nullable: true
-            download_pdf_url:
-              type: string
-              format: uri
-              nullable: true
-            ephemeral_open_download_pdf_url:
-              type: string
-              format: uri
-              nullable: true
-              description: Short-lived, token-authenticated PDF URL.
 
     AdditionalIncomeResource:
       type: object
@@ -2729,6 +3663,11 @@ components:
               $ref: "#/components/schemas/RelationshipLinkage"
             accounting_subcategory:
               $ref: "#/components/schemas/RelationshipLinkage"
+            liquidations:
+              x-internal: true
+              allOf:
+                - $ref: "#/components/schemas/RelationshipLinkageArray"
+              description: Money entries/book entries reconciled against this additional income. (Aplifisa integration only.)
 
     AdditionalIncomeWritable:
       type: object
@@ -2743,16 +3682,35 @@ components:
           properties:
             kind:
               type: string
-              enum: [income, expenses]
+              enum: [income]
+              description: >
+                Additional incomes are always outbound (income) documents — the API ignores
+                this field's value and always creates an `income` (outbound) entry, even if
+                `expenses` is sent.
             issue_date:
               type: string
               format: date
             number:
               type: string
               nullable: true
+            complete_number:
+              type: string
+              nullable: true
+              description: >
+                Full additional income number including prefix, authoritative when present
+                (overrides `number` if both are sent).
             filing_number:
               type: string
               nullable: true
+              description: >
+                Legacy per-numeration-series ordinal (a positive integer, sent as a string).
+                Only meaningful together with an explicit numeration series: the final `number`
+                is then derived from the series prefix plus this ordinal. A non-integer value
+                is treated the same as `number`. Distinct from `complete_number`, which replaces
+                `number` itself rather than this series-ordinal role. Kept for backward
+                compatibility with historical/manually-numbered entries; prefer `number` /
+                `complete_number` otherwise. Only accepted on creation — ignored if sent on an
+                update.
             due_dates:
               type: array
               items:
@@ -2769,15 +3727,12 @@ components:
               description: Comma-separated list of tag names (e.g. "vip client,important").
             notes:
               type: string
-            issuing_name:
-              type: string
-              description: Issuer name. Applicable when `kind` is `expenses`.
             recipient_name:
               type: string
-              description: Recipient name. Applicable when `kind` is `income`.
+              description: Recipient (customer) name.
             target_country:
               type: string
-              description: Target country code. Applicable when `kind` is `income`.
+              description: Target country code.
         relationships:
           type: object
           properties:
@@ -2789,6 +3744,10 @@ components:
               $ref: "#/components/schemas/RelationshipLinkage"
             accounting_subcategory:
               $ref: "#/components/schemas/RelationshipLinkage"
+            economic_activity:
+              $ref: "#/components/schemas/RelationshipLinkage"
+              x-internal: true
+              description: Sets the entry's economic activity (Aplifisa integration only.)
             items:
               type: object
               properties:
@@ -2845,6 +3804,11 @@ components:
               $ref: "#/components/schemas/RelationshipLinkage"
             accounting_subcategory:
               $ref: "#/components/schemas/RelationshipLinkage"
+            liquidations:
+              x-internal: true
+              allOf:
+                - $ref: "#/components/schemas/RelationshipLinkageArray"
+              description: Money entries/book entries reconciled against this paysheet. (Aplifisa integration only.)
 
     PaysheetWritable:
       type: object
@@ -2885,6 +3849,9 @@ components:
             company_ss_amount:
               type: number
               description: Company social security amount
+            account_number_and_swift_bic:
+              type: string
+              description: Bank account number and SWIFT/BIC code
         relationships:
           type: object
           properties:
@@ -2895,6 +3862,33 @@ components:
               $ref: "#/components/schemas/RelationshipLinkage"
             accounting_subcategory:
               $ref: "#/components/schemas/RelationshipLinkage"
+            project:
+              $ref: "#/components/schemas/RelationshipLinkage"
+            book_entry_draft:
+              $ref: "#/components/schemas/RelationshipLinkage"
+            attachments:
+              $ref: "#/components/schemas/RelationshipLinkageArray"
+            economic_activity:
+              $ref: "#/components/schemas/RelationshipLinkage"
+              x-internal: true
+              description: Sets the entry's economic activity (Aplifisa integration only.)
+            liquidations:
+              $ref: "#/components/schemas/RelationshipLinkageArray"
+              x-internal: true
+              description: Links the entry to existing liquidations (Aplifisa integration only.)
+            items:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        const: items
+                      attributes:
+                        $ref: "#/components/schemas/ItemWritableAttributes"
 
     # ── Numbering Series ─────────────────────────────────────────────────
     NumberingSeriesAttributes:
@@ -2985,7 +3979,7 @@ components:
         name:
           type: string
         prefix:
-          type: string
+          type: integer
         kind:
           type: string
         accounting_digits_number:
@@ -3052,6 +4046,23 @@ components:
             accounting_category:
               $ref: "#/components/schemas/RelationshipLinkage"
 
+    AccountingSubcategoryUpdateWritable:
+      type: object
+      required: [type, attributes]
+      properties:
+        type:
+          type: string
+          const: accounting_subcategories
+        attributes:
+          type: object
+          properties:
+            name:
+              type: string
+              example: "Office Supplies"
+            suffix:
+              type: string
+              example: "01"
+
     # ── Attachments ──────────────────────────────────────────────────────
     AttachmentResource:
       type: object
@@ -3081,6 +4092,115 @@ components:
           properties:
             book_entry:
               $ref: "#/components/schemas/RelationshipLinkage"
+
+    # ── Liquidations / Money Accounts / Money Entries (internal — Aplifisa integration only) ──
+    LiquidationResource:
+      x-internal: true
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          const: liquidations
+        attributes:
+          type: object
+          properties:
+            amount:
+              type: string
+            money_entry_id:
+              type: integer
+              nullable: true
+            book_entry_id:
+              type: integer
+              nullable: true
+            kind:
+              type: string
+              enum: [charge, payment]
+              description: >
+                Money movement direction: "charge" (cobro) or "payment" (pago). Based on the
+                money entry's amount sign when present, otherwise on the settled document's
+                direction — the same convention used by the A3/Sage accounting exports.
+            date:
+              type: string
+              format: date
+              nullable: true
+            book_entry_number:
+              type: string
+              nullable: true
+            money_account_accounting_number:
+              type: string
+              nullable: true
+            book_entry_counterpart_accounting_number:
+              type: string
+              nullable: true
+
+    MoneyAccountResource:
+      x-internal: true
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          const: money_accounts
+        attributes:
+          type: object
+          properties:
+            name:
+              type: string
+            accounting_number:
+              type: string
+              nullable: true
+            currency:
+              type: string
+              const: eur
+
+    MoneyEntryResource:
+      x-internal: true
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          const: money_entries
+        attributes:
+          type: object
+          properties:
+            concept:
+              type: string
+              nullable: true
+            amount:
+              type: string
+            transaction_date:
+              type: string
+              format: date
+              nullable: true
+            status:
+              type: string
+            money_account_id:
+              type: integer
+              nullable: true
+            money_account_accounting_number:
+              type: string
+              nullable: true
+            accounting_category_id:
+              type: integer
+              nullable: true
+              description: Present when this money entry is reconciled directly against an accounting category (no book entry involved).
+            accounting_category_prefix:
+              type: integer
+              nullable: true
+              description: The linked accounting category's `prefix` (its accounting number).
+            linked_money_entry_id:
+              type: integer
+              nullable: true
+              description: Present when this money entry is one side of an account-to-account transfer. Points at the counterpart money entry.
+            linked_money_account_accounting_number:
+              type: string
+              nullable: true
+              description: The counterpart money entry's money account accounting number, when `linked_money_entry_id` is present.
 
   # ── Responses ──────────────────────────────────────────────────────────
   responses:
@@ -3113,6 +4233,24 @@ components:
               - source:
                   pointer: /data/attributes/name
                 detail: can't be blank
+    Forbidden:
+      description: Authenticated but not authorized to perform this action
+      content:
+        application/vnd.quipu.v1+json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            errors:
+              - detail: You are not authorized to access this resource
+    BadRequest:
+      description: Malformed request (e.g. invalid parameter value)
+      content:
+        application/vnd.quipu.v1+json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            errors:
+              - detail: Bad request
     TooManyRequests:
       description: Rate limit exceeded (5 requests per 5 seconds)
       content:

@@ -1,10 +1,12 @@
-// Splits openapi.yaml (the source of truth, which may contain fields and
-// query parameters tagged `x-internal: true`) into two artifacts:
+// Splits openapi.yaml (the source of truth, which may contain fields,
+// query parameters, and whole paths/operations tagged `x-internal: true`)
+// into two artifacts:
 //
-//   - a PUBLIC spec with every `x-internal` property and parameter removed
-//     entirely (published to GitHub Pages)
-//   - a FULL spec with every field/parameter intact, only the `x-internal`
-//     marker stripped (uploaded as a private CI artifact, e.g. for Aplifisa)
+//   - a PUBLIC spec with every `x-internal` property, parameter, and
+//     path/operation removed entirely (published to GitHub Pages)
+//   - a FULL spec with every field/parameter/path/operation intact, only
+//     the `x-internal` marker stripped (uploaded as a private CI artifact,
+//     e.g. for Aplifisa)
 //
 // See ../README.md for the full pipeline and the reasoning behind it.
 
@@ -60,8 +62,62 @@ export function removeInternalProperties(node) {
   return node
 }
 
-// Recursively deletes the `x-internal` marker key itself, leaving the
-// field it was attached to untouched. Mutates and returns `node`.
+const HTTP_METHODS = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace']
+
+// Drops whole `paths` entries tagged `x-internal: true` on the path item, and
+// individual operations (get/post/...) tagged `x-internal: true` when the
+// path item itself isn't fully internal. Mutates and returns `node`.
+export function removeInternalPaths(node) {
+  if (!node || typeof node !== 'object' || !node.paths || typeof node.paths !== 'object') {
+    return node
+  }
+
+  for (const [pathKey, pathItem] of Object.entries(node.paths)) {
+    if (!pathItem || typeof pathItem !== 'object') continue
+
+    if (pathItem['x-internal'] === true) {
+      delete node.paths[pathKey]
+      continue
+    }
+
+    for (const method of HTTP_METHODS) {
+      const operation = pathItem[method]
+      if (operation && typeof operation === 'object' && operation['x-internal'] === true) {
+        delete pathItem[method]
+      }
+    }
+  }
+
+  return node
+}
+
+// Drops whole `components.schemas` / `components.parameters` /
+// `components.responses` entries tagged `x-internal: true` on the
+// definition itself (used for resources that are entirely internal, e.g.
+// a partner-only resource, as opposed to individual internal fields).
+// Mutates and returns `node`.
+export function removeInternalComponents(node) {
+  if (!node || typeof node !== 'object' || !node.components || typeof node.components !== 'object') {
+    return node
+  }
+
+  for (const section of ['schemas', 'parameters', 'responses', 'requestBodies']) {
+    const definitions = node.components[section]
+    if (!definitions || typeof definitions !== 'object') continue
+
+    for (const [name, def] of Object.entries(definitions)) {
+      if (def && typeof def === 'object' && def['x-internal'] === true) {
+        delete definitions[name]
+      }
+    }
+  }
+
+  return node
+}
+
+// Recursively deletes the `x-internal` and `x-internal-description` marker
+// keys, leaving the field they were attached to untouched. Mutates and
+// returns `node`.
 export function stripInternalMarkers(node) {
   if (Array.isArray(node)) {
     node.forEach(stripInternalMarkers)
@@ -73,6 +129,7 @@ export function stripInternalMarkers(node) {
   }
 
   delete node['x-internal']
+  delete node['x-internal-description']
 
   for (const value of Object.values(node)) {
     stripInternalMarkers(value)
@@ -81,11 +138,90 @@ export function stripInternalMarkers(node) {
   return node
 }
 
+// A field that's shared between public and internal consumers (e.g. a
+// query parameter whose allowed-values list includes an internal-only
+// value) can't be dropped wholesale like an `x-internal: true` field — it
+// still needs a public-facing description. For those, `description` holds
+// the public-safe text and a sibling `x-internal-description` holds the
+// complete text (mentioning the internal-only detail). This replaces
+// `description` with `x-internal-description` wherever both are present,
+// for use on the FULL spec only — the filtered/public spec should never
+// call this, it already has the safe text in `description`. Mutates and
+// returns `node`.
+export function applyInternalDescriptions(node) {
+  if (Array.isArray(node)) {
+    node.forEach(applyInternalDescriptions)
+    return node
+  }
+
+  if (node === null || typeof node !== 'object') {
+    return node
+  }
+
+  if (typeof node['x-internal-description'] === 'string') {
+    node.description = node['x-internal-description']
+  }
+
+  for (const value of Object.values(node)) {
+    applyInternalDescriptions(value)
+  }
+
+  return node
+}
+
+// After removeInternalComponents drops a whole `components.schemas` entry
+// (e.g. a partner-only resource like LiquidationResource), any `oneOf`/
+// `anyOf` list elsewhere in the doc that still `$ref`s it (e.g. a
+// polymorphic `included` items schema) is left pointing at a schema that no
+// longer exists. Prunes those dangling entries so the filtered spec stays
+// resolvable. `validSchemaNames` is the set of schema names still present
+// in `components.schemas` — call this AFTER removeInternalComponents.
+// Mutates and returns `node`.
+export function removeDanglingRefs(node, validSchemaNames) {
+  if (Array.isArray(node)) {
+    node.forEach((item) => removeDanglingRefs(item, validSchemaNames))
+    return node
+  }
+
+  if (node === null || typeof node !== 'object') {
+    return node
+  }
+
+  for (const key of ['oneOf', 'anyOf']) {
+    if (Array.isArray(node[key])) {
+      node[key] = node[key].filter((entry) => {
+        if (!entry || typeof entry !== 'object' || typeof entry.$ref !== 'string') return true
+        const match = entry.$ref.match(/^#\/components\/schemas\/(.+)$/)
+        return match ? validSchemaNames.has(match[1]) : true
+      })
+    }
+  }
+
+  for (const value of Object.values(node)) {
+    removeDanglingRefs(value, validSchemaNames)
+  }
+
+  return node
+}
+
+// Drops top-level `tags` entries (the tag registry used for grouping in the
+// docs UI) tagged `x-internal: true`. Mutates and returns `node`.
+export function removeInternalTags(node) {
+  if (node && typeof node === 'object' && Array.isArray(node.tags)) {
+    node.tags = node.tags.filter((tag) => !(tag && typeof tag === 'object' && tag['x-internal'] === true))
+  }
+  return node
+}
+
 export function buildSpecs(sourceYaml) {
   const source = yaml.load(sourceYaml)
 
-  const full = stripInternalMarkers(structuredClone(source))
-  const filtered = removeInternalProperties(structuredClone(source))
+  const full = stripInternalMarkers(applyInternalDescriptions(structuredClone(source)))
+  const filtered = removeInternalPaths(structuredClone(source))
+  removeInternalComponents(filtered)
+  removeInternalTags(filtered)
+  removeInternalProperties(filtered)
+  removeDanglingRefs(filtered, new Set(Object.keys(filtered.components?.schemas || {})))
   stripInternalMarkers(filtered) // belt-and-braces: no stray markers should survive on kept fields
 
   return { full, filtered }

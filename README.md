@@ -73,6 +73,36 @@ npm run build   # writes the filtered openapi.yaml + dist-internal/openapi.json 
 npm run lint:spec  # quick YAML-validity check
 ```
 
+### What each filter step does (`scripts/filter-internal.js`)
+
+`buildSpecs` runs these in order to produce the filtered (public) spec; the full (internal) spec only
+runs `applyInternalDescriptions` + `stripInternalMarkers`:
+
+- **`removeInternalPaths`** — drops a whole `paths` entry tagged `x-internal: true` on the path item,
+  or an individual operation (`get`/`post`/...) tagged `x-internal: true` when the path item itself
+  isn't fully internal.
+- **`removeInternalComponents`** — drops whole `components.schemas` / `parameters` / `responses` /
+  `requestBodies` entries tagged `x-internal: true` on the definition itself (used for resources that
+  are entirely internal, e.g. `LiquidationResource`, as opposed to one internal field on an otherwise
+  public resource).
+- **`removeInternalTags`** — drops top-level `tags` registry entries (used for docs-UI grouping) tagged
+  `x-internal: true`.
+- **`removeInternalProperties`** — drops any `properties` entry whose schema is tagged
+  `x-internal: true` (and removes its name from a sibling `required` array), plus any `parameters`
+  array entry tagged the same way. Recurses through `allOf`/`items`/`additionalProperties` too, so a
+  property nested inside a composed schema is still caught.
+- **`removeDanglingRefs`** — cleanup pass that must run *after* `removeInternalComponents`. If a
+  `oneOf`/`anyOf` list elsewhere in the doc (e.g. a polymorphic `included` items schema) still `$ref`s
+  a schema that step just deleted, the public spec would ship a dangling reference. This filters those
+  entries out, keeping every other `$ref` untouched.
+- **`applyInternalDescriptions`** (full spec only) — where a field carries both a public-safe
+  `description` and a fuller `x-internal-description` (shared fields whose *allowed-values list*
+  includes an internal-only value, not droppable wholesale), swaps `description` for the complete
+  text. The filtered spec never calls this — it already has the safe text in `description`.
+- **`stripInternalMarkers`** — recursively deletes the `x-internal` / `x-internal-description` marker
+  keys themselves, leaving the field they were attached to untouched. Run last on both specs so no
+  marker ever leaks into either output.
+
 ## Future improvements
 
 - Auto-generate `openapi.yaml` from request specs using `rspec-openapi`

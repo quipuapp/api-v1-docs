@@ -98,6 +98,9 @@ tags:
   - name: Money Entries
     x-internal: true
     description: "Read-only. Only available for owners with a supported accounting-software integration enabled (Aplifisa integration only.)"
+  - name: Economic Activities
+    x-internal: true
+    description: "Read-only. Only available for owners with a supported accounting-software integration enabled (Aplifisa integration only.)"
 
 paths:
   # ── Authentication ───────────────────────────────────────────────────────
@@ -752,6 +755,7 @@ paths:
                         - $ref: "#/components/schemas/AccountingCategoryResource"
                         - $ref: "#/components/schemas/AccountingSubcategoryResource"
                         - $ref: "#/components/schemas/LiquidationResource"
+                        - $ref: "#/components/schemas/EconomicActivityResource"
               examples:
                 bare:
                   summary: Without sideloading
@@ -1297,6 +1301,7 @@ paths:
                         - $ref: "#/components/schemas/AccountingCategoryResource"
                         - $ref: "#/components/schemas/AccountingSubcategoryResource"
                         - $ref: "#/components/schemas/LiquidationResource"
+                        - $ref: "#/components/schemas/EconomicActivityResource"
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -1572,6 +1577,7 @@ paths:
                         - $ref: "#/components/schemas/AccountingCategoryResource"
                         - $ref: "#/components/schemas/AccountingSubcategoryResource"
                         - $ref: "#/components/schemas/LiquidationResource"
+                        - $ref: "#/components/schemas/EconomicActivityResource"
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -2422,6 +2428,85 @@ paths:
         "429":
           $ref: "#/components/responses/TooManyRequests"
 
+  # ── Economic Activities (internal — Aplifisa integration only) ─────────
+  /{owner_slug}/economic_activities:
+    x-internal: true
+    get:
+      operationId: listEconomicActivities
+      summary: List economic activities
+      description: >
+        Read-only. Only available for owners with a supported accounting-software integration
+        enabled — returns 403 otherwise. (Aplifisa integration only.)
+      tags: [Economic Activities]
+      parameters:
+        - $ref: "#/components/parameters/OwnerSlug"
+        - $ref: "#/components/parameters/AcceptHeader"
+        - name: filter[id]
+          in: query
+          schema:
+            type: string
+          description: Filter by ID (comma-separated for multiple)
+        - name: filter[section]
+          in: query
+          schema:
+            type: string
+          description: Filter by section (1, 2 or 3 — comma-separated for multiple)
+        - name: filter[name]
+          in: query
+          schema:
+            type: string
+          description: Case-insensitive partial match on the activity name
+      responses:
+        "200":
+          description: List of economic activities
+          content:
+            application/vnd.quipu.v1+json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/EconomicActivityResource"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+
+  /{owner_slug}/economic_activities/{id}:
+    x-internal: true
+    get:
+      operationId: getEconomicActivity
+      summary: Show economic activity
+      description: >
+        Read-only. Only available for owners with a supported accounting-software integration
+        enabled — returns 403 otherwise. (Aplifisa integration only.)
+      tags: [Economic Activities]
+      parameters:
+        - $ref: "#/components/parameters/OwnerSlug"
+        - $ref: "#/components/parameters/AcceptHeader"
+        - $ref: "#/components/parameters/ResourceId"
+      responses:
+        "200":
+          description: Economic activity found
+          content:
+            application/vnd.quipu.v1+json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/EconomicActivityResource"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+
 # ═════════════════════════════════════════════════════════════════════════
 # Components
 # ═════════════════════════════════════════════════════════════════════════
@@ -2500,6 +2585,11 @@ components:
         array (JSON:API sideloading). Allowed values: `items`, `contact`,
         `accounting_category`, `accounting_subcategory`.
         Example: `?include=items,contact`.
+      x-internal-description: |
+        Comma-separated list of related resources to embed in the `included`
+        array (JSON:API sideloading). Allowed values: `items`, `contact`,
+        `accounting_category`, `accounting_subcategory`, `economic_activity`.
+        Example: `?include=items,contact`.
     IncludeInvoice:
       name: include
       in: query
@@ -2513,7 +2603,7 @@ components:
       x-internal-description: |
         Comma-separated list of related resources to embed in the `included`
         array (JSON:API sideloading). Allowed values: `items`, `contact`,
-        `accounting_category`, `accounting_subcategory`, `liquidations`.
+        `accounting_category`, `accounting_subcategory`, `liquidations`, `economic_activity`.
         Example: `?include=items,contact`.
     IncludeSimplifiedInvoice:
       name: include
@@ -2527,7 +2617,7 @@ components:
       x-internal-description: |
         Comma-separated list of related resources to embed in the `included`
         array. Allowed values: `items`, `accounting_category`,
-        `accounting_subcategory`, `attachments`, `liquidations`. Example: `?include=items`.
+        `accounting_subcategory`, `attachments`, `liquidations`, `economic_activity`. Example: `?include=items`.
     IncludeAdditionalIncome:
       name: include
       in: query
@@ -2540,7 +2630,7 @@ components:
       x-internal-description: |
         Comma-separated list of related resources to embed in the `included`
         array. Allowed values: `items`, `accounting_category`,
-        `accounting_subcategory`, `attachments`, `liquidations`. Example: `?include=items`.
+        `accounting_subcategory`, `attachments`, `liquidations`, `economic_activity`. Example: `?include=items`.
     IncludePaysheet:
       name: include
       in: query
@@ -2554,7 +2644,7 @@ components:
       x-internal-description: |
         Comma-separated list of related resources to embed in the `included`
         array. Allowed values: `contact`, `accounting_category`,
-        `accounting_subcategory`, `attachments`, `liquidations`.
+        `accounting_subcategory`, `attachments`, `liquidations`, `economic_activity`.
         Example: `?include=contact,accounting_subcategory`.
 
   # ── Shared Schemas ─────────────────────────────────────────────────────
@@ -4201,6 +4291,31 @@ components:
               type: string
               nullable: true
               description: The counterpart money entry's money account accounting number, when `linked_money_entry_id` is present.
+
+    EconomicActivityResource:
+      x-internal: true
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          const: economic_activities
+        attributes:
+          type: object
+          properties:
+            name:
+              type: string
+            section:
+              type: integer
+              enum: [1, 2, 3]
+              description: 1 = Empresarial, 2 = Profesional, 3 = Artística.
+            epigraph:
+              type: string
+              description: "Three digits, optionally followed by a dot and one more digit (e.g. \"751\", \"751.1\")."
+            default:
+              type: boolean
+              description: Whether this is the owner's default economic activity.
 
   # ── Responses ──────────────────────────────────────────────────────────
   responses:

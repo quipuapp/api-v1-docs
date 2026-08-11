@@ -478,6 +478,7 @@ paths:
                 data:
                   type: array
                   maxItems: 500
+                  minItems: 1
                   items:
                     $ref: "#/components/schemas/ContactBulkItem"
               example:
@@ -2274,6 +2275,7 @@ paths:
                 data:
                   type: array
                   maxItems: 500
+                  minItems: 1
                   items:
                     $ref: "#/components/schemas/AccountingSubcategoryBulkItem"
               example:
@@ -3282,6 +3284,7 @@ components:
     ContactBulkItem:
       x-internal: true
       type: object
+      required: [attributes]
       properties:
         attributes:
           type: object
@@ -3323,6 +3326,27 @@ components:
               type: string
             bank_account_swift_bic:
               type: string
+            pdf_language:
+              type: string
+              description: Language used when rendering PDF documents for this contact.
+            incomes_due_date:
+              type: string
+              description: Default due-date preference applied to income documents issued to this contact.
+            incomes_payment_method:
+              type: string
+              description: Default payment method applied to income documents issued to this contact.
+            equivalence_subcharge:
+              type: boolean
+              description: Whether equivalence surcharge applies by default for this contact.
+            expenses_payment_method:
+              type: string
+              description: Default payment method applied to expense documents received from this contact.
+            expenses_due_date:
+              type: string
+              description: Default due-date preference applied to expense documents received from this contact.
+            contact_analytic_value_ids:
+              type: string
+              description: Comma-separated list of analytic value IDs to associate with the contact (e.g. "12,34").
             document_type:
               type: string
         relationships:
@@ -4454,6 +4478,7 @@ components:
     AccountingSubcategoryBulkItem:
       x-internal: true
       type: object
+      required: [attributes]
       properties:
         attributes:
           type: object

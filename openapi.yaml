@@ -441,6 +441,98 @@ paths:
         "429":
           $ref: "#/components/responses/TooManyRequests"
 
+  /{owner_slug}/contacts/bulk:
+    x-internal: true
+    post:
+      operationId: bulkSyncContacts
+      summary: Bulk create/sync contacts
+      description: >
+        Only available for owners with a supported accounting-software integration enabled —
+        returns 403 otherwise. (Aplifisa integration only.) Processes every item independently;
+        a failure on one item does not affect the others. Maximum 500 items per request. After an
+        `initial` sync, the owner's default income/expense/asset accounting categories are
+        activated automatically (see `active` on `AccountingCategoryResource`).
+      tags: [Contacts]
+      parameters:
+        - $ref: "#/components/parameters/OwnerSlug"
+        - $ref: "#/components/parameters/AcceptHeader"
+        - $ref: "#/components/parameters/ContentTypeHeader"
+      requestBody:
+        required: true
+        content:
+          application/vnd.quipu.v1+json:
+            schema:
+              type: object
+              required: [sync_type, data]
+              properties:
+                sync_type:
+                  type: string
+                  enum: [initial, update]
+                  description: >
+                    `initial` always creates a new contact for each item, even when a contact
+                    with the same tax_id already exists (no matching/upsert — safe to call
+                    exactly once per client during setup). `update` upserts by tax_id: updates the
+                    existing contact with that tax_id (the oldest one, if more than one somehow
+                    shares it), or creates it if none exists yet. On `update`, a field already set
+                    on the existing contact is left untouched — only blank fields are filled in.
+                data:
+                  type: array
+                  maxItems: 500
+                  items:
+                    $ref: "#/components/schemas/ContactBulkItem"
+              example:
+                sync_type: initial
+                data:
+                  - attributes:
+                      name: Acme Corp
+                      tax_id: B12345678
+                      country_code: ES
+                  - attributes:
+                      name: Wayne Enterprises
+                      tax_id: B87654321
+                      country_code: ES
+      responses:
+        "200":
+          description: >
+            Per-item results. Returned with 200 even when some items failed — check each item's
+            `status`/`errors`.
+          content:
+            application/vnd.quipu.v1+json:
+              schema:
+                type: object
+                properties:
+                  sync_type:
+                    type: string
+                    enum: [initial, update]
+                  results:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ContactBulkResultItem"
+              example:
+                sync_type: initial
+                results:
+                  - tax_id: B12345678
+                    id: "101"
+                    status: created
+                  - tax_id: B87654321
+                    id: "102"
+                    status: created
+        "400":
+          description: Malformed request — invalid `sync_type`, missing/empty `data`, or more than 500 items.
+          content:
+            application/vnd.quipu.v1+json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                errors:
+                  - detail: "data cannot contain more than 500 items"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+
   # ── Book Entries (read-only) ───────────────────────────────────────────
   /{owner_slug}/book_entries:
     get:
@@ -1933,6 +2025,40 @@ paths:
         "429":
           $ref: "#/components/responses/TooManyRequests"
 
+  /{owner_slug}/accounting_categories/{id}/activate:
+    x-internal: true
+    patch:
+      operationId: activateAccountingCategory
+      summary: Activate an accounting category
+      description: >
+        Only available for owners with a supported accounting-software integration enabled —
+        returns 403 otherwise. (Aplifisa integration only.) Marks the category as one of the
+        owner's active accounts (see `active` on `AccountingCategoryResource`). Idempotent, and
+        does not affect any other category.
+      tags: [Accounting Categories]
+      parameters:
+        - $ref: "#/components/parameters/OwnerSlug"
+        - $ref: "#/components/parameters/AcceptHeader"
+        - $ref: "#/components/parameters/ResourceId"
+      responses:
+        "200":
+          description: Accounting category activated
+          content:
+            application/vnd.quipu.v1+json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/AccountingCategoryResource"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+
   # ── Accounting Subcategories ──────────────────────────────────────────
   /{owner_slug}/accounting_subcategories:
     get:
@@ -2110,6 +2236,88 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+
+  /{owner_slug}/accounting_subcategories/bulk:
+    x-internal: true
+    post:
+      operationId: bulkSyncAccountingSubcategories
+      summary: Bulk create/sync the chart of accounts (PGC)
+      description: >
+        Only available for owners with a supported accounting-software integration enabled —
+        returns 403 otherwise. (Aplifisa integration only.) Processes every item independently;
+        a failure on one item does not affect the others. Maximum 500 items per request. After an
+        `initial` sync, the owner's default income/expense/asset accounting categories are
+        activated automatically (see `active` on `AccountingCategoryResource`).
+      tags: [Accounting Subcategories]
+      parameters:
+        - $ref: "#/components/parameters/OwnerSlug"
+        - $ref: "#/components/parameters/AcceptHeader"
+        - $ref: "#/components/parameters/ContentTypeHeader"
+      requestBody:
+        required: true
+        content:
+          application/vnd.quipu.v1+json:
+            schema:
+              type: object
+              required: [sync_type, data]
+              properties:
+                sync_type:
+                  type: string
+                  enum: [initial, update]
+                  description: >
+                    `initial` creates a subcategory for each item and overwrites the `description`
+                    of one that already exists at that `account` code. `update` only creates
+                    subcategories that don't exist yet — an item whose `account` already exists is
+                    left untouched and reported as `skipped`.
+                data:
+                  type: array
+                  maxItems: 500
+                  items:
+                    $ref: "#/components/schemas/AccountingSubcategoryBulkItem"
+              example:
+                sync_type: initial
+                data:
+                  - attributes:
+                      account: "70501"
+                      description: Ventas de mercaderías
+      responses:
+        "200":
+          description: >
+            Per-item results. Returned with 200 even when some items failed — check each item's
+            `status`/`errors`.
+          content:
+            application/vnd.quipu.v1+json:
+              schema:
+                type: object
+                properties:
+                  sync_type:
+                    type: string
+                    enum: [initial, update]
+                  results:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/AccountingSubcategoryBulkResultItem"
+              example:
+                sync_type: initial
+                results:
+                  - account: "70501"
+                    id: "301"
+                    status: created
+        "400":
+          description: Malformed request — invalid `sync_type`, missing/empty `data`, or more than 500 items.
+          content:
+            application/vnd.quipu.v1+json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                errors:
+                  - detail: "data cannot contain more than 500 items"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
         "429":
           $ref: "#/components/responses/TooManyRequests"
 
@@ -3070,6 +3278,88 @@ components:
             income_subcategory:
               $ref: "#/components/schemas/RelationshipLinkage"
               description: Default accounting subcategory applied to income documents for this contact.
+
+    ContactBulkItem:
+      x-internal: true
+      type: object
+      properties:
+        attributes:
+          type: object
+          required: [tax_id]
+          description: >
+            Same fields as `ContactWritable.attributes` (see `POST /contacts`). `tax_id` is
+            required for every item.
+          properties:
+            name:
+              type: string
+            tax_id:
+              type: string
+            phone:
+              type: string
+            email:
+              type: string
+              format: email
+            address:
+              type: string
+            town:
+              type: string
+            zip_code:
+              type: string
+            country_code:
+              type: string
+            client_number:
+              type: string
+            supplier_number:
+              type: string
+            employee_number:
+              type: string
+            a3_nom_id:
+              type: string
+            is_supplier_of_direct_goods:
+              type: boolean
+            description:
+              type: string
+            bank_account_number:
+              type: string
+            bank_account_swift_bic:
+              type: string
+            document_type:
+              type: string
+        relationships:
+          type: object
+          properties:
+            expense_category:
+              $ref: "#/components/schemas/RelationshipLinkage"
+              description: Default accounting category applied to expense documents for this contact.
+            expense_subcategory:
+              $ref: "#/components/schemas/RelationshipLinkage"
+              description: Default accounting subcategory applied to expense documents for this contact.
+            income_category:
+              $ref: "#/components/schemas/RelationshipLinkage"
+              description: Default accounting category applied to income documents for this contact.
+            income_subcategory:
+              $ref: "#/components/schemas/RelationshipLinkage"
+              description: Default accounting subcategory applied to income documents for this contact.
+
+    ContactBulkResultItem:
+      x-internal: true
+      type: object
+      properties:
+        tax_id:
+          type: string
+          nullable: true
+        id:
+          type: string
+          nullable: true
+          description: Present when the item succeeded.
+        status:
+          type: string
+          enum: [created, updated, error]
+        errors:
+          type: array
+          items:
+            type: string
+          description: Present only when `status` is `error`.
 
     # ── Book Entries (read-only) ─────────────────────────────────────────
     BookEntryAttributes:
@@ -4077,6 +4367,14 @@ components:
           nullable: true
           description: >
             Number of digits used in this owner's chart-of-accounts codes (e.g. 8).
+        active:
+          x-internal: true
+          type: boolean
+          description: >
+            Whether this category is one of the owner's active accounts. Set via
+            `PATCH .../accounting_categories/{id}/activate`, or automatically for the
+            owner's default categories after an initial bulk sync.
+            (Aplifisa integration only.)
 
     AccountingCategoryResource:
       type: object
@@ -4152,6 +4450,43 @@ components:
             suffix:
               type: string
               example: "01"
+
+    AccountingSubcategoryBulkItem:
+      x-internal: true
+      type: object
+      properties:
+        attributes:
+          type: object
+          required: [account]
+          properties:
+            account:
+              type: string
+              example: "70501"
+              description: >
+                Full accounting account code. Its prefix must match an existing accounting
+                category for this owner.
+            description:
+              type: string
+              example: Ventas de mercaderías
+
+    AccountingSubcategoryBulkResultItem:
+      x-internal: true
+      type: object
+      properties:
+        account:
+          type: string
+        id:
+          type: string
+          nullable: true
+          description: Present when the item succeeded.
+        status:
+          type: string
+          enum: [created, updated, skipped, error]
+        errors:
+          type: array
+          items:
+            type: string
+          description: Present only when `status` is `error`.
 
     # ── Attachments ──────────────────────────────────────────────────────
     AttachmentResource:

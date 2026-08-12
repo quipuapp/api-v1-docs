@@ -3290,8 +3290,8 @@ components:
           type: object
           required: [tax_id]
           description: >
-            Same fields as `ContactWritable.attributes` (see `POST /contacts`). `tax_id` is
-            required for every item.
+            Same fields as `ContactWritable.attributes` (see `POST /contacts`), plus the four
+            accounting-number sync fields below. `tax_id` is required for every item.
           properties:
             name:
               type: string
@@ -3326,6 +3326,39 @@ components:
               type: string
             bank_account_swift_bic:
               type: string
+            client_accounting_number:
+              type: string
+              example: "43000124"
+              description: >
+                Full accounting account code for this contact's own client account (group 4).
+                Derives `client_number` from it; the prefix must match one of the owner's valid
+                client-account prefixes for their country and its length must equal the owner's
+                `accounting_digits_number`.
+            supplier_accounting_number:
+              type: string
+              example: "40000124"
+              description: >
+                Full accounting account code for this contact's own supplier account (group 4).
+                Derives `supplier_number` (and `is_supplier_of_direct_goods`) from it; same
+                prefix/length rules as `client_accounting_number`.
+            income_accounting_number:
+              type: string
+              example: "70500124"
+              description: >
+                Full accounting account code for this contact's income counterpart account
+                (group 7). Resolves and sets the `income_category`/`income_subcategory`
+                relationships from it (creating the subcategory if it doesn't exist yet), and
+                activates that category for the owner. Prefix must match one of the owner's
+                income categories.
+            expense_accounting_number:
+              type: string
+              example: "62900124"
+              description: >
+                Full accounting account code for this contact's expense counterpart account
+                (group 6/2). Resolves and sets the `expense_category`/`expense_subcategory`
+                relationships from it (creating the subcategory if it doesn't exist yet), and
+                activates that category for the owner. Prefix must match one of the owner's
+                expense or asset categories.
             pdf_language:
               type: string
               description: Language used when rendering PDF documents for this contact.

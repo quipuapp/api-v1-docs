@@ -3417,6 +3417,15 @@ components:
           items:
             type: string
           description: Present only when `status` is `error`.
+        preserved_fields:
+          type: array
+          items:
+            type: string
+          description: >-
+            Present when `status` is `updated`. Names of the fields sent in this
+            item that were NOT applied because the contact already had a value
+            for them (Quipu edits win over a re-sync). Empty when nothing was
+            skipped.
 
     # ── Book Entries (read-only) ─────────────────────────────────────────
     BookEntryAttributes:

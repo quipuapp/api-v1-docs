@@ -645,6 +645,21 @@ paths:
                       $ref: "#/components/schemas/BookEntryResource"
                   meta:
                     $ref: "#/components/schemas/PaginationMeta"
+                  included:
+                    type: array
+                    description: >
+                      Populated when `?include=` is used. Contains sideloaded resources shared
+                      across the whole collection (deduplicated) — e.g.
+                      `?include=items,accounting_category,accounting_subcategory` returns each
+                      book entry's own accounting category/subcategory plus each item's own,
+                      whenever it differs from the book entry's default.
+                    items:
+                      oneOf:
+                        - $ref: "#/components/schemas/ItemResource"
+                        - $ref: "#/components/schemas/ContactResource"
+                        - $ref: "#/components/schemas/AccountingCategoryResource"
+                        - $ref: "#/components/schemas/AccountingSubcategoryResource"
+                        - $ref: "#/components/schemas/EconomicActivityResource"
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -2793,13 +2808,29 @@ components:
       description: |
         Comma-separated list of related resources to embed in the `included`
         array (JSON:API sideloading). Allowed values: `items`, `contact`,
-        `accounting_category`, `accounting_subcategory`.
+        `accounting_category`, `accounting_subcategory`, `items.accounting_category`,
+        `items.accounting_subcategory`.
         Example: `?include=items,contact`.
+
+        When both `items` and `accounting_category`/`accounting_subcategory`
+        are requested together, each item's own accounting category/subcategory
+        is also embedded in `included` whenever it differs from the book
+        entry's own default — no separate include value needed. The explicit
+        nested form (`?include=items.accounting_category`, `?include=items.accounting_subcategory`)
+        is also accepted for clients that prefer to request it directly.
       x-internal-description: |
         Comma-separated list of related resources to embed in the `included`
         array (JSON:API sideloading). Allowed values: `items`, `contact`,
-        `accounting_category`, `accounting_subcategory`, `economic_activity`.
+        `accounting_category`, `accounting_subcategory`, `items.accounting_category`,
+        `items.accounting_subcategory`, `economic_activity`.
         Example: `?include=items,contact`.
+
+        When both `items` and `accounting_category`/`accounting_subcategory`
+        are requested together, each item's own accounting category/subcategory
+        is also embedded in `included` whenever it differs from the book
+        entry's own default — no separate include value needed. The explicit
+        nested form (`?include=items.accounting_category`, `?include=items.accounting_subcategory`)
+        is also accepted for clients that prefer to request it directly.
     IncludeInvoice:
       name: include
       in: query
@@ -2808,13 +2839,29 @@ components:
       description: |
         Comma-separated list of related resources to embed in the `included`
         array (JSON:API sideloading). Allowed values: `items`, `contact`,
-        `accounting_category`, `accounting_subcategory`.
+        `accounting_category`, `accounting_subcategory`, `items.accounting_category`,
+        `items.accounting_subcategory`.
         Example: `?include=items,contact`.
+
+        When both `items` and `accounting_category`/`accounting_subcategory`
+        are requested together, each item's own accounting category/subcategory
+        is also embedded in `included` whenever it differs from the invoice's
+        own default — no separate include value needed. The explicit nested
+        form (`?include=items.accounting_category`, `?include=items.accounting_subcategory`) is
+        also accepted for clients that prefer to request it directly.
       x-internal-description: |
         Comma-separated list of related resources to embed in the `included`
         array (JSON:API sideloading). Allowed values: `items`, `contact`,
-        `accounting_category`, `accounting_subcategory`, `liquidations`, `economic_activity`.
+        `accounting_category`, `accounting_subcategory`, `items.accounting_category`,
+        `items.accounting_subcategory`, `liquidations`, `economic_activity`.
         Example: `?include=items,contact`.
+
+        When both `items` and `accounting_category`/`accounting_subcategory`
+        are requested together, each item's own accounting category/subcategory
+        is also embedded in `included` whenever it differs from the invoice's
+        own default — no separate include value needed. The explicit nested
+        form (`?include=items.accounting_category`, `?include=items.accounting_subcategory`) is
+        also accepted for clients that prefer to request it directly.
     IncludeSimplifiedInvoice:
       name: include
       in: query
@@ -2823,11 +2870,27 @@ components:
       description: |
         Comma-separated list of related resources to embed in the `included`
         array. Allowed values: `items`, `accounting_category`,
-        `accounting_subcategory`, `attachments`. Example: `?include=items`.
+        `accounting_subcategory`, `attachments`, `items.accounting_category`,
+        `items.accounting_subcategory`. Example: `?include=items`.
+
+        When both `items` and `accounting_category`/`accounting_subcategory`
+        are requested together, each item's own accounting category/subcategory
+        is also embedded in `included` whenever it differs from the document's
+        own default — no separate include value needed. The explicit nested
+        form (`?include=items.accounting_category`, `?include=items.accounting_subcategory`) is
+        also accepted for clients that prefer to request it directly.
       x-internal-description: |
         Comma-separated list of related resources to embed in the `included`
         array. Allowed values: `items`, `accounting_category`,
-        `accounting_subcategory`, `attachments`, `liquidations`, `economic_activity`. Example: `?include=items`.
+        `accounting_subcategory`, `attachments`, `items.accounting_category`,
+        `items.accounting_subcategory`, `liquidations`, `economic_activity`. Example: `?include=items`.
+
+        When both `items` and `accounting_category`/`accounting_subcategory`
+        are requested together, each item's own accounting category/subcategory
+        is also embedded in `included` whenever it differs from the document's
+        own default — no separate include value needed. The explicit nested
+        form (`?include=items.accounting_category`, `?include=items.accounting_subcategory`) is
+        also accepted for clients that prefer to request it directly.
     IncludeAdditionalIncome:
       name: include
       in: query
@@ -2836,11 +2899,27 @@ components:
       description: |
         Comma-separated list of related resources to embed in the `included`
         array. Allowed values: `items`, `accounting_category`,
-        `accounting_subcategory`, `attachments`. Example: `?include=items`.
+        `accounting_subcategory`, `attachments`, `items.accounting_category`,
+        `items.accounting_subcategory`. Example: `?include=items`.
+
+        When both `items` and `accounting_category`/`accounting_subcategory`
+        are requested together, each item's own accounting category/subcategory
+        is also embedded in `included` whenever it differs from the document's
+        own default — no separate include value needed. The explicit nested
+        form (`?include=items.accounting_category`, `?include=items.accounting_subcategory`) is
+        also accepted for clients that prefer to request it directly.
       x-internal-description: |
         Comma-separated list of related resources to embed in the `included`
         array. Allowed values: `items`, `accounting_category`,
-        `accounting_subcategory`, `attachments`, `liquidations`, `economic_activity`. Example: `?include=items`.
+        `accounting_subcategory`, `attachments`, `items.accounting_category`,
+        `items.accounting_subcategory`, `liquidations`, `economic_activity`. Example: `?include=items`.
+
+        When both `items` and `accounting_category`/`accounting_subcategory`
+        are requested together, each item's own accounting category/subcategory
+        is also embedded in `included` whenever it differs from the document's
+        own default — no separate include value needed. The explicit nested
+        form (`?include=items.accounting_category`, `?include=items.accounting_subcategory`) is
+        also accepted for clients that prefer to request it directly.
     IncludePaysheet:
       name: include
       in: query

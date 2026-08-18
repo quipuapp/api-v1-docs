@@ -3939,6 +3939,14 @@ components:
               type: string
               format: uri
               nullable: true
+            operation_date:
+              type: string
+              format: date
+              nullable: true
+              description: >
+                Accounting operation date (VAT chargeable event date), distinct from
+                `issue_date`. Only present on outbound (income) simplified invoices;
+                absent on inbound simplified invoices and additional incomes.
 
     SimplifiedInvoiceResource:
       type: object

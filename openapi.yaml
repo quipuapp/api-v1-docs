@@ -3682,7 +3682,7 @@ components:
               equalization_amount:
                 type: number
                 description: Total equivalence surcharge amount for this VAT group. 0 when none.
-              impuesto:
+              tax_type:
                 type: string
                 enum: ["01", "02", "03", "05"]
                 description: |

@@ -3682,6 +3682,16 @@ components:
               equalization_amount:
                 type: number
                 description: Total equivalence surcharge amount for this VAT group. 0 when none.
+              impuesto:
+                type: string
+                enum: ["01", "02", "03", "05"]
+                description: |
+                  Tax type code, matching Verifactu's `Impuesto` field and values.
+
+                  - `01` — VAT (IVA).
+                  - `02` — IPSI (Ceuta/Melilla).
+                  - `03` — IGIC (Canary Islands).
+                  - `05` — Other.
         rectification_type:
           x-internal: true
           type: string

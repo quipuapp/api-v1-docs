@@ -3614,9 +3614,14 @@ components:
           properties:
             base:
               type: object
-              description: Map of accounting account code (string) to the amount booked to it (number).
+              description: Map of accounting account code (string) to its booked amount and account/subaccount name.
               additionalProperties:
-                type: number
+                type: object
+                properties:
+                  amount:
+                    type: number
+                  name:
+                    type: string
         vat_breakdown:
           x-internal: true
           type: object

@@ -2867,6 +2867,10 @@ components:
         and the rest of its usual attributes) instead of just the bare `{id, type}` linkage
         already present in `relationships.amended_invoice`. Only the singular relationship is
         supported — `amending_invoices` (the invoices that rectify this one) stays linkage-only.
+
+        `liquidations`, `economic_activity` and `amended_invoice` require the Aplifisa
+        integration to be active on the account being read; requesting any of them otherwise
+        returns `400`.
     IncludeSimplifiedInvoice:
       name: include
       in: query
@@ -2902,7 +2906,13 @@ components:
         (number, issue_date, and the rest of its usual attributes) instead of just the bare
         `{id, type}` linkage already present in `relationships.amended_simplified_invoice`.
         Only the singular relationship is supported — `amending_simplified_invoices` (the
-        simplified invoices that rectify this one) stays linkage-only.
+        simplified invoices that rectify this one) stays linkage-only. The embedded resource
+        itself has `type: "tickets"`, matching the `type` already carried by the
+        `relationships.amended_simplified_invoice` linkage — not `"simplified_invoices"`.
+
+        `liquidations`, `economic_activity` and `amended_simplified_invoice` require the
+        Aplifisa integration to be active on the account being read; requesting any of them
+        otherwise returns `400`.
     IncludeAdditionalIncome:
       name: include
       in: query

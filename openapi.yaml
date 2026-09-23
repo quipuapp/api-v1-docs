@@ -2853,7 +2853,7 @@ components:
         Comma-separated list of related resources to embed in the `included`
         array (JSON:API sideloading). Allowed values: `items`, `contact`,
         `accounting_category`, `accounting_subcategory`, `items.accounting_category`,
-        `items.accounting_subcategory`, `liquidations`, `economic_activity`.
+        `items.accounting_subcategory`, `liquidations`, `economic_activity`, `amended_invoice`.
         Example: `?include=items,contact`.
 
         When both `items` and `accounting_category`/`accounting_subcategory`
@@ -2862,6 +2862,15 @@ components:
         own default — no separate include value needed. The explicit nested
         form (`?include=items.accounting_category`, `?include=items.accounting_subcategory`) is
         also accepted for clients that prefer to request it directly.
+
+        `amended_invoice` embeds the full rectified invoice resource (number, issue_date,
+        and the rest of its usual attributes) instead of just the bare `{id, type}` linkage
+        already present in `relationships.amended_invoice`. Only the singular relationship is
+        supported — `amending_invoices` (the invoices that rectify this one) stays linkage-only.
+
+        `liquidations`, `economic_activity` and `amended_invoice` require the Aplifisa
+        integration to be active on the account being read; requesting any of them otherwise
+        returns `400`.
     IncludeSimplifiedInvoice:
       name: include
       in: query
@@ -2883,7 +2892,8 @@ components:
         Comma-separated list of related resources to embed in the `included`
         array. Allowed values: `items`, `accounting_category`,
         `accounting_subcategory`, `attachments`, `items.accounting_category`,
-        `items.accounting_subcategory`, `liquidations`, `economic_activity`. Example: `?include=items`.
+        `items.accounting_subcategory`, `liquidations`, `economic_activity`,
+        `amended_simplified_invoice`. Example: `?include=items`.
 
         When both `items` and `accounting_category`/`accounting_subcategory`
         are requested together, each item's own accounting category/subcategory
@@ -2891,6 +2901,18 @@ components:
         own default — no separate include value needed. The explicit nested
         form (`?include=items.accounting_category`, `?include=items.accounting_subcategory`) is
         also accepted for clients that prefer to request it directly.
+
+        `amended_simplified_invoice` embeds the full rectified simplified invoice resource
+        (number, issue_date, and the rest of its usual attributes) instead of just the bare
+        `{id, type}` linkage already present in `relationships.amended_simplified_invoice`.
+        Only the singular relationship is supported — `amending_simplified_invoices` (the
+        simplified invoices that rectify this one) stays linkage-only. The embedded resource
+        itself has `type: "tickets"`, matching the `type` already carried by the
+        `relationships.amended_simplified_invoice` linkage — not `"simplified_invoices"`.
+
+        `liquidations`, `economic_activity` and `amended_simplified_invoice` require the
+        Aplifisa integration to be active on the account being read; requesting any of them
+        otherwise returns `400`.
     IncludeAdditionalIncome:
       name: include
       in: query

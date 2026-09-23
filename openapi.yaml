@@ -3266,6 +3266,13 @@ components:
           description: >
             Accounting ledger code assigned to this contact (client or supplier account,
             depending on context).
+        employee_account_code:
+          x-internal: true
+          type: string
+          nullable: true
+          description: >
+            Full accounting account code for this contact's employee sub-account (group 4),
+            derived from `employee_number`. (Aplifisa integration only.)
 
     ContactResource:
       type: object
@@ -3369,7 +3376,7 @@ components:
           type: object
           required: [tax_id]
           description: >
-            Same fields as `ContactWritable.attributes` (see `POST /contacts`), plus the four
+            Same fields as `ContactWritable.attributes` (see `POST /contacts`), plus the five
             accounting-number sync fields below. `tax_id` is required for every item.
           properties:
             name:
@@ -3420,6 +3427,13 @@ components:
                 Full accounting account code for this contact's own supplier account (group 4).
                 Derives `supplier_number` (and `is_supplier_of_direct_goods`) from it; same
                 prefix/length rules as `client_accounting_number`.
+            employee_accounting_number:
+              type: string
+              example: "46500124"
+              description: >
+                Full accounting account code for this contact's own employee account (group 4).
+                Derives `employee_number` from it; same prefix/length rules as
+                `client_accounting_number`.
             income_accounting_number:
               type: string
               example: "70500124"

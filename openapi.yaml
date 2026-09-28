@@ -3117,6 +3117,12 @@ components:
           description: >
             Whether reverse charge (Inversión del Sujeto Pasivo) applies to this line item — always `false`
             for outbound documents. (Aplifisa integration only.)
+        superreduced_vat:
+          x-internal: true
+          type: boolean
+          description: >
+            Whether this 0% VAT line item is superreduced (taxable at 0%) rather than VAT-exempt.
+            Only meaningful when `vat_percent` is 0. (Aplifisa integration only.)
         retention_key:
           x-internal: true
           type: string

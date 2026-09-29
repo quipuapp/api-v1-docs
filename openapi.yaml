@@ -3741,14 +3741,6 @@ components:
           description: >
             For credit notes: `S` (full substitution — same absolute total as the countered document) or
             `I` (by differences). Null for non-credit-note documents. (Aplifisa integration only.)
-        rectification_kind:
-          x-internal: true
-          type: string
-          nullable: true
-          enum: [R1, R2, R3, R4, R5]
-          description: >
-            For credit notes: `R1`–`R5`, matching `document_type`. Null for non-credit-note documents.
-            (Aplifisa integration only.)
         operation_description:
           x-internal: true
           type: string

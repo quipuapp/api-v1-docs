@@ -84,9 +84,11 @@ tags:
         no `ES` prefix) for Spanish contacts, an EU VAT number including its country prefix (e.g. `FR…`, `EL…` for Greece)
         for other EU contacts with `NIF`, and max 20 characters otherwise.
       - `tax_id` cannot be the account's own tax ID.
-      - To finalize an invoice or simplified invoice for the contact, the contact must have `tax_id` and `document_type`,
-        and `name` must be at most 120 characters (letters, digits, punctuation and spaces only). A simplified invoice
-        may use a contact with none of `tax_id`, `zip_code` or `document_type`.
+      - When an income document with this contact is finalized, `name` must be at most 120 characters (letters, digits,
+        punctuation and spaces only), and:
+        - Invoices: the contact must have `tax_id` and `document_type`.
+        - Simplified invoices: the contact must either have `tax_id` and `document_type`, or have none of `tax_id`,
+          `zip_code` and `document_type` (an anonymous recipient). Partial data is rejected.
   - name: Book Entries
     description: "Read-only listing of all book entries. The type filter accepts: invoices, paysheets, tickets, additional_incomes."
   - name: Invoices
@@ -335,7 +337,7 @@ paths:
               required: [data]
               properties:
                 data:
-                  $ref: "#/components/schemas/ContactWritable"
+                  $ref: "#/components/schemas/ContactCreateWritable"
             example:
               data:
                 type: contacts
@@ -808,7 +810,7 @@ paths:
               required: [data]
               properties:
                 data:
-                  $ref: "#/components/schemas/InvoiceWritable"
+                  $ref: "#/components/schemas/InvoiceCreateWritable"
             example:
               data:
                 type: invoices
@@ -938,8 +940,7 @@ paths:
       operationId: updateInvoice
       summary: Update invoice
       description: >
-        Partial update: only the attributes sent are changed, and every attribute is optional
-        (the `required` markers in the request schema apply to creation only).
+        Partial update: only the attributes sent are changed. Every attribute is optional.
       tags: [Invoices]
       parameters:
         - $ref: "#/components/parameters/OwnerSlug"
@@ -1135,7 +1136,7 @@ paths:
               required: [data]
               properties:
                 data:
-                  $ref: "#/components/schemas/SimplifiedInvoiceWritable"
+                  $ref: "#/components/schemas/SimplifiedInvoiceCreateWritable"
       responses:
         "201":
           description: Simplified invoice created
@@ -1191,8 +1192,7 @@ paths:
       operationId: updateSimplifiedInvoice
       summary: Update simplified invoice
       description: >
-        Partial update: only the attributes sent are changed, and every attribute is optional
-        (the `required` markers in the request schema apply to creation only).
+        Partial update: only the attributes sent are changed. Every attribute is optional.
       tags: [Simplified Invoices]
       parameters:
         - $ref: "#/components/parameters/OwnerSlug"
@@ -1389,7 +1389,7 @@ paths:
               required: [data]
               properties:
                 data:
-                  $ref: "#/components/schemas/AdditionalIncomeWritable"
+                  $ref: "#/components/schemas/AdditionalIncomeCreateWritable"
       responses:
         "201":
           description: Additional income created
@@ -1455,8 +1455,7 @@ paths:
       operationId: updateAdditionalIncome
       summary: Update additional income
       description: >
-        Partial update: only the attributes sent are changed, and every attribute is optional
-        (the `required` markers in the request schema apply to creation only).
+        Partial update: only the attributes sent are changed. Every attribute is optional.
       tags: [Additional Incomes]
       parameters:
         - $ref: "#/components/parameters/OwnerSlug"
@@ -1653,7 +1652,7 @@ paths:
               required: [data]
               properties:
                 data:
-                  $ref: "#/components/schemas/PaysheetWritable"
+                  $ref: "#/components/schemas/PaysheetCreateWritable"
             example:
               data:
                 type: paysheets
@@ -1734,8 +1733,7 @@ paths:
       operationId: updatePaysheet
       summary: Update paysheet
       description: >
-        Partial update: only the attributes sent are changed, and every attribute is optional
-        (the `required` markers in the request schema apply to creation only).
+        Partial update: only the attributes sent are changed. Every attribute is optional.
       tags: [Paysheets]
       parameters:
         - $ref: "#/components/parameters/OwnerSlug"
@@ -3309,9 +3307,8 @@ components:
           type: string
           nullable: true
         document_type:
-          type: string
-          nullable: true
-          enum: [NIF, passport, official_id_from_residence_country, residence_permit, other, none]
+          type: [string, "null"]
+          enum: [NIF, passport, official_id_from_residence_country, residence_permit, other, none, null]
           description: Type of identification document for `tax_id`. See the Contacts section for Verifactu rules.
         is_client:
           type: boolean
@@ -3356,6 +3353,16 @@ components:
           const: contacts
         attributes:
           $ref: "#/components/schemas/ContactAttributes"
+
+    ContactCreateWritable:
+      description: Creation payload. Same fields as `ContactWritable`, with the required attributes enforced on creation.
+      allOf:
+        - $ref: "#/components/schemas/ContactWritable"
+        - type: object
+          properties:
+            attributes:
+              type: object
+              required: [name]
 
     ContactWritable:
       type: object
@@ -3980,6 +3987,16 @@ components:
                 - $ref: "#/components/schemas/RelationshipLinkageArray"
               description: Money entries/book entries reconciled against this invoice. (Aplifisa integration only.)
 
+    InvoiceCreateWritable:
+      description: Creation payload. Same fields as `InvoiceWritable`, with the required attributes enforced on creation.
+      allOf:
+        - $ref: "#/components/schemas/InvoiceWritable"
+        - type: object
+          properties:
+            attributes:
+              type: object
+              required: [kind, issue_date]
+
     InvoiceWritable:
       type: object
       required: [type, attributes]
@@ -3989,7 +4006,6 @@ components:
           const: invoices
         attributes:
           type: object
-          required: [kind, issue_date]
           properties:
             kind:
               type: string
@@ -4188,6 +4204,16 @@ components:
             amended_simplified_invoice:
               $ref: "#/components/schemas/RelationshipLinkage"
 
+    SimplifiedInvoiceCreateWritable:
+      description: Creation payload. Same fields as `SimplifiedInvoiceWritable`, with the required attributes enforced on creation.
+      allOf:
+        - $ref: "#/components/schemas/SimplifiedInvoiceWritable"
+        - type: object
+          properties:
+            attributes:
+              type: object
+              required: [kind, issue_date]
+
     SimplifiedInvoiceWritable:
       type: object
       required: [type, attributes]
@@ -4197,7 +4223,6 @@ components:
           const: simplified_invoices
         attributes:
           type: object
-          required: [kind, issue_date]
           properties:
             kind:
               type: string
@@ -4341,6 +4366,16 @@ components:
                 - $ref: "#/components/schemas/RelationshipLinkageArray"
               description: Money entries/book entries reconciled against this additional income. (Aplifisa integration only.)
 
+    AdditionalIncomeCreateWritable:
+      description: Creation payload. Same fields as `AdditionalIncomeWritable`, with the required attributes enforced on creation.
+      allOf:
+        - $ref: "#/components/schemas/AdditionalIncomeWritable"
+        - type: object
+          properties:
+            attributes:
+              type: object
+              required: [issue_date]
+
     AdditionalIncomeWritable:
       type: object
       required: [type, attributes]
@@ -4350,7 +4385,6 @@ components:
           const: additional_incomes
         attributes:
           type: object
-          required: [issue_date]
           properties:
             kind:
               type: string
@@ -4495,6 +4529,16 @@ components:
                 - $ref: "#/components/schemas/RelationshipLinkageArray"
               description: Money entries/book entries reconciled against this paysheet. (Aplifisa integration only.)
 
+    PaysheetCreateWritable:
+      description: Creation payload. Same fields as `PaysheetWritable`, with the required attributes enforced on creation.
+      allOf:
+        - $ref: "#/components/schemas/PaysheetWritable"
+        - type: object
+          properties:
+            attributes:
+              type: object
+              required: [kind, issue_date]
+
     PaysheetWritable:
       type: object
       required: [type, attributes]
@@ -4504,7 +4548,6 @@ components:
           const: paysheets
         attributes:
           type: object
-          required: [kind, issue_date]
           properties:
             kind:
               type: string

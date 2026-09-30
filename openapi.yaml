@@ -2822,7 +2822,7 @@ components:
         Comma-separated list of related resources to embed in the `included`
         array (JSON:API sideloading). Allowed values: `items`, `contact`,
         `accounting_category`, `accounting_subcategory`, `items.accounting_category`,
-        `items.accounting_subcategory`, `economic_activity`.
+        `items.accounting_subcategory`, `economic_activity`, `amended_invoice`, `amended_ticket`.
         Example: `?include=items,contact`.
 
         When both `items` and `accounting_category`/`accounting_subcategory`
@@ -2831,6 +2831,24 @@ components:
         entry's own default — no separate include value needed. The explicit
         nested form (`?include=items.accounting_category`, `?include=items.accounting_subcategory`)
         is also accepted for clients that prefer to request it directly.
+
+        `amended_invoice` and `amended_ticket` embed the full rectified document (number,
+        issue_date, and the rest of its usual attributes) instead of just the bare `{id, type}`
+        linkage already present in `relationships`. The key depends on each book entry's type:
+        `amended_invoice` applies to invoices (embedded with `type: "invoices"`) and
+        `amended_ticket` to tickets, simplified invoices included (embedded with
+        `type: "tickets"`). Request both to cover every credit note on the page. Only the
+        singular relationship is supported — `amending_invoices` / `amending_tickets` stay
+        linkage-only. Book entries without the relationship (paysheets, or additional incomes
+        when filtering by `filter[type]=additional_incomes`) ignore it.
+
+        As JSON:API mandates, a rectified document that is already a primary resource in
+        `data` (for example, because it is on the same page as its credit note) is not repeated
+        in `included`. Resolve the relationship against both `data` and `included`.
+
+        `economic_activity`, `amended_invoice` and `amended_ticket` require the Aplifisa
+        integration to be active on the account being read; requesting any of them otherwise
+        returns `400`.
     IncludeInvoice:
       name: include
       in: query

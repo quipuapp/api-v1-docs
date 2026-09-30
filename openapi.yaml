@@ -1755,10 +1755,9 @@ paths:
       summary: Update paysheet
       description: >
         Partial update: every attribute is optional, and attributes and relationships that are not sent are left
-        unchanged. `kind` cannot be changed. Some relationships replace existing data when sent: `items` replaces the
-        whole item list (see the item `id`), `attachments` replaces all attachments, and `accounting_category` resets
-        `accounting_subcategory` unless `accounting_subcategory` is sent in the same request. Blocked
-        documents only accept the `payment_method`, `notes` and `tags` attributes.
+        unchanged. Some relationships replace existing data when sent: `items` replaces the whole item list (see the
+        item `id`) and `attachments` replaces all attachments. Blocked paysheets only accept the `payment_method` and
+        `tags` attributes (plus `notes`, which is not accepted on paysheets otherwise).
       tags: [Paysheets]
       parameters:
         - $ref: "#/components/parameters/OwnerSlug"
@@ -3646,12 +3645,10 @@ components:
           type: string
           nullable: true
         account_number_and_swift_bic:
-          type: string
-          nullable: true
+          type: [string, "null"]
           description: Bank account number and SWIFT/BIC code
         bizum_phone_or_code:
-          type: string
-          nullable: true
+          type: [string, "null"]
         payment_status:
           type: string
           enum: [paid, pending, due]
@@ -4021,6 +4018,7 @@ components:
       allOf:
         - $ref: "#/components/schemas/InvoiceWritable"
         - type: object
+          required: [attributes]
           properties:
             attributes:
               type: object
@@ -4028,7 +4026,7 @@ components:
 
     InvoiceWritable:
       type: object
-      required: [type, attributes]
+      required: [type]
       properties:
         type:
           type: string
@@ -4094,8 +4092,7 @@ components:
             notes:
               type: string
             last_sent_at:
-              type: integer
-              nullable: true
+              type: [integer, "null"]
               example: 1457364458
               description: >
                 Unix timestamp in seconds of the last time the invoice was sent. Responses return
@@ -4206,7 +4203,6 @@ components:
             ephemeral_open_download_pdf_url:
               type: string
               format: uri
-              nullable: true
               description: Only present when `kind` is `income` (omitted for expenses).
 
     SimplifiedInvoiceResource:
@@ -4244,6 +4240,7 @@ components:
       allOf:
         - $ref: "#/components/schemas/SimplifiedInvoiceWritable"
         - type: object
+          required: [attributes]
           properties:
             attributes:
               type: object
@@ -4251,7 +4248,7 @@ components:
 
     SimplifiedInvoiceWritable:
       type: object
-      required: [type, attributes]
+      required: [type]
       properties:
         type:
           type: string
@@ -4324,6 +4321,8 @@ components:
               $ref: "#/components/schemas/RelationshipLinkage"
             accounting_subcategory:
               $ref: "#/components/schemas/RelationshipLinkage"
+            attachments:
+              $ref: "#/components/schemas/RelationshipLinkageArray"
             economic_activity:
               $ref: "#/components/schemas/RelationshipLinkage"
               x-internal: true
@@ -4411,6 +4410,7 @@ components:
       allOf:
         - $ref: "#/components/schemas/AdditionalIncomeWritable"
         - type: object
+          required: [attributes]
           properties:
             attributes:
               type: object
@@ -4418,7 +4418,7 @@ components:
 
     AdditionalIncomeWritable:
       type: object
-      required: [type, attributes]
+      required: [type]
       properties:
         type:
           type: string
@@ -4482,14 +4482,14 @@ components:
         relationships:
           type: object
           properties:
-            contact:
-              $ref: "#/components/schemas/RelationshipLinkage"
             numeration:
               $ref: "#/components/schemas/RelationshipLinkage"
             accounting_category:
               $ref: "#/components/schemas/RelationshipLinkage"
             accounting_subcategory:
               $ref: "#/components/schemas/RelationshipLinkage"
+            attachments:
+              $ref: "#/components/schemas/RelationshipLinkageArray"
             economic_activity:
               $ref: "#/components/schemas/RelationshipLinkage"
               x-internal: true
@@ -4578,6 +4578,7 @@ components:
       allOf:
         - $ref: "#/components/schemas/PaysheetWritable"
         - type: object
+          required: [attributes, relationships]
           properties:
             attributes:
               type: object
@@ -4588,7 +4589,7 @@ components:
 
     PaysheetWritable:
       type: object
-      required: [type, attributes]
+      required: [type]
       properties:
         type:
           type: string

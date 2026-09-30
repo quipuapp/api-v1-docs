@@ -73,16 +73,25 @@ tags:
     description: |
       Clients and suppliers.
 
+      `name` and `country_code` are required for every contact.
+
+      ## Tax ID rules (all accounts)
+      When both `tax_id` and `document_type` are sent:
+
+      - Spanish contacts (`country_code: ES`) cannot use a `tax_id` starting with `ES`.
+      - `none` (not registered) requires `country_code: ES` and a valid Spanish NIF/CIF/NIE.
+
       ## Verifactu accounts
-      On accounts with Verifactu activated, only `name` is required to save a contact, but these extra rules apply:
+      On accounts with Verifactu activated, these extra rules apply:
 
       - `document_type` must be valid for the contact's `country_code`:
         - `ES`: `NIF`, `passport`, `none`
         - Other EU countries: `NIF`, `passport`, `official_id_from_residence_country`, `residence_permit`, `other`
         - Non-EU countries: `passport`, `official_id_from_residence_country`, `residence_permit`, `other`
-      - When `document_type` is set, `tax_id` is validated against it: a valid Spanish NIF/CIF/NIE (max 9 characters,
-        no `ES` prefix) for Spanish contacts, an EU VAT number including its country prefix (e.g. `FR…`, `EL…` for Greece)
-        for other EU contacts with `NIF`, and max 20 characters otherwise.
+      - When `document_type` is set, `tax_id` is validated against it:
+        - Spanish contacts with `NIF` or `none`: a valid Spanish NIF/CIF/NIE of at most 9 characters.
+        - Other EU contacts with `NIF`: must start with the country's VAT prefix (e.g. `FR…`, `EL…` for Greece).
+        - Any other case: at most 20 characters, and a non-Spanish `tax_id` cannot contain only letters.
       - `tax_id` cannot be the account's own tax ID.
       - When an income document with this contact is finalized, `name` must be at most 120 characters (letters, digits,
         punctuation and spaces only), and:
@@ -940,7 +949,11 @@ paths:
       operationId: updateInvoice
       summary: Update invoice
       description: >
-        Partial update: only the attributes sent are changed. Every attribute is optional.
+        Partial update: every attribute is optional, and attributes and relationships that are not sent are left
+        unchanged. `kind` cannot be changed. Some relationships replace existing data when sent: `items` replaces the
+        whole item list (see the item `id`), `attachments` replaces all attachments, and `accounting_category` resets
+        `accounting_subcategory` unless `accounting_subcategory` is sent in the same request. Blocked
+        documents only accept the `payment_method`, `notes` and `tags` attributes.
       tags: [Invoices]
       parameters:
         - $ref: "#/components/parameters/OwnerSlug"
@@ -1192,7 +1205,11 @@ paths:
       operationId: updateSimplifiedInvoice
       summary: Update simplified invoice
       description: >
-        Partial update: only the attributes sent are changed. Every attribute is optional.
+        Partial update: every attribute is optional, and attributes and relationships that are not sent are left
+        unchanged. `kind` cannot be changed. Some relationships replace existing data when sent: `items` replaces the
+        whole item list (see the item `id`), `attachments` replaces all attachments, and `accounting_category` resets
+        `accounting_subcategory` unless `accounting_subcategory` is sent in the same request. Blocked
+        documents only accept the `payment_method`, `notes` and `tags` attributes.
       tags: [Simplified Invoices]
       parameters:
         - $ref: "#/components/parameters/OwnerSlug"
@@ -1455,7 +1472,11 @@ paths:
       operationId: updateAdditionalIncome
       summary: Update additional income
       description: >
-        Partial update: only the attributes sent are changed. Every attribute is optional.
+        Partial update: every attribute is optional, and attributes and relationships that are not sent are left
+        unchanged. `kind` cannot be changed. Some relationships replace existing data when sent: `items` replaces the
+        whole item list (see the item `id`), `attachments` replaces all attachments, and `accounting_category` resets
+        `accounting_subcategory` unless `accounting_subcategory` is sent in the same request. Blocked
+        documents only accept the `payment_method`, `notes` and `tags` attributes.
       tags: [Additional Incomes]
       parameters:
         - $ref: "#/components/parameters/OwnerSlug"
@@ -1733,7 +1754,11 @@ paths:
       operationId: updatePaysheet
       summary: Update paysheet
       description: >
-        Partial update: only the attributes sent are changed. Every attribute is optional.
+        Partial update: every attribute is optional, and attributes and relationships that are not sent are left
+        unchanged. `kind` cannot be changed. Some relationships replace existing data when sent: `items` replaces the
+        whole item list (see the item `id`), `attachments` replaces all attachments, and `accounting_category` resets
+        `accounting_subcategory` unless `accounting_subcategory` is sent in the same request. Blocked
+        documents only accept the `payment_method`, `notes` and `tags` attributes.
       tags: [Paysheets]
       parameters:
         - $ref: "#/components/parameters/OwnerSlug"
@@ -3309,7 +3334,7 @@ components:
         document_type:
           type: [string, "null"]
           enum: [NIF, passport, official_id_from_residence_country, residence_permit, other, none, null]
-          description: Type of identification document for `tax_id`. See the Contacts section for Verifactu rules.
+          description: Type of identification document for `tax_id`. See the Contacts section for validation rules.
         is_client:
           type: boolean
         is_supplier:
@@ -3362,7 +3387,7 @@ components:
           properties:
             attributes:
               type: object
-              required: [name]
+              required: [name, country_code]
 
     ContactWritable:
       type: object
@@ -3408,9 +3433,9 @@ components:
             bank_account_swift_bic:
               type: string
             document_type:
-              type: string
-              enum: [NIF, passport, official_id_from_residence_country, residence_permit, other, none]
-              description: Type of identification document for `tax_id`. See the Contacts section for Verifactu rules.
+              type: [string, "null"]
+              enum: [NIF, passport, official_id_from_residence_country, residence_permit, other, none, null]
+              description: Type of identification document for `tax_id`. See the Contacts section for validation rules.
             pdf_language:
               type: string
               description: Language used when rendering PDF documents for this contact.
@@ -3988,14 +4013,18 @@ components:
               description: Money entries/book entries reconciled against this invoice. (Aplifisa integration only.)
 
     InvoiceCreateWritable:
-      description: Creation payload. Same fields as `InvoiceWritable`, with the required attributes enforced on creation.
+      description: >
+        Creation payload. Same fields as `InvoiceWritable`. `kind` is required, and `issue_date` is required for expenses.
+        `issue_date` is optional for income documents, which start as a draft and get their date on finalization.
+        When `issue_date` is sent for an income document, `number` or `filing_number` must be sent too (400 otherwise),
+        except on non-Verifactu accounts that send a `numeration` series.
       allOf:
         - $ref: "#/components/schemas/InvoiceWritable"
         - type: object
           properties:
             attributes:
               type: object
-              required: [kind, issue_date]
+              required: [kind]
 
     InvoiceWritable:
       type: object
@@ -4129,8 +4158,10 @@ components:
                       id:
                         type: string
                         description: >
-                          ID of an existing item to update in place. Items sent without `id` are created.
-                          When `items` is sent, existing items not included in the array are deleted.
+                          ID of an existing item to update in place. Items sent without `id` (or with an `id`
+                          that does not belong to the document) are created. When `items` is sent, existing items
+                          not included in the array are deleted. An updated item's `accounting_category` and
+                          `accounting_subcategory` are cleared unless they are sent again.
                       type:
                         type: string
                         example: book_entry_items
@@ -4205,14 +4236,18 @@ components:
               $ref: "#/components/schemas/RelationshipLinkage"
 
     SimplifiedInvoiceCreateWritable:
-      description: Creation payload. Same fields as `SimplifiedInvoiceWritable`, with the required attributes enforced on creation.
+      description: >
+        Creation payload. Same fields as `SimplifiedInvoiceWritable`. `kind` is required, and `issue_date` is required for expenses.
+        `issue_date` is optional for income documents, which start as a draft and get their date on finalization.
+        When `issue_date` is sent for an income document, `number` or `filing_number` must be sent too (400 otherwise),
+        except on non-Verifactu accounts that send a `numeration` series.
       allOf:
         - $ref: "#/components/schemas/SimplifiedInvoiceWritable"
         - type: object
           properties:
             attributes:
               type: object
-              required: [kind, issue_date]
+              required: [kind]
 
     SimplifiedInvoiceWritable:
       type: object
@@ -4304,8 +4339,10 @@ components:
                       id:
                         type: string
                         description: >
-                          ID of an existing item to update in place. Items sent without `id` are created.
-                          When `items` is sent, existing items not included in the array are deleted.
+                          ID of an existing item to update in place. Items sent without `id` (or with an `id`
+                          that does not belong to the document) are created. When `items` is sent, existing items
+                          not included in the array are deleted. An updated item's `accounting_category` and
+                          `accounting_subcategory` are cleared unless they are sent again.
                       type:
                         type: string
                         example: book_entry_items
@@ -4367,14 +4404,17 @@ components:
               description: Money entries/book entries reconciled against this additional income. (Aplifisa integration only.)
 
     AdditionalIncomeCreateWritable:
-      description: Creation payload. Same fields as `AdditionalIncomeWritable`, with the required attributes enforced on creation.
+      description: >
+        Creation payload. Same fields as `AdditionalIncomeWritable`. `issue_date` and `recipient_name` are required,
+        and `number` or `filing_number` must be sent with `issue_date` (400 otherwise), except on non-Verifactu
+        accounts that send a `numeration` series. Additional incomes cannot have a `contact` relationship.
       allOf:
         - $ref: "#/components/schemas/AdditionalIncomeWritable"
         - type: object
           properties:
             attributes:
               type: object
-              required: [issue_date]
+              required: [issue_date, recipient_name]
 
     AdditionalIncomeWritable:
       type: object
@@ -4465,8 +4505,10 @@ components:
                       id:
                         type: string
                         description: >
-                          ID of an existing item to update in place. Items sent without `id` are created.
-                          When `items` is sent, existing items not included in the array are deleted.
+                          ID of an existing item to update in place. Items sent without `id` (or with an `id`
+                          that does not belong to the document) are created. When `items` is sent, existing items
+                          not included in the array are deleted. An updated item's `accounting_category` and
+                          `accounting_subcategory` are cleared unless they are sent again.
                       type:
                         type: string
                         example: book_entry_items
@@ -4530,14 +4572,19 @@ components:
               description: Money entries/book entries reconciled against this paysheet. (Aplifisa integration only.)
 
     PaysheetCreateWritable:
-      description: Creation payload. Same fields as `PaysheetWritable`, with the required attributes enforced on creation.
+      description: >
+        Creation payload. Same fields as `PaysheetWritable`. `issue_date` and the `contact` relationship (the employee)
+        are required. `kind` is optional and ignored: paysheets are always `expenses`.
       allOf:
         - $ref: "#/components/schemas/PaysheetWritable"
         - type: object
           properties:
             attributes:
               type: object
-              required: [kind, issue_date]
+              required: [issue_date]
+            relationships:
+              type: object
+              required: [contact]
 
     PaysheetWritable:
       type: object
@@ -4615,8 +4662,9 @@ components:
                       id:
                         type: string
                         description: >
-                          ID of an existing item to update in place. Items sent without `id` are created.
-                          When `items` is sent, existing items not included in the array are deleted.
+                          ID of an existing item to update in place. Items sent without `id` (or with an `id`
+                          that does not belong to the document) are created. When `items` is sent, existing items
+                          not included in the array are deleted.
                       type:
                         type: string
                         example: book_entry_items
@@ -4716,8 +4764,8 @@ components:
               type: string
               enum: [new, existing]
               description: >
-                Only a change from `new` to `existing` is allowed, and only for `invoices` and
-                `tickets` series. Changing to `new` returns 403. Sending the current value is a no-op.
+                Can be changed from `new` to `existing`, but not back: changing to `new` returns 403.
+                Sending the current value is a no-op.
 
     # ── Accounting Categories ────────────────────────────────────────────
     AccountingCategoryAttributes:

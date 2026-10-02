@@ -76,7 +76,11 @@ tags:
       `name` and `country_code` are required for every contact.
 
       ## Tax ID rules (all accounts)
-      When both `tax_id` and `document_type` are sent:
+      `tax_id` is normalized before validation: spaces and punctuation are removed and it is uppercased
+      (e.g. `b-12345674` is stored as `B12345674`).
+
+      When the contact has both `tax_id` and `document_type` (the stored values are validated, so a PATCH that only
+      changes `country_code` can also fail):
 
       - Spanish contacts (`country_code: ES`) cannot use a `tax_id` starting with `ES`.
       - `none` (not registered) requires `country_code: ES` and a valid Spanish NIF/CIF/NIE.
@@ -953,7 +957,9 @@ paths:
         unchanged. `kind` cannot be changed. Some relationships replace existing data when sent: `items` replaces the
         whole item list (see the item `id`), `attachments` replaces all attachments, and `accounting_category` resets
         `accounting_subcategory` unless `accounting_subcategory` is sent in the same request. Blocked
-        documents only accept the `payment_method`, `notes` and `tags` attributes.
+        documents only accept the `payment_method`, `notes` and `tags` attributes. Once an income document is
+        finalized (`stage` `final` or later), `issue_date`, `items` and `contact` are silently ignored (the response
+        is still 200), and once it has been sent to AEAT, `numeration` is ignored too.
       tags: [Invoices]
       parameters:
         - $ref: "#/components/parameters/OwnerSlug"
@@ -1209,7 +1215,9 @@ paths:
         unchanged. `kind` cannot be changed. Some relationships replace existing data when sent: `items` replaces the
         whole item list (see the item `id`), `attachments` replaces all attachments, and `accounting_category` resets
         `accounting_subcategory` unless `accounting_subcategory` is sent in the same request. Blocked
-        documents only accept the `payment_method`, `notes` and `tags` attributes.
+        documents only accept the `payment_method`, `notes` and `tags` attributes. Once an income document is
+        finalized (`stage` `final` or later), `issue_date`, `items` and `contact` are silently ignored (the response
+        is still 200), and once it has been sent to AEAT, `numeration` is ignored too.
       tags: [Simplified Invoices]
       parameters:
         - $ref: "#/components/parameters/OwnerSlug"
@@ -4013,8 +4021,8 @@ components:
       description: >
         Creation payload. Same fields as `InvoiceWritable`. `kind` is required, and `issue_date` is required for expenses.
         `issue_date` is optional for income documents, which start as a draft and get their date on finalization.
-        When `issue_date` is sent for an income document, `number` or `filing_number` must be sent too (400 otherwise),
-        except on non-Verifactu accounts that send a `numeration` series.
+        For income documents, `number`/`filing_number` and `issue_date` must be sent together (400 otherwise),
+        except on non-Verifactu accounts that send `issue_date` with a `numeration` series.
       allOf:
         - $ref: "#/components/schemas/InvoiceWritable"
         - type: object
@@ -4235,8 +4243,9 @@ components:
       description: >
         Creation payload. Same fields as `SimplifiedInvoiceWritable`. `kind` is required, and `issue_date` is required for expenses.
         `issue_date` is optional for income documents, which start as a draft and get their date on finalization.
-        When `issue_date` is sent for an income document, `number` or `filing_number` must be sent too (400 otherwise),
-        except on non-Verifactu accounts that send a `numeration` series.
+        For income documents, `number`/`filing_number` and `issue_date` must be sent together (400 otherwise),
+        except on non-Verifactu accounts that send `issue_date` with a `numeration` series.
+        Income simplified invoices also need a `contact` relationship or a `recipient_name` (422 otherwise).
       allOf:
         - $ref: "#/components/schemas/SimplifiedInvoiceWritable"
         - type: object
@@ -4405,8 +4414,9 @@ components:
     AdditionalIncomeCreateWritable:
       description: >
         Creation payload. Same fields as `AdditionalIncomeWritable`. `issue_date` and `recipient_name` are required,
-        and `number` or `filing_number` must be sent with `issue_date` (400 otherwise), except on non-Verifactu
-        accounts that send a `numeration` series. Additional incomes cannot have a `contact` relationship.
+        and `number`/`filing_number` must be sent together with `issue_date` (400 otherwise), except on non-Verifactu
+        accounts that send `issue_date` with a `numeration` series. Additional incomes cannot have a `contact`
+        relationship.
       allOf:
         - $ref: "#/components/schemas/AdditionalIncomeWritable"
         - type: object
@@ -4573,8 +4583,8 @@ components:
 
     PaysheetCreateWritable:
       description: >
-        Creation payload. Same fields as `PaysheetWritable`. `issue_date` and the `contact` relationship (the employee)
-        are required. `kind` is optional and ignored: paysheets are always `expenses`.
+        Creation payload. Same fields as `PaysheetWritable`. `issue_date` and the `contact` relationship (the employee,
+        who must have a `tax_id`) are required. `kind` is optional and ignored: paysheets are always `expenses`.
       allOf:
         - $ref: "#/components/schemas/PaysheetWritable"
         - type: object

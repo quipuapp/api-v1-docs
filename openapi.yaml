@@ -4031,6 +4031,13 @@ components:
             attributes:
               type: object
               required: [kind]
+              if:
+                properties:
+                  kind:
+                    const: expenses
+                required: [kind]
+              then:
+                required: [issue_date]
 
     InvoiceWritable:
       type: object
@@ -4254,6 +4261,13 @@ components:
             attributes:
               type: object
               required: [kind]
+              if:
+                properties:
+                  kind:
+                    const: expenses
+                required: [kind]
+              then:
+                required: [issue_date]
 
     SimplifiedInvoiceWritable:
       type: object

@@ -660,6 +660,8 @@ paths:
                         - $ref: "#/components/schemas/AccountingCategoryResource"
                         - $ref: "#/components/schemas/AccountingSubcategoryResource"
                         - $ref: "#/components/schemas/EconomicActivityResource"
+                        - $ref: "#/components/schemas/InvoiceResource"
+                        - $ref: "#/components/schemas/TicketResource"
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -2822,7 +2824,7 @@ components:
         Comma-separated list of related resources to embed in the `included`
         array (JSON:API sideloading). Allowed values: `items`, `contact`,
         `accounting_category`, `accounting_subcategory`, `items.accounting_category`,
-        `items.accounting_subcategory`, `economic_activity`.
+        `items.accounting_subcategory`, `economic_activity`, `amended_invoice`, `amended_ticket`.
         Example: `?include=items,contact`.
 
         When both `items` and `accounting_category`/`accounting_subcategory`
@@ -2831,6 +2833,28 @@ components:
         entry's own default — no separate include value needed. The explicit
         nested form (`?include=items.accounting_category`, `?include=items.accounting_subcategory`)
         is also accepted for clients that prefer to request it directly.
+
+        `amended_invoice` and `amended_ticket` embed the full rectified document (number,
+        issue_date, and the rest of its usual attributes) instead of just the bare `{id, type}`
+        linkage already present in `relationships`. The key depends on each book entry's type:
+        `amended_invoice` applies to invoices (embedded with `type: "invoices"`) and
+        `amended_ticket` to tickets, simplified invoices included (embedded with
+        `type: "tickets"`). Request both to cover every credit note on the page. Only the
+        singular relationship is supported — `amending_invoices` / `amending_tickets` stay
+        linkage-only. Book entries without the relationship (paysheets, or additional incomes
+        when filtering by `filter[type]=additional_incomes`) ignore it.
+
+        As JSON:API mandates, a rectified document that is already a primary resource in
+        `data` (for example, because it is on the same page as its credit note) is not repeated
+        in `included`. Resolve the relationship against both `data` and `included`.
+
+        On a sideloaded rectified document, `account_breakdown` and `vat_breakdown` are always
+        `null`: breakdowns are only calculated for the page's primary records. If you need them,
+        fetch the rectified document as a primary resource.
+
+        `economic_activity`, `amended_invoice` and `amended_ticket` require the Aplifisa
+        integration to be active on the account being read; requesting any of them otherwise
+        returns `400`.
     IncludeInvoice:
       name: include
       in: query
@@ -3837,6 +3861,81 @@ components:
             accounting_category:
               $ref: "#/components/schemas/RelationshipLinkage"
             accounting_subcategory:
+              $ref: "#/components/schemas/RelationshipLinkage"
+            amending_invoices:
+              allOf:
+                - $ref: "#/components/schemas/RelationshipLinkageArray"
+              description: Invoices that rectify this one. Only present on invoices.
+            amended_invoice:
+              allOf:
+                - $ref: "#/components/schemas/RelationshipLinkage"
+              description: The invoice this one rectifies (`type` `invoices`). Only present on invoices.
+            amending_tickets:
+              allOf:
+                - $ref: "#/components/schemas/RelationshipLinkageArray"
+              description: Tickets that rectify this one. Only present on tickets.
+            amended_ticket:
+              allOf:
+                - $ref: "#/components/schemas/RelationshipLinkage"
+              description: >
+                The ticket this one rectifies (`type` `tickets`, simplified invoices included).
+                Only present on tickets.
+
+    TicketAttributes:
+      allOf:
+        - $ref: "#/components/schemas/BookEntryAttributes"
+        - type: object
+          properties:
+            kind:
+              type: string
+              enum: [income, expenses]
+            total_amount_without_taxes:
+              type: string
+            vat_amount:
+              type: string
+            retention_amount:
+              type: string
+            notes:
+              type: string
+              nullable: true
+            download_pdf_url:
+              type: string
+              format: uri
+              nullable: true
+              description: Only present on income tickets.
+            ephemeral_open_download_pdf_url:
+              type: string
+              format: uri
+              nullable: true
+              description: Only present on income tickets.
+
+    TicketResource:
+      type: object
+      description: >
+        A ticket (simplified invoices included) as embedded in the `included` array of
+        `book_entries`, e.g. the rectified document sideloaded through `amended_ticket`.
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          const: tickets
+        attributes:
+          $ref: "#/components/schemas/TicketAttributes"
+        relationships:
+          type: object
+          properties:
+            numeration:
+              $ref: "#/components/schemas/RelationshipLinkage"
+            items:
+              $ref: "#/components/schemas/RelationshipLinkageArray"
+            accounting_category:
+              $ref: "#/components/schemas/RelationshipLinkage"
+            accounting_subcategory:
+              $ref: "#/components/schemas/RelationshipLinkage"
+            amending_tickets:
+              $ref: "#/components/schemas/RelationshipLinkageArray"
+            amended_ticket:
               $ref: "#/components/schemas/RelationshipLinkage"
 
     # ── Invoices ─────────────────────────────────────────────────────────

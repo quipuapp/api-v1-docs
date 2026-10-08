@@ -761,6 +761,18 @@ paths:
                       $ref: "#/components/schemas/InvoiceResource"
                   meta:
                     $ref: "#/components/schemas/PaginationMeta"
+                  included:
+                    type: array
+                    description: Populated when `?include=` is used. Contains sideloaded resources.
+                    items:
+                      oneOf:
+                        - $ref: "#/components/schemas/ItemResource"
+                        - $ref: "#/components/schemas/ContactResource"
+                        - $ref: "#/components/schemas/AccountingCategoryResource"
+                        - $ref: "#/components/schemas/AccountingSubcategoryResource"
+                        - $ref: "#/components/schemas/LiquidationResource"
+                        - $ref: "#/components/schemas/EconomicActivityResource"
+                        - $ref: "#/components/schemas/AttachmentSideloadResource"
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -1086,6 +1098,17 @@ paths:
                       $ref: "#/components/schemas/SimplifiedInvoiceResource"
                   meta:
                     $ref: "#/components/schemas/PaginationMeta"
+                  included:
+                    type: array
+                    description: Populated when `?include=` is used. Contains sideloaded resources.
+                    items:
+                      oneOf:
+                        - $ref: "#/components/schemas/ItemResource"
+                        - $ref: "#/components/schemas/AccountingCategoryResource"
+                        - $ref: "#/components/schemas/AccountingSubcategoryResource"
+                        - $ref: "#/components/schemas/LiquidationResource"
+                        - $ref: "#/components/schemas/EconomicActivityResource"
+                        - $ref: "#/components/schemas/AttachmentSideloadResource"
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -1153,6 +1176,17 @@ paths:
                 properties:
                   data:
                     $ref: "#/components/schemas/SimplifiedInvoiceResource"
+                  included:
+                    type: array
+                    description: Populated when `?include=` is used. Contains sideloaded resources.
+                    items:
+                      oneOf:
+                        - $ref: "#/components/schemas/ItemResource"
+                        - $ref: "#/components/schemas/AccountingCategoryResource"
+                        - $ref: "#/components/schemas/AccountingSubcategoryResource"
+                        - $ref: "#/components/schemas/LiquidationResource"
+                        - $ref: "#/components/schemas/EconomicActivityResource"
+                        - $ref: "#/components/schemas/AttachmentSideloadResource"
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -1337,6 +1371,17 @@ paths:
                       $ref: "#/components/schemas/AdditionalIncomeResource"
                   meta:
                     $ref: "#/components/schemas/PaginationMeta"
+                  included:
+                    type: array
+                    description: Populated when `?include=` is used. Contains sideloaded resources.
+                    items:
+                      oneOf:
+                        - $ref: "#/components/schemas/ItemResource"
+                        - $ref: "#/components/schemas/AccountingCategoryResource"
+                        - $ref: "#/components/schemas/AccountingSubcategoryResource"
+                        - $ref: "#/components/schemas/LiquidationResource"
+                        - $ref: "#/components/schemas/EconomicActivityResource"
+                        - $ref: "#/components/schemas/AttachmentSideloadResource"
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -1599,6 +1644,17 @@ paths:
                       $ref: "#/components/schemas/PaysheetResource"
                   meta:
                     $ref: "#/components/schemas/PaginationMeta"
+                  included:
+                    type: array
+                    description: Populated when `?include=` is used. Contains sideloaded resources.
+                    items:
+                      oneOf:
+                        - $ref: "#/components/schemas/ContactResource"
+                        - $ref: "#/components/schemas/AccountingCategoryResource"
+                        - $ref: "#/components/schemas/AccountingSubcategoryResource"
+                        - $ref: "#/components/schemas/LiquidationResource"
+                        - $ref: "#/components/schemas/EconomicActivityResource"
+                        - $ref: "#/components/schemas/AttachmentSideloadResource"
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -2928,7 +2984,7 @@ components:
       description: |
         Comma-separated list of related resources to embed in the `included`
         array. Allowed values: `items`, `accounting_category`,
-        `accounting_subcategory`, `attachments`, `items.accounting_category`,
+        `accounting_subcategory`, `items.accounting_category`,
         `items.accounting_subcategory`. Example: `?include=items`.
 
         When both `items` and `accounting_category`/`accounting_subcategory`
@@ -2978,7 +3034,7 @@ components:
       description: |
         Comma-separated list of related resources to embed in the `included`
         array. Allowed values: `items`, `accounting_category`,
-        `accounting_subcategory`, `attachments`, `items.accounting_category`,
+        `accounting_subcategory`, `items.accounting_category`,
         `items.accounting_subcategory`. Example: `?include=items`.
 
         When both `items` and `accounting_category`/`accounting_subcategory`
@@ -3015,7 +3071,7 @@ components:
       description: |
         Comma-separated list of related resources to embed in the `included`
         array. Allowed values: `contact`, `accounting_category`,
-        `accounting_subcategory`, `attachments`.
+        `accounting_subcategory`.
         Example: `?include=contact,accounting_subcategory`.
       x-internal-description: |
         Comma-separated list of related resources to embed in the `included`
@@ -3995,7 +4051,6 @@ components:
             amended_ticket:
               $ref: "#/components/schemas/RelationshipLinkage"
 
-    # ── Invoices ─────────────────────────────────────────────────────────
             attachments:
               x-internal: true
               allOf:
@@ -4005,6 +4060,7 @@ components:
                 by the user. Always present; embed them with `?include=attachments`. (Aplifisa
                 integration only.)
 
+    # ── Invoices ─────────────────────────────────────────────────────────
     InvoiceAttributes:
       allOf:
         - $ref: "#/components/schemas/BookEntryAttributes"

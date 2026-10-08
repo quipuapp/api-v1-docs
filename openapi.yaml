@@ -772,6 +772,7 @@ paths:
                         - $ref: "#/components/schemas/AccountingSubcategoryResource"
                         - $ref: "#/components/schemas/LiquidationResource"
                         - $ref: "#/components/schemas/EconomicActivityResource"
+                        - $ref: "#/components/schemas/InvoiceResource"
                         - $ref: "#/components/schemas/AttachmentSideloadResource"
         "400":
           $ref: "#/components/responses/BadRequest"
@@ -879,6 +880,7 @@ paths:
                         - $ref: "#/components/schemas/AccountingSubcategoryResource"
                         - $ref: "#/components/schemas/LiquidationResource"
                         - $ref: "#/components/schemas/EconomicActivityResource"
+                        - $ref: "#/components/schemas/InvoiceResource"
                         - $ref: "#/components/schemas/AttachmentSideloadResource"
               examples:
                 bare:
@@ -1108,6 +1110,7 @@ paths:
                         - $ref: "#/components/schemas/AccountingSubcategoryResource"
                         - $ref: "#/components/schemas/LiquidationResource"
                         - $ref: "#/components/schemas/EconomicActivityResource"
+                        - $ref: "#/components/schemas/TicketResource"
                         - $ref: "#/components/schemas/AttachmentSideloadResource"
         "400":
           $ref: "#/components/responses/BadRequest"
@@ -1186,6 +1189,7 @@ paths:
                         - $ref: "#/components/schemas/AccountingSubcategoryResource"
                         - $ref: "#/components/schemas/LiquidationResource"
                         - $ref: "#/components/schemas/EconomicActivityResource"
+                        - $ref: "#/components/schemas/TicketResource"
                         - $ref: "#/components/schemas/AttachmentSideloadResource"
         "400":
           $ref: "#/components/responses/BadRequest"
@@ -4025,8 +4029,9 @@ components:
     TicketResource:
       type: object
       description: >
-        A ticket (simplified invoices included) as embedded in the `included` array of
-        `book_entries`, e.g. the rectified document sideloaded through `amended_ticket`.
+        A ticket (simplified invoices included) as embedded in the `included` array, e.g. the
+        rectified document sideloaded through `amended_ticket` on `book_entries` or
+        `amended_simplified_invoice` on `simplified_invoices`.
       properties:
         id:
           type: string

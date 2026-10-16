@@ -2961,9 +2961,10 @@ components:
       schema:
         type: string
       description: >
-        Filter income documents by `operation_date`. Accepts a year (`2024`), a quarter
-        (`2024-Q1`), a month (`2024-3`) or `all`. For an explicit range, send
-        `filter[operation_date][from]` and `filter[operation_date][to]` instead.
+        Filter income documents by `operation_date`. Accepts a whole year (`2024` or, equivalently,
+        `2024-all`), a quarter (`2024-Q1`), a month (`2024-3`, without a leading zero) or `all`
+        (any date, i.e. no restriction). For an explicit range, send `filter[operation_date][from]`
+        and `filter[operation_date][to]` instead.
         Documents without an operation date are matched by their `issue_date`, and drafts that
         have no `issue_date` yet are always included, as are additional incomes (operation date does
         not apply to them). Only applied together with `filter[kind]=income`; ignored otherwise.
@@ -4117,7 +4118,7 @@ components:
                   format: date
                   description: >
                     Date on which the operation took place (delivery of goods or provision of
-                    services), which can be earlier than `issue_date`. Falls back to `issue_date` when
+                    services). It is always on or before `issue_date`. Falls back to `issue_date` when
                     no operation date has been set, so it is only `null` on drafts that have no
                     `issue_date` yet.
                     Only present on income invoices and income simplified invoices (omitted for
@@ -4182,7 +4183,7 @@ components:
               format: date
               description: >
                 Date on which the operation took place (delivery of goods or provision of
-                services), which can be earlier than `issue_date`. Falls back to `issue_date` when
+                services). It is always on or before `issue_date`. Falls back to `issue_date` when
                 no operation date has been set, so it is only `null` on drafts that have no
                 `issue_date` yet.
                 Only present on income tickets (omitted for expense tickets and additional incomes).
@@ -4266,7 +4267,7 @@ components:
               format: date
               description: >
                 Date on which the operation took place (delivery of goods or provision of
-                services), which can be earlier than `issue_date`. Falls back to `issue_date` when
+                services). It is always on or before `issue_date`. Falls back to `issue_date` when
                 no operation date has been set, so it is only `null` on drafts that have no
                 `issue_date` yet.
                 Only present when `kind` is `income` (omitted for expenses).
@@ -4377,11 +4378,11 @@ components:
               type: [string, "null"]
               format: date
               description: >
-                Date on which the operation took place (delivery of goods or provision of services),
-                when it differs from `issue_date`. Optional: on creation it defaults to `issue_date` when
+                Date on which the operation took place (delivery of goods or provision of services).
+                It must be on or before `issue_date`. Optional: on creation it defaults to `issue_date` when
                 not sent (drafts without `issue_date` get it once they are dated), and sending `null`
                 resets it to `issue_date`. On update, leaving it out keeps the current value, even if
-                `issue_date` changes. Cannot be later than `issue_date` (422 otherwise). Only applicable
+                `issue_date` changes. A date later than `issue_date` returns 422. Only applicable
                 when `kind` is `income` (ignored for expenses). Unlike `issue_date`, it can still be
                 changed once the invoice is finalized, and it is silently ignored once it has been
                 sent to AEAT. Changing it returns 422 once the invoice has been exported to
@@ -4543,7 +4544,7 @@ components:
               format: date
               description: >
                 Date on which the operation took place (delivery of goods or provision of
-                services), which can be earlier than `issue_date`. Falls back to `issue_date` when
+                services). It is always on or before `issue_date`. Falls back to `issue_date` when
                 no operation date has been set, so it is only `null` on drafts that have no
                 `issue_date` yet.
                 Only present when `kind` is `income` (omitted for expenses and additional incomes).
@@ -4638,11 +4639,11 @@ components:
               type: [string, "null"]
               format: date
               description: >
-                Date on which the operation took place (delivery of goods or provision of services),
-                when it differs from `issue_date`. Optional: on creation it defaults to `issue_date` when
+                Date on which the operation took place (delivery of goods or provision of services).
+                It must be on or before `issue_date`. Optional: on creation it defaults to `issue_date` when
                 not sent (drafts without `issue_date` get it once they are dated), and sending `null`
                 resets it to `issue_date`. On update, leaving it out keeps the current value, even if
-                `issue_date` changes. Cannot be later than `issue_date` (422 otherwise). Only applicable
+                `issue_date` changes. A date later than `issue_date` returns 422. Only applicable
                 when `kind` is `income` (ignored for expenses). Unlike `issue_date`, it can still be
                 changed once the simplified invoice is finalized, and it is silently ignored once it has been
                 sent to AEAT. Changing it returns 422 once the simplified invoice has been exported to

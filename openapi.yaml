@@ -619,6 +619,8 @@ paths:
             type: string
           description: Filter by period (e.g. "2024Q1", "2024-01")
         - $ref: "#/components/parameters/FilterOperationDate"
+        - $ref: "#/components/parameters/FilterOperationDateFrom"
+        - $ref: "#/components/parameters/FilterOperationDateTo"
         - name: filter[payment_status]
           in: query
           schema:
@@ -742,6 +744,8 @@ paths:
             type: string
           description: "Filter by period (e.g. \"2024Q1\", \"2024-01\")"
         - $ref: "#/components/parameters/FilterOperationDate"
+        - $ref: "#/components/parameters/FilterOperationDateFrom"
+        - $ref: "#/components/parameters/FilterOperationDateTo"
         - name: filter[payment_status]
           in: query
           schema:
@@ -1117,7 +1121,15 @@ paths:
         - $ref: "#/components/parameters/PageNumber"
         - $ref: "#/components/parameters/PageSize"
         - $ref: "#/components/parameters/IncludeSimplifiedInvoice"
+        - name: filter[kind]
+          in: query
+          schema:
+            type: string
+            enum: [expenses, income]
+          description: Filter by kind (expenses or income)
         - $ref: "#/components/parameters/FilterOperationDate"
+        - $ref: "#/components/parameters/FilterOperationDateFrom"
+        - $ref: "#/components/parameters/FilterOperationDateTo"
         - name: filter[economic_activity_id]
           in: query
           x-internal: true
@@ -2950,11 +2962,29 @@ components:
         type: string
       description: >
         Filter income documents by `operation_date`. Accepts a year (`2024`), a quarter
-        (`2024-Q1`), a month (`2024-3`) or `all`, or an explicit range sent as
-        `filter[operation_date][from]` and `filter[operation_date][to]` (`YYYY-MM-DD`).
+        (`2024-Q1`), a month (`2024-3`) or `all`. For an explicit range, send
+        `filter[operation_date][from]` and `filter[operation_date][to]` instead.
         Documents without an operation date are matched by their `issue_date`, and drafts that
         have no `issue_date` yet are always included, as are additional incomes (operation date does
         not apply to them). Only applied together with `filter[kind]=income`; ignored otherwise.
+    FilterOperationDateFrom:
+      name: filter[operation_date][from]
+      in: query
+      schema:
+        type: string
+        format: date
+      description: >
+        Start of an explicit `operation_date` range (inclusive). Must be sent together with
+        `filter[operation_date][to]`; follows the same rules as `filter[operation_date]`.
+    FilterOperationDateTo:
+      name: filter[operation_date][to]
+      in: query
+      schema:
+        type: string
+        format: date
+      description: >
+        End of an explicit `operation_date` range (inclusive). Must be sent together with
+        `filter[operation_date][from]`; follows the same rules as `filter[operation_date]`.
     IncludeBookEntry:
       name: include
       in: query
@@ -4083,9 +4113,8 @@ components:
             - type: object
               properties:
                 operation_date:
-                  type: string
+                  type: [string, "null"]
                   format: date
-                  nullable: true
                   description: >
                     Date on which the operation took place (delivery of goods or provision of
                     services), which can be earlier than `issue_date`. Falls back to `issue_date` when
@@ -4149,9 +4178,8 @@ components:
               type: string
               nullable: true
             operation_date:
-              type: string
+              type: [string, "null"]
               format: date
-              nullable: true
               description: >
                 Date on which the operation took place (delivery of goods or provision of
                 services), which can be earlier than `issue_date`. Falls back to `issue_date` when
@@ -4234,9 +4262,8 @@ components:
               type: string
               nullable: true
             operation_date:
-              type: string
+              type: [string, "null"]
               format: date
-              nullable: true
               description: >
                 Date on which the operation took place (delivery of goods or provision of
                 services), which can be earlier than `issue_date`. Falls back to `issue_date` when
@@ -4347,9 +4374,8 @@ components:
               format: date
               description: Issue date (REQUIRED)
             operation_date:
-              type: string
+              type: [string, "null"]
               format: date
-              nullable: true
               description: >
                 Date on which the operation took place (delivery of goods or provision of services),
                 when it differs from `issue_date`. Optional: on creation it defaults to `issue_date` when
@@ -4513,9 +4539,8 @@ components:
               type: string
               nullable: true
             operation_date:
-              type: string
+              type: [string, "null"]
               format: date
-              nullable: true
               description: >
                 Date on which the operation took place (delivery of goods or provision of
                 services), which can be earlier than `issue_date`. Falls back to `issue_date` when
@@ -4610,9 +4635,8 @@ components:
               type: string
               format: date
             operation_date:
-              type: string
+              type: [string, "null"]
               format: date
-              nullable: true
               description: >
                 Date on which the operation took place (delivery of goods or provision of services),
                 when it differs from `issue_date`. Optional: on creation it defaults to `issue_date` when

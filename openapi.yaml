@@ -618,6 +618,9 @@ paths:
           schema:
             type: string
           description: Filter by period (e.g. "2024Q1", "2024-01")
+        - $ref: "#/components/parameters/FilterOperationDate"
+        - $ref: "#/components/parameters/FilterOperationDateFrom"
+        - $ref: "#/components/parameters/FilterOperationDateTo"
         - name: filter[payment_status]
           in: query
           schema:
@@ -740,6 +743,9 @@ paths:
           schema:
             type: string
           description: "Filter by period (e.g. \"2024Q1\", \"2024-01\")"
+        - $ref: "#/components/parameters/FilterOperationDate"
+        - $ref: "#/components/parameters/FilterOperationDateFrom"
+        - $ref: "#/components/parameters/FilterOperationDateTo"
         - name: filter[payment_status]
           in: query
           schema:
@@ -846,6 +852,7 @@ paths:
                 attributes:
                   kind: income
                   issue_date: "2024-03-15"
+                  operation_date: "2024-03-10"
                   paid_at: "2024-03-20"
                   payment_method: bank_transfer
                   tags: "consulting"
@@ -932,6 +939,7 @@ paths:
                       attributes:
                         number: "F-2024-001"
                         issue_date: "2024-03-15"
+                        operation_date: "2024-03-10"
                         total_amount: "1815.00"
                         tags: ""
                       relationships:
@@ -977,7 +985,7 @@ paths:
         `accounting_subcategory` unless `accounting_subcategory` is sent in the same request. Blocked
         documents only accept the `payment_method`, `notes` and `tags` attributes. Once an income document is
         finalized (`stage` `final` or later), `issue_date`, `items` and `contact` are silently ignored (the response
-        is still 200), and once it has been sent to AEAT, `numeration` is ignored too.
+        is still 200), and once it has been sent to AEAT, `numeration` and `operation_date` are ignored too.
       tags: [Invoices]
       parameters:
         - $ref: "#/components/parameters/OwnerSlug"
@@ -1113,6 +1121,15 @@ paths:
         - $ref: "#/components/parameters/PageNumber"
         - $ref: "#/components/parameters/PageSize"
         - $ref: "#/components/parameters/IncludeSimplifiedInvoice"
+        - name: filter[kind]
+          in: query
+          schema:
+            type: string
+            enum: [expenses, income]
+          description: Filter by kind (expenses or income)
+        - $ref: "#/components/parameters/FilterOperationDate"
+        - $ref: "#/components/parameters/FilterOperationDateFrom"
+        - $ref: "#/components/parameters/FilterOperationDateTo"
         - name: filter[economic_activity_id]
           in: query
           x-internal: true
@@ -1259,7 +1276,7 @@ paths:
         `accounting_subcategory` unless `accounting_subcategory` is sent in the same request. Blocked
         documents only accept the `payment_method`, `notes` and `tags` attributes. Once an income document is
         finalized (`stage` `final` or later), `issue_date`, `items` and `contact` are silently ignored (the response
-        is still 200), and once it has been sent to AEAT, `numeration` is ignored too.
+        is still 200), and once it has been sent to AEAT, `numeration` and `operation_date` are ignored too.
       tags: [Simplified Invoices]
       parameters:
         - $ref: "#/components/parameters/OwnerSlug"
@@ -2938,6 +2955,37 @@ components:
         maximum: 100
         default: 25
       description: Number of results per page
+    FilterOperationDate:
+      name: filter[operation_date]
+      in: query
+      schema:
+        type: string
+      description: >
+        Filter income documents by `operation_date`. Accepts a whole year (`2024` or, equivalently,
+        `2024-all`), a quarter (`2024-Q1`), a month (`2024-3`, without a leading zero) or `all`
+        (any date, i.e. no restriction). For an explicit range, send `filter[operation_date][from]`
+        and `filter[operation_date][to]` instead.
+        Documents without an operation date are matched by their `issue_date`, and drafts that
+        have no `issue_date` yet are always included, as are additional incomes (operation date does
+        not apply to them). Only applied together with `filter[kind]=income`; ignored otherwise.
+    FilterOperationDateFrom:
+      name: filter[operation_date][from]
+      in: query
+      schema:
+        type: string
+        format: date
+      description: >
+        Start of an explicit `operation_date` range (inclusive). Must be sent together with
+        `filter[operation_date][to]`; follows the same rules as `filter[operation_date]`.
+    FilterOperationDateTo:
+      name: filter[operation_date][to]
+      in: query
+      schema:
+        type: string
+        format: date
+      description: >
+        End of an explicit `operation_date` range (inclusive). Must be sent together with
+        `filter[operation_date][from]`; follows the same rules as `filter[operation_date]`.
     IncludeBookEntry:
       name: include
       in: query
@@ -4061,7 +4109,20 @@ components:
           type: string
           description: The specific type (invoices, tickets, simplified_invoices, additional_incomes, paysheets)
         attributes:
-          $ref: "#/components/schemas/BookEntryAttributes"
+          allOf:
+            - $ref: "#/components/schemas/BookEntryAttributes"
+            - type: object
+              properties:
+                operation_date:
+                  type: [string, "null"]
+                  format: date
+                  description: >
+                    Date on which the operation took place (delivery of goods or provision of
+                    services). It is always on or before `issue_date`. Falls back to `issue_date` when
+                    no operation date has been set, so it is only `null` on drafts that have no
+                    `issue_date` yet.
+                    Only present on income invoices and income simplified invoices (omitted for
+                    expenses, additional incomes and paysheets).
         relationships:
           type: object
           properties:
@@ -4117,6 +4178,15 @@ components:
             notes:
               type: string
               nullable: true
+            operation_date:
+              type: [string, "null"]
+              format: date
+              description: >
+                Date on which the operation took place (delivery of goods or provision of
+                services). It is always on or before `issue_date`. Falls back to `issue_date` when
+                no operation date has been set, so it is only `null` on drafts that have no
+                `issue_date` yet.
+                Only present on income tickets (omitted for expense tickets and additional incomes).
             download_pdf_url:
               type: string
               format: uri
@@ -4192,6 +4262,15 @@ components:
             notes:
               type: string
               nullable: true
+            operation_date:
+              type: [string, "null"]
+              format: date
+              description: >
+                Date on which the operation took place (delivery of goods or provision of
+                services). It is always on or before `issue_date`. Falls back to `issue_date` when
+                no operation date has been set, so it is only `null` on drafts that have no
+                `issue_date` yet.
+                Only present when `kind` is `income` (omitted for expenses).
             stage:
               type: string
               enum: [noop, draft, final, sent_aeat, approved_with_errors_aeat, approved_aeat, rejected_aeat]
@@ -4295,6 +4374,25 @@ components:
               type: string
               format: date
               description: Issue date (REQUIRED)
+            operation_date:
+              type: [string, "null"]
+              format: date
+              description: >
+                Date on which the operation took place (delivery of goods or provision of services).
+                It must be on or before `issue_date`. Optional: on creation it defaults to `issue_date` when
+                not sent (drafts without `issue_date` get it once they are dated), and sending `null`
+                resets it to `issue_date`. On update, leaving it out keeps the current value, even if
+                `issue_date` changes. A date later than `issue_date` returns 422. Only applicable
+                when `kind` is `income` (ignored for expenses). Unlike `issue_date`, it can still be
+                changed once the invoice is finalized, and it is silently ignored once it has been
+                sent to AEAT. Changing it returns 422 once the invoice has been exported to
+                accounting, included in a submitted tax model or locked by the bookkeeper (for users
+                other than the bookkeeper managing the account, locked documents ignore it — see
+                the update endpoint). Credit notes take the operation date of the rectified
+                invoice unless one is sent.
+                For an invoice to an intracommunity contact (EU, outside Spain) it is required:
+                omitting it or sending `null` returns 422, unless the account is managed by the API
+                user or belongs to a bookkeeper.
             number:
               type: string
               nullable: true
@@ -4444,6 +4542,15 @@ components:
             notes:
               type: string
               nullable: true
+            operation_date:
+              type: [string, "null"]
+              format: date
+              description: >
+                Date on which the operation took place (delivery of goods or provision of
+                services). It is always on or before `issue_date`. Falls back to `issue_date` when
+                no operation date has been set, so it is only `null` on drafts that have no
+                `issue_date` yet.
+                Only present when `kind` is `income` (omitted for expenses and additional incomes).
             stage:
               type: string
               enum: [noop, draft, final, sent_aeat, approved_with_errors_aeat, approved_aeat, rejected_aeat]
@@ -4457,14 +4564,6 @@ components:
               type: string
               format: uri
               description: Only present when `kind` is `income` (omitted for expenses).
-            operation_date:
-              type: string
-              format: date
-              nullable: true
-              description: >
-                Accounting operation date (VAT chargeable event date), distinct from
-                `issue_date`. Only present on outbound (income) simplified invoices;
-                absent on inbound simplified invoices and additional incomes.
 
     SimplifiedInvoiceResource:
       type: object
@@ -4539,6 +4638,22 @@ components:
             issue_date:
               type: string
               format: date
+            operation_date:
+              type: [string, "null"]
+              format: date
+              description: >
+                Date on which the operation took place (delivery of goods or provision of services).
+                It must be on or before `issue_date`. Optional: on creation it defaults to `issue_date` when
+                not sent (drafts without `issue_date` get it once they are dated), and sending `null`
+                resets it to `issue_date`. On update, leaving it out keeps the current value, even if
+                `issue_date` changes. A date later than `issue_date` returns 422. Only applicable
+                when `kind` is `income` (ignored for expenses). Unlike `issue_date`, it can still be
+                changed once the simplified invoice is finalized, and it is silently ignored once it has been
+                sent to AEAT. Changing it returns 422 once the simplified invoice has been exported to
+                accounting, included in a submitted tax model or locked by the bookkeeper (for users
+                other than the bookkeeper managing the account, locked documents ignore it — see
+                the update endpoint). Credit notes take the operation date of the rectified
+                simplified invoice unless one is sent.
             number:
               type: string
               nullable: true

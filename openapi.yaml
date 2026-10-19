@@ -3872,9 +3872,25 @@ components:
           type: string
           nullable: true
           description: >
-            Accounting ledger code for the counterpart contact on this document (client account for
-            outbound documents, supplier account for inbound). Null when the document has no contact.
-            (Aplifisa integration only.)
+            Income (outbound) or expense (inbound) ledger code configured on the document's contact.
+            Null when the document has no contact. For the supplier/client account the document is
+            settled against, use `third_party_account_code`. (Aplifisa integration only.)
+        third_party_account_code:
+          x-internal: true
+          type: string
+          description: >
+            Supplier (inbound) or client (outbound) account the document is settled against. It is the
+            contact's account when it can be resolved. Otherwise (no contact, a contact with no
+            supplier/client number yet, or an additional income) it is a generic account made of the
+            usual prefix (the category's counterpart prefix, or 410 / 430 / 440 for associations)
+            filled with 9s up to the owner's accounting digits, e.g. `41099999`. Not present on
+            paysheets. (Aplifisa integration only.)
+        generic_third_party_account:
+          x-internal: true
+          type: boolean
+          description: >
+            True when `third_party_account_code` is the generic account rather than a contact's own
+            account. Not present on paysheets. (Aplifisa integration only.)
         account_breakdown:
           x-internal: true
           type: object
@@ -5289,6 +5305,10 @@ components:
             book_entry_counterpart_accounting_number:
               type: string
               nullable: true
+              description: >
+                Account the settled document is booked against: the same value as the document's
+                `third_party_account_code` (including the generic 9s account), or the employee account
+                for paysheets.
 
     MoneyAccountResource:
       x-internal: true

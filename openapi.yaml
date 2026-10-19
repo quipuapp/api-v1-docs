@@ -4390,6 +4390,9 @@ components:
                 other than the bookkeeper managing the account, locked documents ignore it — see
                 the update endpoint). Credit notes take the operation date of the rectified
                 invoice unless one is sent.
+                For an invoice to an intracommunity contact (EU, outside Spain) it is required:
+                omitting it or sending `null` returns 422, unless the account is managed by the API
+                user or belongs to a bookkeeper.
             number:
               type: string
               nullable: true

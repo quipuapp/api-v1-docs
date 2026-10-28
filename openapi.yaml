@@ -3956,10 +3956,12 @@ components:
           description: >
             Supplier (inbound) or client (outbound) account the document is settled against. It is the
             contact's account when it can be resolved. Otherwise (no contact, a contact with no
-            supplier/client number yet, or an additional income) it is a generic account made of the
-            usual prefix (the category's counterpart prefix, or 410 / 430 / 440 for associations)
-            filled with 9s up to the owner's accounting digits, e.g. `41099999`. Not present on
-            paysheets. (Aplifisa integration only.)
+            supplier/client number yet, or an additional income) it is a generic account: the one the
+            owner set in Settings > Accounting accounts (the supplier one for 400/410 prefixes, the
+            client one for 430/440), or, when none is set, the usual prefix (the category's
+            counterpart prefix, or 410 / 430 / 440 for associations) filled with 9s up to the
+            owner's accounting digits, e.g. `41099999`. Not present on paysheets. (Aplifisa
+            integration only.)
         generic_third_party_account:
           x-internal: true
           type: boolean
@@ -5457,7 +5459,7 @@ components:
               nullable: true
               description: >
                 Account the settled document is booked against: the same value as the document's
-                `third_party_account_code` (including the generic 9s account), or the employee account
+                `third_party_account_code` (including the generic account), or the employee account
                 for paysheets.
 
     MoneyAccountResource:

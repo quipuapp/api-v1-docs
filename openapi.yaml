@@ -73,7 +73,18 @@ tags:
     description: |
       Clients and suppliers.
 
-      `name` and `country_code` are required for every contact.
+      `name` is required for every contact.
+
+      ## Country
+      When `country_code` is omitted on create (`POST /contacts` and `POST /contacts/bulk`), it is deduced:
+
+      - From the `tax_id` EU VAT prefix (e.g. `FR…` → `FR`, `EL…` → `GR`), or `ES` when the `tax_id` is a valid
+        Spanish NIF/CIF/NIE (with or without the `ES` prefix). Only when `document_type` is `NIF` or not set.
+      - Defaults to `ES` when no `tax_id` is sent, except for accounts under the OSS special regime.
+      - Otherwise the request is rejected with `country_code` "can't be blank".
+
+      A deduced `ES` country with an `ES`-prefixed Spanish `tax_id` (e.g. `ESB12345674`) is stored without the
+      prefix (`B12345674`). A `country_code` sent explicitly is never changed.
 
       ## Tax ID rules (all accounts)
       `tax_id` is normalized before validation: spaces and punctuation are removed and it is uppercased
@@ -82,7 +93,7 @@ tags:
       When the contact has both `tax_id` and `document_type` (the stored values are validated, so a PATCH that only
       changes `country_code` can also fail):
 
-      - Spanish contacts (`country_code: ES`) cannot use a `tax_id` starting with `ES`.
+      - Spanish contacts (`country_code: ES` sent explicitly) cannot use a `tax_id` starting with `ES`.
       - `none` (not registered) requires `country_code: ES` and a valid Spanish NIF/CIF/NIE.
 
       ## Verifactu accounts
@@ -511,7 +522,9 @@ paths:
                   description: >
                     `initial` always creates a new contact for each item, even when a contact
                     with the same tax_id already exists (no matching/upsert — safe to call
-                    exactly once per client during setup). `update` upserts by tax_id: updates the
+                    exactly once per client during setup). `update` upserts by tax_id (an `ES`-prefixed
+                    Spanish tax_id matches the stored unprefixed one; items without tax_id are always
+                    created): updates the
                     existing contact with that tax_id (the oldest one, if more than one somehow
                     shares it), or creates it if none exists yet. On `update`, a field already set
                     on the existing contact is left untouched — only blank fields are filled in.
@@ -3695,10 +3708,10 @@ components:
       properties:
         attributes:
           type: object
-          required: [tax_id]
           description: >
             Same fields as `ContactWritable.attributes` (see `POST /contacts`), plus the five
-            accounting-number sync fields below. `tax_id` is required for every item.
+            accounting-number sync fields below. `tax_id` is optional: an item without it always creates
+            a new contact (on `update` too). `country_code` is deduced when omitted (see the Contacts tag).
           properties:
             name:
               type: string

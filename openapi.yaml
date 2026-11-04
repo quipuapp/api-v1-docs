@@ -3355,6 +3355,22 @@ components:
         concept:
           type: string
           description: Name / description of the line item
+          x-internal-description: |
+            Name / description of the line item.
+
+            Aplifisa integration only: on expense documents, when the line's account has an
+            AEAT expense concept (IRPF expense book), the concept is prefixed with that code as
+            `<code> - <concept>` (only `<code>` when the concept is blank). The code comes from
+            the sub-account suffix:
+
+            | Account | AEAT code |
+            | --- | --- |
+            | 628.14 / 628.15 / 628.16 / 628.17 / 628.18 | G14 / G15 / G16 / G17 / G18 |
+            | 628 without sub-account or any other suffix | GX4 |
+
+            Example: sub-account 628.14 (`counterpart_account_code` `62800014`) and concept
+            `Luz enero` → `G14 - Luz enero`. Any other account, income documents and lines
+            without an account keep the concept unchanged. The stored concept is never modified.
         unitary_amount:
           type: string
           description: Unit price as decimal string

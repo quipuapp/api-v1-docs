@@ -3355,6 +3355,48 @@ components:
         concept:
           type: string
           description: Name / description of the line item
+          x-internal-description: |
+            Name / description of the line item.
+
+            Aplifisa integration only: on expense documents, when the line's account has an
+            AEAT expense concept (IRPF expense book), the concept is prefixed with that code as
+            `<code> - <concept>` (only `<code>` when the concept is blank). Any AEAT code already
+            at the start of the concept (`G14 - Luz` written back by an integrator) is replaced by
+            the current one, never repeated. The code comes from the line's account (Spanish
+            standard chart of accounts only). A sub-account whose suffix is a
+            detailed code of its account (suffix = code number) gets that detailed code; any other
+            sub-account gets the account's code.
+
+            | Account | AEAT code | Detailed codes by sub-account |
+            | --- | --- | --- |
+            | 600, 601 | G01 | |
+            | 602 | G03 | |
+            | 610, 611, 612 | G02 | |
+            | 620, 624, 627, 629 | G22 | 629.44 → G44 |
+            | 621 | G12 | |
+            | 622 | G13 | |
+            | 623 | G19 | 623.40 / .41 / .42 → G40 / G41 / G42 |
+            | 625 | G20 | |
+            | 626, 669 | G24 | |
+            | 628 | GX4 | 628.14 / .15 / .16 / .17 / .18 → G14 / G15 / G16 / G17 / G18 |
+            | 631 | G26 | |
+            | 640 | G04 | |
+            | 641 | G07 | |
+            | 642 | G05 | 642.45 / .46 → G45 / G46 |
+            | 643, 644 | G09 | |
+            | 649 | G10 | |
+            | 650 | G34 | |
+            | 659 | G37 | |
+            | 661, 662 | G23 | |
+            | 680 | G38 | |
+            | 681 | GY8 | 681.27 … 681.33 → G27 … G33 |
+            | 682 | G27 | |
+            | 694 | G43 | |
+            | 695 | G39 | |
+
+            Example: sub-account 628.14 (`counterpart_account_code` `62800014`) and concept
+            `Luz enero` → `G14 - Luz enero`. Accounts not listed, income documents and lines
+            without an account keep the concept unchanged. The stored concept is never modified.
         unitary_amount:
           type: string
           description: Unit price as decimal string

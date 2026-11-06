@@ -3360,8 +3360,10 @@ components:
 
             Aplifisa integration only: on expense documents, when the line's account has an
             AEAT expense concept (IRPF expense book), the concept is prefixed with that code as
-            `<code> - <concept>` (only `<code>` when the concept is blank). The code comes from
-            the line's account (standard chart of accounts only). A sub-account whose suffix is a
+            `<code> - <concept>` (only `<code>` when the concept is blank). Any AEAT code already
+            at the start of the concept (`G14 - Luz` written back by an integrator) is replaced by
+            the current one, never repeated. The code comes from the line's account (Spanish
+            standard chart of accounts only). A sub-account whose suffix is a
             detailed code of its account (suffix = code number) gets that detailed code; any other
             sub-account gets the account's code.
 

@@ -3370,7 +3370,7 @@ components:
             | Account | AEAT code | Detailed codes by sub-account |
             | --- | --- | --- |
             | 600, 601 | G01 | |
-            | 602 | G03 | |
+            | 602, 607 | G03 | |
             | 610, 611, 612 | G02 | |
             | 620, 624, 627, 629 | G22 | 629.44 → G44 |
             | 621 | G12 | |

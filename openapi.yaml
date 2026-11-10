@@ -3362,10 +3362,12 @@ components:
             AEAT expense concept (IRPF expense book), the concept is prefixed with that code as
             `<code> - <concept>` (only `<code>` when the concept is blank). Any AEAT code already
             at the start of the concept (`G14 - Luz` written back by an integrator) is replaced by
-            the current one, never repeated. The code comes from the line's account (Spanish
-            standard chart of accounts only). A sub-account whose suffix is a
-            detailed code of its account (suffix = code number) gets that detailed code; any other
-            sub-account gets the account's code.
+            the current one, never repeated, and removed when the line has no code. The code comes
+            from the line's account (Spanish standard chart of accounts only). A sub-account whose
+            suffix is a detailed code of its account (suffix = code number) gets that detailed
+            code; any other sub-account gets the account's code. 628 and 681 have no account code
+            (Gestión Fiscal does not accept generic codes such as GY4 on a line), so they are only
+            coded through a detailed sub-account.
 
             | Account | AEAT code | Detailed codes by sub-account |
             | --- | --- | --- |
@@ -3378,7 +3380,7 @@ components:
             | 623 | G19 | 623.40 / .41 / .42 → G40 / G41 / G42 |
             | 625 | G20 | |
             | 626, 669 | G24 | |
-            | 628 | GX4 | 628.14 / .15 / .16 / .17 / .18 → G14 / G15 / G16 / G17 / G18 |
+            | 628 | — | 628.14 / .15 / .16 / .17 / .18 → G14 / G15 / G16 / G17 / G18 |
             | 631 | G26 | |
             | 640 | G04 | |
             | 641 | G07 | |
@@ -3389,7 +3391,7 @@ components:
             | 659 | G37 | |
             | 661, 662 | G23 | |
             | 680 | G38 | |
-            | 681 | GY8 | 681.27 … 681.33 → G27 … G33 |
+            | 681 | — | 681.27 … 681.33 → G27 … G33 |
             | 682 | G27 | |
             | 694 | G43 | |
             | 695 | G39 | |

@@ -4030,14 +4030,17 @@ components:
           type: object
           nullable: true
           description: >
-            Document total broken down by accounting account code, mirroring the account selection used
-            for A3/Sage export (asset reclassification, non-deductible expense routing, disbursement
-            accounts included). Always `null` for paysheets — breakdowns are only computed for invoices,
+            Document amounts before taxes broken down by accounting account code, mirroring the account
+            selection used for A3/Sage export (asset reclassification, non-deductible expense routing,
+            disbursement accounts included). Amounts never include taxes, which are sent in
+            `vat_breakdown`: for an expense invoice whose supplier is in another tax zone (e.g. Canary
+            Islands / mainland Spain, Ceuta and Melilla, or abroad), the tax is not added to the expense
+            account either. Always `null` for paysheets — breakdowns are only computed for invoices,
             tickets, simplified invoices and additional incomes. (Aplifisa integration only.)
           properties:
             base:
               type: object
-              description: Map of accounting account code (string) to its booked amount and account/subaccount name.
+              description: Map of accounting account code (string) to its amount before taxes and account/subaccount name.
               additionalProperties:
                 type: object
                 properties:

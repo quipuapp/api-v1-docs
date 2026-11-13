@@ -2447,9 +2447,13 @@ paths:
                   enum: [initial, update]
                   description: >
                     `initial` creates a subcategory for each item and overwrites the `description`
-                    of one that already exists at that `account` code. `update` only creates
-                    subcategories that don't exist yet — an item whose `account` already exists is
-                    left untouched and reported as `skipped`.
+                    of one that already exists at that `account` code, except for the sub-accounts
+                    reserved for a detailed AEAT expense code (628.14–.18, 623.40–.42, 629.44,
+                    642.45–.46, 681.27–.33; see `concept` on the line items): Quipu creates those for
+                    every client, so an item for one that already exists is left untouched and
+                    reported as `error`. `update` only creates subcategories that don't exist yet —
+                    an item whose `account` already exists is left untouched and reported as
+                    `skipped`.
                 data:
                   type: array
                   maxItems: 500
@@ -3399,6 +3403,10 @@ components:
             Example: sub-account 628.14 (`counterpart_account_code` `62800014`) and concept
             `Luz enero` → `G14 - Luz enero`. Accounts not listed, income documents and lines
             without an account keep the concept unchanged. The stored concept is never modified.
+
+            Quipu creates every detailed sub-account of the table (named after its code, e.g.
+            `Suministro eléctrico (G14)`) for each client when it joins an Aplifisa bookkeeper,
+            leaving any sub-account already using that number untouched.
         unitary_amount:
           type: string
           description: Unit price as decimal string

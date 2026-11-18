@@ -5508,6 +5508,11 @@ components:
             book_entry_number:
               type: string
               nullable: true
+              description: >
+                Number of the settled document, the same value as its `number` attribute: the
+                supplier's invoice number for expense invoices and tickets, and the Quipu number for
+                income documents and paysheets. Expenses without a supplier's invoice number fall
+                back to the Quipu number.
             money_account_accounting_number:
               type: string
               nullable: true

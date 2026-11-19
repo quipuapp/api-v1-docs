@@ -5508,6 +5508,14 @@ components:
             book_entry_number:
               type: string
               nullable: true
+              description: Quipu's internal number of the settled document.
+            book_entry_document_number:
+              type: string
+              nullable: true
+              description: >
+                Number of the settled document, the same value as its `number` attribute: the
+                supplier's invoice number for expense invoices and tickets (null when it is not
+                set), and the Quipu number for income documents and paysheets.
             money_account_accounting_number:
               type: string
               nullable: true

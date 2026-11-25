@@ -660,6 +660,7 @@ paths:
           schema:
             type: string
           description: Search term for field-level query filter
+        - $ref: "#/components/parameters/FilterTagId"
         - name: filter[economic_activity_id]
           in: query
           x-internal: true
@@ -785,6 +786,7 @@ paths:
           schema:
             type: string
           description: Search term for field-level query filter
+        - $ref: "#/components/parameters/FilterTagId"
         - name: filter[economic_activity_id]
           in: query
           x-internal: true
@@ -1143,6 +1145,7 @@ paths:
         - $ref: "#/components/parameters/FilterOperationDate"
         - $ref: "#/components/parameters/FilterOperationDateFrom"
         - $ref: "#/components/parameters/FilterOperationDateTo"
+        - $ref: "#/components/parameters/FilterTagId"
         - name: filter[economic_activity_id]
           in: query
           x-internal: true
@@ -1426,6 +1429,7 @@ paths:
         - $ref: "#/components/parameters/PageNumber"
         - $ref: "#/components/parameters/PageSize"
         - $ref: "#/components/parameters/IncludeAdditionalIncome"
+        - $ref: "#/components/parameters/FilterTagId"
         - name: filter[economic_activity_id]
           in: query
           x-internal: true
@@ -1705,6 +1709,7 @@ paths:
         - $ref: "#/components/parameters/PageNumber"
         - $ref: "#/components/parameters/PageSize"
         - $ref: "#/components/parameters/IncludePaysheet"
+        - $ref: "#/components/parameters/FilterTagId"
         - name: filter[economic_activity_id]
           in: query
           x-internal: true
@@ -2995,6 +3000,17 @@ components:
         maximum: 100
         default: 25
       description: Number of results per page
+    FilterTagId:
+      name: filter[tag_id]
+      in: query
+      schema:
+        type: integer
+      description: >
+        Return only the documents that have the tag with this ID (exact match). The tag IDs of a
+        document are returned in its `tag_ids` attribute. To search by tag name instead, use
+        `filter[field_query][field]=label` (or `exact_label`) together with
+        `filter[field_query][term]`; note that name searches also match other tags that share a word
+        with the term.
     FilterOperationDate:
       name: filter[operation_date]
       in: query
@@ -3933,6 +3949,11 @@ components:
         tags:
           type: string
           description: Comma-separated list of tag names (e.g. "vip client,important").
+        tag_ids:
+          type: array
+          items:
+            type: integer
+          description: IDs of the tags of the document. Use them with `filter[tag_id]`.
         issuing_name:
           type: string
         issuing_tax_id:
@@ -4542,6 +4563,11 @@ components:
             tags:
               type: string
               description: Comma-separated list of tag names (e.g. "vip client,important").
+            tag_ids:
+              type: array
+              items:
+                type: integer
+              description: IDs of the tags of the document. Use them with `filter[tag_id]`.
             notes:
               type: string
             last_sent_at:
@@ -4796,6 +4822,11 @@ components:
             tags:
               type: string
               description: Comma-separated list of tag names (e.g. "vip client,important").
+            tag_ids:
+              type: array
+              items:
+                type: integer
+              description: IDs of the tags of the document. Use them with `filter[tag_id]`.
             notes:
               type: string
             recipient_name:
@@ -4974,6 +5005,11 @@ components:
             tags:
               type: string
               description: Comma-separated list of tag names (e.g. "vip client,important").
+            tag_ids:
+              type: array
+              items:
+                type: integer
+              description: IDs of the tags of the document. Use them with `filter[tag_id]`.
             notes:
               type: string
             recipient_name:
@@ -5124,6 +5160,11 @@ components:
             tags:
               type: string
               description: Comma-separated list of tag names (e.g. "vip client,important").
+            tag_ids:
+              type: array
+              items:
+                type: integer
+              description: IDs of the tags of the document. Use them with `filter[tag_id]`.
             net_pay:
               type: number
               description: Net pay amount

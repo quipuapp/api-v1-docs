@@ -3399,6 +3399,13 @@ components:
             Example: sub-account 628.14 (`counterpart_account_code` `62800014`) and concept
             `Luz enero` → `G14 - Luz enero`. Accounts not listed, income documents and lines
             without an account keep the concept unchanged. The stored concept is never modified.
+
+            Quipu does not create the detailed sub-accounts of the table on its own. For a Spanish
+            client on the standard chart of accounts (associations excluded) of an Aplifisa
+            bookkeeper, a user who can manage the client's accounting accounts creates them from
+            Settings › Accounting accounts › Create accounting subaccounts. Each one is named after
+            its code in the client's language (e.g. `Suministro eléctrico (G14)`), and a sub-account
+            already using one of those numbers is left untouched.
         unitary_amount:
           type: string
           description: Unit price as decimal string
